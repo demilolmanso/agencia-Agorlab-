@@ -1,0 +1,400 @@
+html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGORLAB — El fin del alquiler</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><path d='M18 78 L43 23 H67 L57 44.5 L55.5 48 M45 68 L56 68 L59.5 78 H36 Z M44 58 L55.5 58 L50 42 Z M58.5 78 L65.5 63 L72 49 L83 78 Z' fill='white'/></svg>">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --muted-color: #aaaaaa;
+            --border-color: rgba(255, 255, 255, 0.2);
+            --glow-white: rgba(255, 255, 255, 0.7);
+            --glow-red: rgba(255, 0, 0, 0.5);
+            --glow-blue: rgba(0, 0, 255, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Space Mono', monospace;
+            overflow-x: hidden;
+            width: 100%;
+            min-height: 100dvh;
+            /* Prevención extrema de desbordamiento en móviles */
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            hyphens: auto;
+        }
+
+        /* Efecto de monitor CRT - Líneas de escaneo */
+        .crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100dvh;
+            z-index: 50;
+            pointer-events: none;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.95);
+        }
+
+        /* Viñeta curva de monitor antiguo */
+        .crt-vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100dvh;
+            z-index: 51;
+            pointer-events: none;
+            background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.9) 100%);
+        }
+
+        /* Aberración cromática brutalista */
+        .text-glow {
+            text-shadow: 0 0 3px var(--glow-white), 
+                         -2px 0 2px var(--glow-red), 
+                         2px 0 2px var(--glow-blue);
+        }
+
+        .flicker {
+            animation: subtleFlicker 0.15s infinite alternate;
+        }
+
+        @keyframes subtleFlicker {
+            0% { opacity: 0.95; }
+            100% { opacity: 1; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 5rem;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 4rem 3rem 6rem 3rem;
+                gap: 8rem;
+            }
+        }
+
+        /* Tipografía Fluida y Segura */
+        .fluid-h1 { font-size: clamp(2.5rem, 8vw, 6rem); line-height: 1.1; font-weight: 700; text-transform: uppercase; }
+        .fluid-countdown { font-size: clamp(2.5rem, 11vw, 8rem); line-height: 1; font-weight: 700; letter-spacing: -0.05em; text-align: center; }
+        .fluid-h2 { font-size: clamp(1.8rem, 5vw, 4rem); line-height: 1.2; font-weight: 700; }
+        .fluid-h3 { font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 700; }
+        .fluid-p { font-size: clamp(1rem, 2vw, 1.2rem); line-height: 1.6; }
+
+        /* Componentes */
+        .nav-bar {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+        }
+
+        .countdown-box {
+            border: 2px solid var(--text-color);
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        @media (min-width: 768px) {
+            .countdown-box { padding: 2rem; }
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: var(--muted-color);
+            font-weight: 700;
+            margin-top: 1rem;
+        }
+
+        .manifesto {
+            border-left: 4px solid var(--text-color);
+            padding-left: 1rem;
+            margin-top: 2rem;
+            color: #ccc;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .manifesto { padding-left: 2rem; }
+        }
+
+        .section-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--muted-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .grid-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .grid-item {
+            border: 2px solid var(--border-color);
+            padding: 1.5rem;
+            background-color: #050505;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .grid-item { padding: 2.5rem; }
+        }
+
+        .grid-item:hover {
+            border-color: var(--text-color);
+            background-color: #111;
+        }
+
+        .grid-item h3 span {
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        .grid-item p {
+            color: #ccc;
+            margin-top: 1rem;
+        }
+
+        .grid-item p strong {
+            color: var(--text-color);
+        }
+
+        .extra-box {
+            border: 2px dashed var(--text-color);
+            padding: 2rem;
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .extra-box { padding: 4rem; }
+        }
+
+        .cta-section {
+            border-top: 2px solid var(--border-color);
+            padding-top: 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            align-items: flex-start;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            padding: 1rem 1.5rem;
+            font-weight: 700;
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: 2px solid var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .btn-primary { padding: 1.5rem 2.5rem; }
+        }
+
+        .btn-primary:hover {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        footer {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--muted-color);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 2rem;
+            padding-bottom: 1rem;
+        }
+
+        /* Animaciones de revelado al scrollear */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="crt-overlay"></div>
+    <div class="crt-vignette"></div>
+
+    <main class="container flicker">
+        
+        <nav class="nav-bar text-glow reveal active">
+            AGORLAB
+        </nav>
+
+        <section class="reveal">
+            <div class="countdown-box">
+                <div id="countdown" class="fluid-countdown text-glow">00:00:00:00</div>
+            </div>
+            
+            <div style="margin-top: 3rem;">
+                <h1 class="fluid-h1 text-glow">EL FIN DEL ALQUILER.</h1>
+                <div class="hero-subtitle">(De software, no de departamentos. Aunque te duela igual).</div>
+                
+                <div class="manifesto fluid-p">
+                    <p>El software que usa tu empresa no tiene por qué estar limitado por parámetros ajenos. El que intermedia tus ventas no tiene por qué comerse tu plata. Tus herramientas no tienen por qué ser aburridas.</p>
+                    <p>Y lo peor: <strong>¿cuántas veces pensaste "qué bueno sería que esta app tuviera esta función" y chocaste contra una pared?</strong> Las plataformas masivas están hechas para todos, por ende, no están hechas para <em>tu</em> negocio.</p>
+                    <div class="text-glow" style="color: var(--text-color); font-weight: 700; font-size: 1.2em; margin-top: 1rem;">
+                        Tu empresa, tus reglas. Lo tuyo, ahora es tuyo posta.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-label reveal">// EL CATÁLOGO DE LA INDEPENDENCIA</div>
+            
+            <div class="grid-items">
+                <article class="grid-item reveal">
+                    <h3 class="fluid-h3" style="color: var(--muted-color);">
+                        <span class="text-glow">Meet, Zoom, Discord</span> vs.
+                    </h3>
+                    <p class="fluid-p"><strong>Tu propia plataforma</strong> de videollamadas y comunicación privada, adaptada exactamente a la estética y funciones que vos querés. <strong>Cero límites de terceros.</strong></p>
+                </article>
+
+                <article class="grid-item reveal">
+                    <h3 class="fluid-h3" style="color: var(--muted-color);">
+                        <span class="text-glow">PedidosYa, Rappi</span> vs.
+                    </h3>
+                    <p class="fluid-p"><strong>Tu propio sistema</strong> de delivery y pedidos directos para tu local. Dejá de regalarle hasta un <strong>30% de margen por cada plato que vendés.</strong></p>
+                </article>
+
+                <article class="grid-item reveal">
+                    <h3 class="fluid-h3" style="color: var(--muted-color);">
+                        <span class="text-glow">Venti, Passline</span> vs.
+                    </h3>
+                    <p class="fluid-p"><strong>Tu propia app</strong> de ticketing, venta de entradas y administración para tus eventos. <strong>Todo bajo tu control y sin retenciones usureras.</strong></p>
+                </article>
+
+                <article class="grid-item reveal">
+                    <h3 class="fluid-h3" style="color: var(--muted-color);">
+                        <span class="text-glow">Tienda Nube, Shopify</span> vs.
+                    </h3>
+                    <p class="fluid-p"><strong>Tu propio e-commerce</strong> propietario. Nada de plantillas alquiladas: <strong>el código es tuyo y la plata va directo a tu Mercado Pago.</strong></p>
+                </article>
+            </div>
+        </section>
+
+        <section class="extra-box reveal">
+            <h2 class="fluid-h2 text-glow" style="margin-bottom: 1.5rem;">Y MUCHO MÁS...</h2>
+            <div class="fluid-p" style="color: #ccc; max-width: 800px;">
+                <p style="margin-bottom: 1rem;">¿Tenés un proceso interno que hacés a mano porque ningún sistema lo hace como vos querés? ¿Se te ocurrió una plataforma disruptiva y querés el MVP ya en la calle?</p>
+                <p style="color: var(--text-color); font-weight: 700;">Si se puede imaginar y requiere lógica, lo programamos a medida desde cero.</p>
+            </div>
+        </section>
+
+        <section class="cta-section reveal">
+            <h2 class="fluid-h2 text-glow" style="max-width: 1000px;">Invertí una vez en tecnología real. Dejá de pagar micromensualidades que te desangran.</h2>
+            <a href="mailto:contacto@agorlab.com" class="btn-primary text-glow">Iniciar conversación</a>
+        </section>
+
+        <footer class="reveal">
+            agorlab.com
+        </footer>
+    </main>
+
+    <script>
+        // Lógica de Cuenta Regresiva
+        // Martes 13 de Octubre de 2026 a las 00:00:00
+        const targetDate = new Date("October 13, 2026 00:00:00").getTime();
+        const countdownEl = document.getElementById('countdown');
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance < 0) {
+                countdownEl.innerText = "00:00:00:00";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            const fDays = String(days).padStart(2, '0');
+            const fHours = String(hours).padStart(2, '0');
+            const fMinutes = String(minutes).padStart(2, '0');
+            const fSeconds = String(seconds).padStart(2, '0');
+
+            countdownEl.innerText = `${fDays}:${fHours}:${fMinutes}:${fSeconds}`;
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Ejecutar inmediato
+
+        // Lógica de Intersección para animaciones al scrollear (Reveal)
+        const revealElements = document.querySelectorAll('.reveal');
+
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target); // Solo animar una vez
+                }
+            });
+        }, {
+            root: null,
+            threshold: 0.1, // Se activa cuando el 10% del elemento es visible
+            rootMargin: "0px 0px -50px 0px"
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+    </script>
+</body>
+</html>

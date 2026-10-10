@@ -119,7 +119,7 @@
         }
 
         .nav-signature {
-            height: 1.5em; /* Se adapta al tamaño del texto del logo */
+            height: 1.5em;
             width: auto;
             filter: var(--crt-svg-glow);
         }
@@ -127,6 +127,7 @@
         .nav-meta {
             font-size: clamp(0.7rem, 2vw, 0.9rem);
             text-transform: uppercase;
+            text-align: right;
         }
 
         /* --- HERO & MANIFIESTO --- */
@@ -214,6 +215,7 @@
             border: 2px solid var(--border);
             padding: 30px 20px;
             transition: all 0.2s;
+            position: relative;
         }
 
         .editorial-item:hover {
@@ -250,6 +252,28 @@
             border: 1px solid var(--text);
             padding: 4px 8px;
             display: inline-block;
+        }
+
+        /* Botón interno de la tarjeta */
+        .niche-link {
+            display: inline-block;
+            margin-top: 20px;
+            background: var(--text);
+            color: var(--bg);
+            padding: 8px 16px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            border: 2px solid var(--text);
+        }
+
+        .niche-link:hover {
+            background: transparent;
+            color: var(--text);
+            transform: translate(2px, -2px);
+            box-shadow: -4px 4px 0px rgba(255, 255, 255, 0.3);
         }
 
         /* --- EXTRA SECTION --- */
@@ -339,6 +363,13 @@
                 padding: 40px;
             }
             .item-index { margin-bottom: 0; }
+            
+            .item-content {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
             footer.bottom-bar {
                 flex-direction: row;
                 justify-content: space-between;
@@ -379,22 +410,25 @@
         </header>
 
         <!-- Catálogo de la Independencia -->
-        <div class="section-title">// EL CATÁLOGO DE LA INDEPENDENCIA</div>
+        <div class="section-title">// SOLUCIONES ESPECÍFICAS POR RUBRO</div>
         <div class="editorial-grid">
+            
             <article class="editorial-item">
                 <div class="item-index">01</div>
                 <div class="item-content">
-                    <h2><span>Meet, Zoom, Discord</span> VS.</h2>
-                    <p>Tu propia plataforma de videollamadas y comunicación privada, adaptada exactamente a la estética y funciones que vos querés. Cero límites de terceros.</p>
+                    <h2>PELUQUERÍAS Y BARBERÍAS</h2>
+                    <p>App de reservas automáticas, fichas técnicas a medida y cero licencias mensuales por agenda. Dejá de perder horas respondiendo WhatsApps.</p>
+                    <a href="/pelu" class="niche-link">VER SISTEMA &rarr;</a>
                 </div>
-                <div class="item-tag">[ Comunicaciones ]</div>
+                <div class="item-tag">[ Estética ]</div>
             </article>
 
             <article class="editorial-item">
                 <div class="item-index">02</div>
                 <div class="item-content">
-                    <h2><span>PedidosYa, Rappi</span> VS.</h2>
-                    <p>Tu propio sistema de delivery y pedidos directos para tu local. Dejá de regalarle hasta un 30% de margen por cada plato que vendés.</p>
+                    <h2>GASTRONOMÍA Y RESTAURANTES</h2>
+                    <p>App de delivery propia (chau PedidosYa), menú interactivo inteligente, comanderas y un sistema de caja ultra sencillo.</p>
+                    <a href="/gastro" class="niche-link">VER SISTEMA &rarr;</a>
                 </div>
                 <div class="item-tag">[ Gastronomía ]</div>
             </article>
@@ -402,20 +436,43 @@
             <article class="editorial-item">
                 <div class="item-index">03</div>
                 <div class="item-content">
-                    <h2><span>Venti, Passline</span> VS.</h2>
-                    <p>Tu propia app de ticketing, venta de entradas y administración para tus eventos. Todo bajo tu control y sin retenciones usureras.</p>
+                    <h2>INDUMENTARIA Y RETAIL</h2>
+                    <p>E-commerce propietario sin comisiones de Tienda Nube, caja unificada que descuenta el stock web y sistemas de drops para showrooms.</p>
+                    <a href="/indum" class="niche-link">VER SISTEMA &rarr;</a>
                 </div>
-                <div class="item-tag">[ Eventos / Cultura ]</div>
+                <div class="item-tag">[ Retail ]</div>
             </article>
 
             <article class="editorial-item">
                 <div class="item-index">04</div>
                 <div class="item-content">
-                    <h2><span>Tienda Nube, Shopify</span> VS.</h2>
-                    <p>Tu propio e-commerce propietario. Nada de plantillas alquiladas: el código es tuyo y la plata va directo a tu Mercado Pago.</p>
+                    <h2>ACADEMIAS Y CLUBES</h2>
+                    <p>App para alumnos, suscripciones de cobro automático con tarjeta, gestión de deudores y molinetes controlados por NFC.</p>
+                    <a href="/clubes" class="niche-link">VER SISTEMA &rarr;</a>
                 </div>
-                <div class="item-tag">[ Retail / E-commerce ]</div>
+                <div class="item-tag">[ Educación ]</div>
             </article>
+
+            <article class="editorial-item">
+                <div class="item-index">05</div>
+                <div class="item-content">
+                    <h2>CLÍNICAS Y CONSULTORIOS</h2>
+                    <p>Agenda inteligente para evitar ausentismos, historias clínicas limpias y rápidas, sin pagar licencias abusivas por cada nuevo médico.</p>
+                    <a href="/consul" class="niche-link">VER SISTEMA &rarr;</a>
+                </div>
+                <div class="item-tag">[ Salud ]</div>
+            </article>
+
+            <article class="editorial-item">
+                <div class="item-index">06</div>
+                <div class="item-content">
+                    <h2>COMPLEJOS DEPORTIVOS</h2>
+                    <p>Grilla de canchas interactiva, pago de seña dividido, automatización de encendido de luces y unificación de la caja con el buffet.</p>
+                    <a href="/complejos" class="niche-link">VER SISTEMA &rarr;</a>
+                </div>
+                <div class="item-tag">[ Deportes ]</div>
+            </article>
+
         </div>
 
         <!-- Y mucho más -->

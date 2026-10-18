@@ -5041,5 +5041,16 @@
     }
   });
 </script>
+  // En la vista de mapa, mostrar FAB para acciones rápidas:
+VMPFold.showFab(() => {
+  VMPFold.openBottomSheet('Acciones Rápidas', `
+    <button class="btn btn-primary" style="width:100%;margin-bottom:8px;">
+      <i class="fa-solid fa-location-crosshairs"></i> Mi Ubicación
+    </button>
+    <button class="btn" style="width:100%;">
+      <i class="fa-solid fa-filter"></i> Filtrar Quests
+    </button>
+  `);
+});
 </body>
 </html>

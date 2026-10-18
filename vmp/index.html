@@ -4880,5 +4880,126 @@
       }
     });
   </script>
+<!-- ========================================== -->
+<!-- INYECCIÓN DE MEJORAS MOBILE Y DE-SATURACIÓN -->
+<!-- ========================================== -->
+<style>
+  /* 1. SUAVIZAR EFECTO CRT EN MÓVILES (MENOS RUIDO VISUAL Y FATIGA) */
+  @media (max-width: 768px) {
+    body.crt::before {
+      /* Scanlines más sutiles */
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%), 
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.015), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.015));
+      background-size: 100% 4px, 4px 100%;
+    }
+    body.crt {
+      animation: none !important; /* Desactiva el flicker en móvil para ahorrar batería y mejorar legibilidad */
+    }
+    
+    /* 2. REDUCIR SATURACIÓN DE ESPACIO EN TARJETAS Y GRIDS */
+    .card {
+      padding: 12px !important;
+      margin-bottom: 10px !important;
+    }
+    .grid-2, .grid-3, .grid-4 {
+      gap: 10px !important;
+    }
+    
+    /* 3. TIPOGRAFÍA MÁS COMPACTA Y LEGIBLE (EVITA WRAPS EXCESIVOS) */
+    .text-2xl { font-size: 1.35rem !important; line-height: 1.25 !important; }
+    .text-xl { font-size: 1.1rem !important; line-height: 1.25 !important; }
+    .text-lg { font-size: 0.95rem !important; }
+    .text-sm { font-size: 0.8rem !important; }
+    
+    /* 4. BADGES Y ETIQUETAS MÁS DISCRETAS */
+    .badge {
+      padding: 3px 6px !important;
+      font-size: 0.62rem !important;
+      letter-spacing: 0.3px;
+    }
+    
+    /* 5. BOTONES OPTIMIZADOS PARA EL DEDO, PERO VISUALMENTE COMPACTOS */
+    .btn {
+      padding: 10px 12px !important;
+      font-size: 0.72rem !important;
+      min-height: 44px; /* Estándar de accesibilidad táctil */
+    }
+    .btn-sm {
+      padding: 8px 10px !important;
+      font-size: 0.68rem !important;
+      min-height: 38px;
+    }
+    
+    /* 6. TOP NAV MÁS COMPACTA PARA GANAR ESPACIO DE PANTALLA */
+    .top-nav {
+      padding: 8px 0 !important;
+    }
+    .brand-title {
+      font-size: 0.85rem !important;
+    }
+    .brand-sub {
+      font-size: 0.6rem !important;
+      display: none; /* Oculta el subtítulo en móviles muy chicos para limpiar la barra */
+    }
+    @media (min-width: 400px) {
+      .brand-sub { display: block; }
+    }
+    
+    /* 7. ELIMINAR GLOW CROMÁTICO EN MÓVIL (MEJORA DRÁSTICA DE LEGIBILIDAD) */
+    .chromatic, h1, h2, h3 {
+      text-shadow: none !important;
+      filter: none !important;
+    }
+    
+    /* 8. AJUSTES ESPECÍFICOS DE COMPONENTES */
+    #vmp-map {
+      height: 320px !important; /* Mapa más contenido para que no empuje todo hacia abajo */
+    }
+    .dish-card {
+      padding: 10px !important;
+      gap: 10px !important;
+    }
+    .dish-img {
+      width: 64px !important;
+      height: 64px !important;
+    }
+    .stamp-slot {
+      height: 36px !important;
+      font-size: 0.65rem !important;
+    }
+    
+    /* 9. MEJORAR EXPERIENCIA TÁCTIL GENERAL */
+    html {
+      scroll-behavior: smooth;
+      -webkit-tap-highlight-color: transparent; /* Quita el flash azul al tocar en iOS/Android */
+    }
+    input, select, textarea {
+      font-size: 16px !important; /* Evita que iOS haga zoom automático al enfocar un input */
+    }
+  }
+</style>
+
+<script>
+  // Micro-optimización para móviles: evita el doble-tap zoom y mejora la sensación de app nativa
+  document.addEventListener('DOMContentLoaded', () => {
+    // Prevenir zoom accidental en inputs en iOS
+    document.body.addEventListener('touchstart', function() {}, {passive: true});
+    
+    // Si es móvil, ocultar la barra de dirección al hacer scroll hacia abajo (efecto app)
+    let lastScrollY = window.scrollY;
+    const topNav = document.querySelector('.top-nav');
+    if (topNav && window.innerWidth <= 768) {
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > lastScrollY && window.scrollY > 60) {
+          topNav.style.transform = 'translateY(-100%)';
+          topNav.style.transition = 'transform 0.3s ease';
+        } else {
+          topNav.style.transform = 'translateY(0)';
+        }
+        lastScrollY = window.scrollY;
+      }, { passive: true });
+    }
+  });
+</script>
 </body>
 </html>

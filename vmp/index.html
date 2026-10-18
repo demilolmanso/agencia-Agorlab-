@@ -4920,57 +4920,50 @@
       }
     });
   </script>
-<!-- ========================================== -->
-<!-- INYECCIÓN DE MEJORAS MOBILE Y DE-SATURACIÓN -->
-<!-- ========================================== -->
+<!-- ============================================ -->
+<!-- VMP FOLD MODULE v2 — VERSIÓN SIMPLE Y ROBUSTA -->
+<!-- ============================================ -->
 <style>
-  /* 1. SUAVIZAR EFECTO CRT EN MÓVILES (MENOS RUIDO VISUAL Y FATIGA) */
+  /* === SOLO APLICA EN MÓVILES (< 768px) === */
   @media (max-width: 768px) {
-    body.crt::before {
-      /* Scanlines más sutiles */
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%), 
-                  linear-gradient(90deg, rgba(255, 0, 0, 0.015), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.015));
-      background-size: 100% 4px, 4px 100%;
-    }
-    body.crt {
-      animation: none !important; /* Desactiva el flicker en móvil para ahorrar batería y mejorar legibilidad */
-    }
     
-    /* 2. REDUCIR SATURACIÓN DE ESPACIO EN TARJETAS Y GRIDS */
+    /* 1. Reducir padding y márgenes de tarjetas */
     .card {
       padding: 12px !important;
       margin-bottom: 10px !important;
     }
+    
+    /* 2. Grids más compactos */
     .grid-2, .grid-3, .grid-4 {
       gap: 10px !important;
     }
     
-    /* 3. TIPOGRAFÍA MÁS COMPACTA Y LEGIBLE (EVITA WRAPS EXCESIVOS) */
-    .text-2xl { font-size: 1.35rem !important; line-height: 1.25 !important; }
-    .text-xl { font-size: 1.1rem !important; line-height: 1.25 !important; }
+    /* 3. Tipografía más compacta */
+    .text-2xl { font-size: 1.3rem !important; line-height: 1.3 !important; }
+    .text-xl { font-size: 1.1rem !important; line-height: 1.3 !important; }
     .text-lg { font-size: 0.95rem !important; }
     .text-sm { font-size: 0.8rem !important; }
+    .text-xs { font-size: 0.7rem !important; }
     
-    /* 4. BADGES Y ETIQUETAS MÁS DISCRETAS */
+    /* 4. Badges más pequeños */
     .badge {
-      padding: 3px 6px !important;
-      font-size: 0.62rem !important;
-      letter-spacing: 0.3px;
+      padding: 2px 6px !important;
+      font-size: 0.6rem !important;
     }
     
-    /* 5. BOTONES OPTIMIZADOS PARA EL DEDO, PERO VISUALMENTE COMPACTOS */
+    /* 5. Botones optimizados para dedo pero visualmente compactos */
     .btn {
       padding: 10px 12px !important;
       font-size: 0.72rem !important;
-      min-height: 44px; /* Estándar de accesibilidad táctil */
+      min-height: 44px !important;
     }
     .btn-sm {
       padding: 8px 10px !important;
       font-size: 0.68rem !important;
-      min-height: 38px;
+      min-height: 38px !important;
     }
     
-    /* 6. TOP NAV MÁS COMPACTA PARA GANAR ESPACIO DE PANTALLA */
+    /* 6. Navbar superior más compacta */
     .top-nav {
       padding: 8px 0 !important;
     }
@@ -4979,22 +4972,14 @@
     }
     .brand-sub {
       font-size: 0.6rem !important;
-      display: none; /* Oculta el subtítulo en móviles muy chicos para limpiar la barra */
-    }
-    @media (min-width: 400px) {
-      .brand-sub { display: block; }
     }
     
-    /* 7. ELIMINAR GLOW CROMÁTICO EN MÓVIL (MEJORA DRÁSTICA DE LEGIBILIDAD) */
-    .chromatic, h1, h2, h3 {
-      text-shadow: none !important;
-      filter: none !important;
-    }
-    
-    /* 8. AJUSTES ESPECÍFICOS DE COMPONENTES */
+    /* 7. Mapa más contenido */
     #vmp-map {
-      height: 320px !important; /* Mapa más contenido para que no empuje todo hacia abajo */
+      height: 320px !important;
     }
+    
+    /* 8. Dish cards más compactas */
     .dish-card {
       padding: 10px !important;
       gap: 10px !important;
@@ -5003,54 +4988,191 @@
       width: 64px !important;
       height: 64px !important;
     }
+    
+    /* 9. Stamp slots más pequeños */
     .stamp-slot {
       height: 36px !important;
       font-size: 0.65rem !important;
     }
     
-    /* 9. MEJORAR EXPERIENCIA TÁCTIL GENERAL */
+    /* 10. Footer bottom bar más compacto */
+    .bottom-bar {
+      height: 60px !important;
+    }
+    .bottom-nav-item {
+      font-size: 0.58rem !important;
+    }
+    .bottom-nav-item i {
+      font-size: 0.9rem !important;
+    }
+    
+    /* 11. Modal más adaptado */
+    .modal-box {
+      padding: 16px !important;
+      max-height: 85vh !important;
+    }
+    
+    /* 12. Toast notifications más compactas */
+    .toast {
+      padding: 10px 12px !important;
+      font-size: 0.72rem !important;
+    }
+    
+    /* 13. Suavizar efecto CRT en móvil */
+    body.crt::before {
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%), 
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.015), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.015));
+      background-size: 100% 4px, 4px 100%;
+    }
+    body.crt {
+      animation: none !important;
+    }
+    
+    /* 14. Eliminar glow cromático en móvil para mejor legibilidad */
+    .chromatic, h1, h2, h3 {
+      text-shadow: none !important;
+      filter: none !important;
+    }
+    
+    /* 15. Inputs más grandes para evitar zoom en iOS */
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+    
+    /* 16. Scroll suave */
     html {
       scroll-behavior: smooth;
-      -webkit-tap-highlight-color: transparent; /* Quita el flash azul al tocar en iOS/Android */
-    }
-    input, select, textarea {
-      font-size: 16px !important; /* Evita que iOS haga zoom automático al enfocar un input */
+      -webkit-tap-highlight-color: transparent;
     }
   }
 </style>
 
 <script>
-  // Micro-optimización para móviles: evita el doble-tap zoom y mejora la sensación de app nativa
-  document.addEventListener('DOMContentLoaded', () => {
-    // Prevenir zoom accidental en inputs en iOS
-    document.body.addEventListener('touchstart', function() {}, {passive: true});
+(function() {
+  'use strict';
+  
+  // === FUNCIONALIDAD: COLAPSAR SECCIONES LARGAS EN MÓVIL ===
+  function setupCollapsibleSections() {
+    if (window.innerWidth > 768) return; // Solo en móvil
     
-    // Si es móvil, ocultar la barra de dirección al hacer scroll hacia abajo (efecto app)
-    let lastScrollY = window.scrollY;
-    const topNav = document.querySelector('.top-nav');
-    if (topNav && window.innerWidth <= 768) {
-      window.addEventListener('scroll', () => {
-        if (window.scrollY > lastScrollY && window.scrollY > 60) {
-          topNav.style.transform = 'translateY(-100%)';
-          topNav.style.transition = 'transform 0.3s ease';
-        } else {
-          topNav.style.transform = 'translateY(0)';
+    // Agregar botón "Ver más" a secciones con muchas tarjetas
+    const sections = document.querySelectorAll('.grid-3, .grid-2');
+    sections.forEach(section => {
+      const cards = section.querySelectorAll('.card');
+      if (cards.length > 3) {
+        // Ocultar tarjetas después de la tercera
+        for (let i = 3; i < cards.length; i++) {
+          cards[i].style.display = 'none';
         }
-        lastScrollY = window.scrollY;
-      }, { passive: true });
+        
+        // Agregar botón "Ver más"
+        const showMoreBtn = document.createElement('button');
+        showMoreBtn.className = 'btn btn-sm';
+        showMoreBtn.style.cssText = 'width:100%;margin-top:10px;';
+        showMoreBtn.textContent = `▼ VER MÁS (${cards.length - 3} ocultos)`;
+        showMoreBtn.onclick = function() {
+          const isHidden = cards[3].style.display === 'none';
+          for (let i = 3; i < cards.length; i++) {
+            cards[i].style.display = isHidden ? 'block' : 'none';
+          }
+          this.textContent = isHidden 
+            ? `▲ VER MENOS` 
+            : `▼ VER MÁS (${cards.length - 3} ocultos)`;
+        };
+        section.appendChild(showMoreBtn);
+      }
+    });
+  }
+  
+  // === FUNCIONALIDAD: BOTTOM SHEET PARA SIDEBAR DEL MAPA ===
+  function setupMapSidebar() {
+    if (window.innerWidth > 768) return;
+    
+    const sideList = document.getElementById('map-side-list');
+    if (!sideList) return;
+    
+    const items = sideList.querySelectorAll('.card');
+    if (items.length > 2) {
+      // Ocultar items después del segundo
+      for (let i = 2; i < items.length; i++) {
+        items[i].style.display = 'none';
+      }
+      
+      // Agregar botón "Ver todos"
+      const showAllBtn = document.createElement('button');
+      showAllBtn.className = 'btn btn-primary btn-sm';
+      showAllBtn.style.cssText = 'width:100%;margin-top:10px;';
+      showAllBtn.textContent = `▼ VER TODOS LOS BARES Y QUESTS (${items.length})`;
+      showAllBtn.onclick = function() {
+        const isHidden = items[2].style.display === 'none';
+        for (let i = 2; i < items.length; i++) {
+          items[i].style.display = isHidden ? 'block' : 'none';
+        }
+        this.textContent = isHidden 
+          ? `▲ VER MENOS` 
+          : `▼ VER TODOS LOS BARES Y QUESTS (${items.length})`;
+      };
+      sideList.appendChild(showAllBtn);
     }
+  }
+  
+  // === FUNCIONALIDAD: OCULTAR NAVBAR AL HACER SCROLL ===
+  function setupAutoHideNavbar() {
+    if (window.innerWidth > 768) return;
+    
+    const topNav = document.querySelector('.top-nav');
+    if (!topNav) return;
+    
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+    
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        window.requestAnimationFrame(function() {
+          const currentScrollY = window.scrollY;
+          
+          if (currentScrollY > lastScrollY && currentScrollY > 100) {
+            // Scroll hacia abajo: ocultar navbar
+            topNav.style.transform = 'translateY(-100%)';
+            topNav.style.transition = 'transform 0.3s ease';
+          } else {
+            // Scroll hacia arriba: mostrar navbar
+            topNav.style.transform = 'translateY(0)';
+          }
+          
+          lastScrollY = currentScrollY;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+  }
+  
+  // === INICIALIZACIÓN ===
+  function init() {
+    // Esperar a que el DOM esté completamente cargado
+    setTimeout(() => {
+      setupCollapsibleSections();
+      setupMapSidebar();
+      setupAutoHideNavbar();
+    }, 500);
+  }
+  
+  // Ejecutar cuando el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+  
+  // Re-ejecutar cuando cambie el tamaño de la ventana
+  window.addEventListener('resize', function() {
+    setTimeout(() => {
+      setupCollapsibleSections();
+      setupMapSidebar();
+    }, 300);
   });
+})();
 </script>
-  // En la vista de mapa, mostrar FAB para acciones rápidas:
-VMPFold.showFab(() => {
-  VMPFold.openBottomSheet('Acciones Rápidas', `
-    <button class="btn btn-primary" style="width:100%;margin-bottom:8px;">
-      <i class="fa-solid fa-location-crosshairs"></i> Mi Ubicación
-    </button>
-    <button class="btn" style="width:100%;">
-      <i class="fa-solid fa-filter"></i> Filtrar Quests
-    </button>
-  `);
-});
 </body>
 </html>

@@ -2510,11 +2510,11 @@
           center: MDP_CENTER,
           zoom: 13
         });
-        L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-          attribution: "&copy; OpenStreetMap &copy; CARTO // VMP CLUB MDP",
-          subdomains: "abcd",
-          maxZoom: 20
-        }).addTo(vmpMapInstance);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "&copy; OpenStreetMap contributors // VMP CLUB MDP",
+  subdomains: "abcd",
+  maxZoom: 19
+}).addTo(vmpMapInstance);
         mapMarkersLayer = L.layerGroup().addTo(vmpMapInstance);
       } else {
         vmpMapInstance.invalidateSize();
@@ -2653,33 +2653,73 @@
     }
 
     function mapRadarMiUbicacion() {
-      const badge = document.getElementById("gps-status-badge");
-      if ("geolocation" in navigator) {
-        if (badge) badge.textContent = "GPS: BUSCANDO SEÑAL...";
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            STATE.userLocation = {
-              lat: pos.coords.latitude,
-              lng: pos.coords.longitude,
-              active: true
-            };
-            if (badge) badge.textContent = `GPS ACTIVO (${STATE.userLocation.lat.toFixed(4)}, ${STATE.userLocation.lng.toFixed(4)})`;
-            if (vmpMapInstance) vmpMapInstance.setView([STATE.userLocation.lat, STATE.userLocation.lng], 15);
-            initOrUpdateMap();
-            showToast("Radar GPS sincronizado con tu posición actual.", "success");
-          },
-          () => {
-            // Fallback simulado en La Rambla Mar del Plata para entornos sin GPS físico
-            STATE.userLocation = { lat: -38.0052, lng: -57.5415, active: true };
-            if (badge) badge.textContent = "GPS SIMULADO EN RAMBLA MDP";
-            if (vmpMapInstance) vmpMapInstance.setView([STATE.userLocation.lat, STATE.userLocation.lng], 15);
-            initOrUpdateMap();
-            showToast("GPS simulado en Rambla Mar del Plata para pruebas.", "info");
-          },
-          { enableHighAccuracy: true, timeout: 5000 }
-        );
+  const badge = document.getElementById("gps-status-badge");
+  
+  if (!("geolocation" in navigator)) {
+    if (badge) badge.textContent = "GPS: NO SOPORTADO";
+    showToast("Tu navegador no soporta geolocalización", "error");
+    // Fallback a ubicación por defecto
+    STATE.userLocation = { lat: -38.0055, lng: -57.5426, active: false };
+    initOrUpdateMap();
+    return;
+  }
+  
+  if (badge) badge.textContent = "GPS: BUSCANDO SEÑAL...";
+  
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      STATE.userLocation = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        active: true
+      };
+      if (badge) badge.textContent = `GPS ACTIVO (${STATE.userLocation.lat.toFixed(4)}, ${STATE.userLocation.lng.toFixed(4)})`;
+      if (vmpMapInstance) {
+        vmpMapInstance.setView([STATE.userLocation.lat, STATE.userLocation.lng], 15);
+        // Agregar marcador de usuario
+        L.circleMarker([STATE.userLocation.lat, STATE.userLocation.lng], {
+          radius: 8,
+          color: "#00f0ff",
+          fillColor: "#00f0ff",
+          fillOpacity: 0.9
+        }).addTo(mapMarkersLayer).bindPopup("<strong>TU UBICACIÓN</strong>");
       }
+      initOrUpdateMap();
+      showToast("GPS sincronizado correctamente", "success");
+    },
+    err => {
+      console.warn("Error GPS:", err);
+      let errorMsg = "GPS no disponible";
+      
+      switch(err.code) {
+        case 1:
+          errorMsg = "Permiso de ubicación denegado";
+          break;
+        case 2:
+          errorMsg = "Posición no disponible";
+          break;
+        case 3:
+          errorMsg = "Tiempo de espera agotado";
+          break;
+      }
+      
+      if (badge) badge.textContent = `GPS: ${errorMsg.toUpperCase()}`;
+      
+      // Fallback a Rambla Casino Mar del Plata
+      STATE.userLocation = { lat: -38.0052, lng: -57.5415, active: false };
+      if (vmpMapInstance) {
+        vmpMapInstance.setView([STATE.userLocation.lat, STATE.userLocation.lng], 14);
+      }
+      initOrUpdateMap();
+      showToast(`${errorMsg}. Usando ubicación por defecto (Rambla)`, "warning");
+    },
+    { 
+      enableHighAccuracy: true, 
+      timeout: 10000,
+      maximumAge: 300000
     }
+  );
+}
 
     // EJECUCIÓN DE QUESTS (GPS, CÓDIGO O FOTO URBANA)
     function openQuestModal(questId) {

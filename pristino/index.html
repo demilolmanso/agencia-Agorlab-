@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prístino - Alimentos Naturales y Saludables</title>
+    <!-- PWA Manifest & Meta -->
+    <meta name="theme-color" content="#10b981">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pristino: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Firebase SDKs (v8 compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 flex flex-col font-sans">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-pristino-800 text-white text-xs sm:text-sm py-2 px-4 text-center font-medium">
+        <i class="fa-solid fa-truck-fast mr-2"></i> Envíos en Mar del Plata y zona de influencia con pase multimodal y CUD | Compra 100% segura
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-10 h-10 rounded-full bg-pristino-500 flex items-center justify-center text-white font-bold text-xl shadow">P</div>
+                <div>
+                    <span class="text-2xl font-black tracking-tight text-pristino-800">Prístino</span>
+                    <span class="block text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Alimentos Saludables</span>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-semibold">
+                <button onclick="switchTab('home')" class="text-slate-600 hover:text-pristino-600 transition">Inicio</button>
+                <button onclick="switchTab('catalog')" class="text-slate-600 hover:text-pristino-600 transition">Productos</button>
+                <button onclick="switchTab('about')" class="text-slate-600 hover:text-pristino-600 transition">Quiénes Somos</button>
+                <button onclick="switchTab('orders')" id="nav-orders" class="text-slate-600 hover:text-pristino-600 transition hidden">Mis Pedidos</button>
+                <button onclick="switchTab('admin')" id="nav-admin" class="text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition hidden"><i class="fa-solid fa-shield-halved mr-1"></i> Admin Panel</button>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <!-- Cart Button -->
+                <button onclick="toggleCartModal(true)" class="relative bg-slate-100 hover:bg-slate-200 p-2.5 rounded-full text-slate-700 transition">
+                    <i class="fa-solid fa-cart-shopping text-lg"></i>
+                    <span id="cart-badge" class="absolute -top-1 -right-1 bg-pristino-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+
+                <!-- Auth Section -->
+                <div id="auth-container">
+                    <button onclick="loginWithGoogle()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium px-4 py-2 rounded-xl text-sm shadow-sm flex items-center space-x-2 transition">
+                        <i class="fa-brands fa-google text-red-500"></i>
+                        <span>Ingresar con Google</span>
+                    </button>
+                </div>
+                <div id="user-menu" class="hidden flex items-center space-x-3">
+                    <img id="user-avatar" src="" alt="Avatar" class="w-9 h-9 rounded-full border border-pristino-500 object-cover">
+                    <button onclick="logout()" class="text-xs text-slate-500 hover:text-red-600 font-medium"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- HOME TAB -->
+        <section id="tab-home" class="space-y-12">
+            <div class="relative bg-gradient-to-br from-pristino-900 via-pristino-800 to-emerald-900 rounded-3xl text-white p-8 sm:p-12 overflow-hidden shadow-xl">
+                <div class="absolute right-0 bottom-0 opacity-10 translate-x-10 translate-y-10">
+                    <i class="fa-solid fa-seedling text-[300px]"></i>
+                </div>
+                <div class="relative z-10 max-w-2xl space-y-6">
+                    <span class="bg-emerald-500/30 text-emerald-200 text-xs uppercase font-bold tracking-wider px-3 py-1 rounded-full border border-emerald-400/30">Directo del Productor a tu Casa</span>
+                    <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">Alimentación natural, justa y sin intermediarios</h1>
+                    <p class="text-emerald-100 text-base sm:text-lg">Frutos secos, semillas, harinas y productos saludables seleccionados con el compromiso de ofrecer lo mejor para vos y tu familia.</p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <button onclick="switchTab('catalog')" class="bg-white text-pristino-900 hover:bg-emerald-50 font-bold px-6 py-3.5 rounded-xl shadow-lg transition flex items-center space-x-2">
+                            <span>Ver Catálogo</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <button onclick="switchTab('about')" class="bg-transparent hover:bg-white/10 border border-white/30 text-white font-semibold px-6 py-3.5 rounded-xl transition">
+                            Conocé nuestra historia
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                    <div class="w-12 h-12 bg-pristino-50 text-pristino-600 rounded-xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-truck"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-900">Envíos Coordinados</h3>
+                    <p class="text-slate-600 text-sm">Llegamos a Mar del Plata y 20 localidades de la zona en un plazo de 72 horas.</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                    <div class="w-12 h-12 bg-pristino-50 text-pristino-600 rounded-xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-tags"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-900">Precios Justos</h3>
+                    <p class="text-slate-600 text-sm">Trabajamos con márgenes transparentes, conectando proveedores mayoristas directamente con vos.</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                    <div class="w-12 h-12 bg-pristino-50 text-pristino-600 rounded-xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-shield-heart"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-900">Calidad Garantizada</h3>
+                    <p class="text-slate-600 text-sm">Selección rigurosa de cada producto para asegurar frescura y propiedades nutricionales óptimas.</p>
+                </div>
+            </div>
+
+            <!-- Featured Products -->
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-black text-slate-900">Productos Destacados</h2>
+                    <button onclick="switchTab('catalog')" class="text-pristino-700 hover:text-pristino-800 font-bold text-sm flex items-center space-x-1">
+                        <span>Ver todos</span>
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+                <div id="featured-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+            </div>
+        </section>
+
+        <!-- CATALOG TAB -->
+        <section id="tab-catalog" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900">Catálogo de Productos</h2>
+                    <p class="text-slate-500 text-sm">Frutos secos, semillas, repostería y alimentos saludables.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <input type="text" id="search-input" placeholder="Buscar producto..." oninput="filterCatalog()" class="bg-white border border-slate-300 px-4 py-2 rounded-xl text-sm focus:outline-none focus:border-pristino-500 w-full sm:w-64 shadow-sm">
+                </div>
+            </div>
+            <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- ABOUT TAB -->
+        <section id="tab-about" class="hidden max-w-3xl mx-auto space-y-8 bg-white p-8 sm:p-12 rounded-3xl shadow-sm border border-slate-100">
+            <div class="space-y-4">
+                <span class="text-xs uppercase font-bold text-pristino-600 tracking-wider bg-pristino-50 px-3 py-1 rounded-full border border-pristino-200">Nuestra Esencia</span>
+                <h2 class="text-3xl font-black text-slate-900">Quiénes Somos</h2>
+            </div>
+            <div class="prose prose-slate text-slate-600 space-y-4 text-base sm:text-lg leading-relaxed">
+                <p>
+                    <strong>Prístino</strong> nació con un propósito claro: acercar alimentos naturales y saludables directamente a las personas, sin intermediarios innecesarios. Creemos que todos merecen acceso a productos frescos y de calidad a un precio justo.
+                </p>
+                <p>
+                    Trabajamos en contacto directo con productores, seleccionando cada producto con el compromiso de ofrecer lo mejor. Somos una empresa familiar en crecimiento, impulsada por la pasión por la alimentación saludable y la transparencia en cada paso del proceso.
+                </p>
+            </div>
+        </section>
+
+        <!-- ORDERS TAB -->
+        <section id="tab-orders" class="hidden space-y-6">
+            <h2 class="text-2xl font-black text-slate-900">Mis Pedidos</h2>
+            <div id="user-orders-list" class="space-y-4"></div>
+        </section>
+
+        <!-- ADMIN TAB -->
+        <section id="tab-admin" class="hidden space-y-8">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900">Panel de Administración</h2>
+                    <p class="text-slate-500 text-sm">Control manual de pedidos, pagos y gestión de productos.</p>
+                </div>
+                <button onclick="openProductModal()" class="bg-pristino-600 hover:bg-pristino-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow transition flex items-center space-x-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Nuevo Producto</span>
+                </button>
+            </div>
+            <div class="space-y-6">
+                <h3 class="text-xl font-bold text-slate-800">Todos los Pedidos de Clientes</h3>
+                <div id="admin-orders-list" class="space-y-4"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-16 py-8 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p class="font-bold text-slate-700">Prístino - Alimentos Naturales y Saludables</p>
+            <p>Mar del Plata y zona de influencia. Todos los derechos reservados © 2026</p>
+        </div>
+    </footer>
+
+    <!-- CART & CHECKOUT MODAL -->
+    <div id="cart-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-8 space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <h3 class="text-xl font-black text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-cart-shopping text-pristino-600"></i>
+                    <span>Tu Carrito de Compras</span>
+                </h3>
+                <button onclick="toggleCartModal(false)" class="text-slate-400 hover:text-slate-600 font-bold text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div id="cart-items-container" class="space-y-4 divide-y divide-slate-100"></div>
+
+            <div class="pt-4 border-t border-slate-100 space-y-3">
+                <div class="flex justify-between text-base font-bold text-slate-900">
+                    <span>Total con Envío Incluido:</span>
+                    <span id="cart-total-price" class="text-pristino-700">$0</span>
+                </div>
+            </div>
+
+            <!-- Checkout Form -->
+            <div id="checkout-form-container" class="space-y-4 pt-4 border-t border-slate-100">
+                <h4 class="font-bold text-slate-800 text-sm">Datos de Envío y Contacto</h4>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">WhatsApp de Contacto (Obligatorio)</label>
+                    <input type="text" id="checkout-whatsapp" placeholder="Ej: 1121722028" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-pristino-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Localidad de Envío (Zona Restringida)</label>
+                    <select id="checkout-location" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-pristino-500">
+                        <option value="">Selecciona tu localidad...</option>
+                        <option value="Atlántida">Atlántida</option>
+                        <option value="Balneario Parque Mar Chiquita">Balneario Parque Mar Chiquita</option>
+                        <option value="Batán">Batán</option>
+                        <option value="Camet Norte">Camet Norte</option>
+                        <option value="Chapadmalal">Chapadmalal</option>
+                        <option value="El Coyunco">El Coyunco</option>
+                        <option value="El Marquesado">El Marquesado</option>
+                        <option value="Estación Camet">Estación Camet</option>
+                        <option value="Félix U. Camet">Félix U. Camet</option>
+                        <option value="La Caleta">La Caleta</option>
+                        <option value="La Peregrina">La Peregrina</option>
+                        <option value="Laguna de los Padres">Laguna de los Padres</option>
+                        <option value="Mar de Cobo">Mar de Cobo</option>
+                        <option value="Mar del Sur">Mar del Sur</option>
+                        <option value="Miramar">Miramar</option>
+                        <option value="Playa Dorada">Playa Dorada</option>
+                        <option value="San Eduardo del Mar">San Eduardo del Mar</option>
+                        <option value="Santa Clara del Mar">Santa Clara del Mar</option>
+                        <option value="Santa Elena">Santa Elena</option>
+                        <option value="Sierra de los Padres">Sierra de los Padres</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Dirección Exacta y Mapa</label>
+                    <input type="text" id="checkout-address" placeholder="Calle y número" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-pristino-500 mb-2">
+                    <div id="map-picker" class="w-full h-48 rounded-xl border border-slate-300 z-10"></div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-xs space-y-1">
+                    <p class="font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Aviso Importante antes de Pagar:</p>
+                    <p>Por favor, al realizar el pago, <strong>guarda y toma captura de pantalla del comprobante</strong>. Lo vas a necesitar subir en el siguiente paso para confirmar tu pedido y obtener tu número de orden y seguimiento.</p>
+                </div>
+
+                <button onclick="processCheckout()" class="w-full bg-pristino-600 hover:bg-pristino-700 text-white font-bold py-3 rounded-xl shadow transition">
+                    Pagar con Mercado Pago / Confirmar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRODUCT MODAL (ADMIN) -->
+    <div id="product-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4">
+            <h3 class="text-xl font-bold text-slate-900">Agregar Nuevo Producto</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre</label>
+                    <input type="text" id="prod-name" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Precio Costo ($)</label>
+                    <input type="number" id="prod-cost" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm" oninput="calculateSuggestedPrice()">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Precio Venta con Envío Incluido ($) [Sugerido +71%]</label>
+                    <input type="number" id="prod-price" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Imagen (URL ImgBB)</label>
+                    <input type="text" id="prod-image-url" placeholder="https://i.ibb.co/..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
+                </div>
+            </div>
+            <div class="flex space-x-3 pt-2">
+                <button onclick="saveProduct()" class="flex-1 bg-pristino-600 text-white font-bold py-2 rounded-xl text-sm">Guardar</button>
+                <button onclick="closeProductModal()" class="flex-1 bg-slate-200 text-slate-700 font-bold py-2 rounded-xl text-sm">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAYMENT RECEIPT UPLOAD MODAL -->
+    <div id="receipt-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4">
+            <h3 class="text-xl font-bold text-slate-900">Subir Comprobante de Pago</h3>
+            <p class="text-xs text-slate-500">Sube la captura de pantalla de tu comprobante para que el administrador apruebe tu orden.</p>
+            <input type="hidden" id="receipt-order-id">
+            <div>
+                <input type="file" id="receipt-file" class="w-full text-xs text-slate-500 mb-2">
+            </div>
+            <div class="flex space-x-3 pt-2">
+                <button onclick="uploadReceiptAndSubmit()" class="flex-1 bg-pristino-600 text-white font-bold py-2 rounded-xl text-sm">Subir Comprobante</button>
+                <button onclick="document.getElementById('receipt-modal').classList.add('hidden')" class="flex-1 bg-slate-200 text-slate-700 font-bold py-2 rounded-xl text-sm">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC6bjIuLJyEUhUSnMjlpgZW_DW7gRek0eg",
+            authDomain: "almendra-5b24a.firebaseapp.com",
+            projectId: "almendra-5b24a",
+            storageBucket: "almendra-5b24a.firebasestorage.app",
+            messagingSenderId: "966237946242",
+            appId: "1:966237946242:web:53225d90ca1e98c99e4f9b"
+        };
+        const IMGBB_API_KEY = "b000e610658055f1ff9319512830cede";
+        const MERCADO_PAGO_TOKEN = "APP_USR-2955434807999492-091915-855e6dc48a84e7b02a51fb8a9425c966-323912180";
+        const ADMIN_EMAIL = "cepedademian2005@gmail.com";
+        const ADMIN_WHATSAPP = "5491121722028";
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let cart = [];
+        let products = [
+            { id: 'p1', name: 'Mix Energético Premium 500g', cost: 7000, price: 12000, image: 'https://images.unsplash.com/photo-1599599810694-b5b37242c4fe?w=500' },
+            { id: 'p2', name: 'Almendras Nonpareil 1kg', cost: 11000, price: 18800, image: 'https://images.unsplash.com/photo-1508061253366-f7da15bbf6d4?w=500' },
+            { id: 'p3', name: 'Nueces Mariposa Extra 500g', cost: 8500, price: 14500, image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500' },
+            { id: 'p4', name: 'Granola Artesanal Miel y Semillas 1kg', cost: 5500, price: 9400, image: 'https://images.unsplash.com/photo-1517093887844-966485a9f092?w=500' }
+        ];
+        let map = null, marker = null;
+        let selectedLat = -38.0055, selectedLng = -57.5426;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged(user => {
+                currentUser = user;
+                updateAuthUI();
+                loadProductsFromFirestore();
+            });
+            renderCatalog();
+            initMap();
+        });
+
+        function switchTab(tabId) {
+            ['home', 'catalog', 'about', 'orders', 'admin'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            if(tabId === 'orders') loadUserOrders();
+            if(tabId === 'admin') loadAdminOrders();
+        }
+
+        function updateAuthUI() {
+            const authContainer = document.getElementById('auth-container');
+            const userMenu = document.getElementById('user-menu');
+            const navAdmin = document.getElementById('nav-admin');
+            const navOrders = document.getElementById('nav-orders');
+
+            if (currentUser) {
+                authContainer.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                document.getElementById('user-avatar').src = currentUser.photoURL || 'https://via.placeholder.com/40';
+                navOrders.classList.remove('hidden');
+                if (currentUser.email === ADMIN_EMAIL) navAdmin.classList.remove('hidden');
+                else navAdmin.classList.add('hidden');
+            } else {
+                authContainer.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+                navAdmin.classList.add('hidden');
+                navOrders.classList.add('hidden');
+            }
+        }
+
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(error => alert("Error al iniciar sesión: " + error.message));
+        }
+
+        function logout() {
+            auth.signOut();
+            switchTab('home');
+        }
+
+        function initMap() {
+            setTimeout(() => {
+                if (!map && document.getElementById('map-picker')) {
+                    map = L.map('map-picker').setView([selectedLat, selectedLng], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+                    marker = L.marker([selectedLat, selectedLng], {draggable: true}).addTo(map);
+                    marker.on('dragend', function() {
+                        const pos = marker.getLatLng();
+                        selectedLat = pos.lat; selectedLng = pos.lng;
+                    });
+                    map.on('click', function(e) {
+                        marker.setLatLng(e.latlng);
+                        selectedLat = e.latlng.lat; selectedLng = e.latlng.lng;
+                    });
+                }
+            }, 500);
+        }
+
+        async function loadProductsFromFirestore() {
+            try {
+                const snapshot = await db.collection('products').get();
+                if (!snapshot.empty) {
+                    products = [];
+                    snapshot.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
+                }
+                renderCatalog();
+            } catch(e) {}
+        }
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalog-grid');
+            const featuredGrid = document.getElementById('featured-products-grid');
+            if(!grid) return;
+            let html = '';
+            products.forEach(p => {
+                html += `
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between">
+                        <div>
+                            <div class="h-48 bg-slate-100 relative">
+                                <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover">
+                                <span class="absolute top-3 right-3 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Envío Incluido</span>
+                            </div>
+                            <div class="p-5 space-y-2">
+                                <h3 class="font-bold text-slate-900">${p.name}</h3>
+                                <div class="text-2xl font-black text-pristino-700">$${p.price.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div class="p-5 pt-0">
+                            <button onclick="addToCart('${p.id}')" class="w-full bg-pristino-50 hover:bg-pristino-500 text-pristino-700 hover:text-white font-bold py-2.5 rounded-xl transition text-sm">Agregar al Carrito</button>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+            if(featuredGrid) featuredGrid.innerHTML = html.split('<div class="bg-white').slice(0, 4).map(s => '<div class="bg-white' + s).join('');
+        }
+
+        function filterCatalog() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            document.getElementById('catalog-grid').innerHTML = filtered.map(p => `
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="h-48 bg-slate-100 relative"><img src="${p.image}" class="w-full h-full object-cover"></div>
+                        <div class="p-5 space-y-2">
+                            <h3 class="font-bold text-slate-900">${p.name}</h3>
+                            <div class="text-2xl font-black text-pristino-700">$${p.price.toLocaleString()}</div>
+                        </div>
+                    </div>
+                    <div class="p-5 pt-0">
+                        <button onclick="addToCart('${p.id}')" class="w-full bg-pristino-50 hover:bg-pristino-500 text-pristino-700 hover:text-white font-bold py-2.5 rounded-xl transition text-sm">Agregar al Carrito</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(id) {
+            const prod = products.find(p => p.id === id);
+            const existing = cart.find(item => item.id === id);
+            if(existing) existing.qty++;
+            else cart.push({ ...prod, qty: 1 });
+            updateCartBadge();
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cart-badge');
+            const totalCount = cart.reduce((sum, i) => sum + i.qty, 0);
+            if(totalCount > 0) { badge.innerText = totalCount; badge.classList.remove('hidden'); }
+            else badge.classList.add('hidden');
+        }
+
+        function toggleCartModal(show) {
+            const modal = document.getElementById('cart-modal');
+            if(show) { renderCartItems(); modal.classList.remove('hidden'); initMap(); }
+            else modal.classList.add('hidden');
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cart-items-container');
+            const totalEl = document.getElementById('cart-total-price');
+            if(cart.length === 0) { container.innerHTML = '<p class="text-center text-slate-500 py-4">Tu carrito está vacío</p>'; totalEl.innerText = '$0'; return; }
+            let html = '', total = 0;
+            cart.forEach((item, index) => {
+                total += item.price * item.qty;
+                html += `
+                    <div class="flex items-center justify-between py-3">
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-900">${item.name}</h4>
+                            <p class="text-xs text-slate-500">$${item.price.toLocaleString()} x ${item.qty}</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="font-bold text-sm text-slate-800">$${(item.price * item.qty).toLocaleString()}</span>
+                            <button onclick="removeFromCart(${index})" class="text-red-500 text-sm"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            totalEl.innerText = '$' + total.toLocaleString();
+        }
+
+        function removeFromCart(index) { cart.splice(index, 1); renderCartItems(); updateCartBadge(); }
+
+        async function processCheckout() {
+            if(!currentUser) { alert("Inicia sesión con Google."); loginWithGoogle(); return; }
+            if(cart.length === 0) { alert("Carrito vacío."); return; }
+            const whatsapp = document.getElementById('checkout-whatsapp').value.trim();
+            const location = document.getElementById('checkout-location').value;
+            const address = document.getElementById('checkout-address').value.trim();
+
+            if(!whatsapp || !location || !address) { alert("Completa tu WhatsApp, localidad y dirección."); return; }
+
+            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const orderData = {
+                userId: currentUser.uid, userEmail: currentUser.email, userName: currentUser.displayName,
+                whatsapp, location, address, coordinates: { lat: selectedLat, lng: selectedLng },
+                items: cart, total, status: 'Pendiente de Comprobante', receiptUrl: '',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                const docRef = await db.collection('orders').add(orderData);
+                alert("¡Pedido registrado! ID: " + docRef.id + "\n\nSube ahora tu comprobante de pago.");
+                cart = []; updateCartBadge(); toggleCartModal(false);
+                openReceiptModal(docRef.id);
+            } catch(e) { alert("Error: " + e.message); }
+        }
+
+        function openReceiptModal(orderId) {
+            document.getElementById('receipt-order-id').value = orderId;
+            document.getElementById('receipt-modal').classList.remove('hidden');
+        }
+
+        async function uploadReceiptAndSubmit() {
+            const orderId = document.getElementById('receipt-order-id').value;
+            const fileInput = document.getElementById('receipt-file');
+            if(fileInput.files.length === 0) { alert("Selecciona la captura."); return; }
+            const formData = new FormData(); formData.append('image', fileInput.files[0]);
+
+            try {
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+                const data = await res.json();
+                if(data.success) {
+                    await db.collection('orders').doc(orderId).update({ receiptUrl: data.data.url, status: 'Pendiente de Aprobación Manual' });
+                    alert("¡Comprobante subido!");
+                    document.getElementById('receipt-modal').classList.add('hidden');
+                    switchTab('orders');
+                } else alert("Error al subir.");
+            } catch(e) { alert("Error: " + e.message); }
+        }
+
+        async function loadUserOrders() {
+            if(!currentUser) return;
+            const container = document.getElementById('user-orders-list');
+            container.innerHTML = '<p class="text-center text-slate-500 py-4">Cargando...</p>';
+            try {
+                const snapshot = await db.collection('orders').where('userId', '==', currentUser.uid).get();
+                if(snapshot.empty) { container.innerHTML = '<p class="text-center text-slate-500 py-4">Sin pedidos.</p>'; return; }
+                let html = '';
+                snapshot.forEach(doc => {
+                    const o = doc.data(), orderId = doc.id;
+                    const waText = encodeURIComponent(`Hola! Quiero consultar sobre mi pedido #${orderId} (${o.location} - ${o.address}).`);
+                    html += `
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                                <div><span class="text-xs font-bold text-pristino-600 bg-pristino-50 px-2.5 py-1 rounded-lg">Orden #${orderId.substring(0,8)}</span><h4 class="font-bold text-slate-900 mt-1">Total: $${o.total.toLocaleString()}</h4></div>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold ${o.status.includes('Aprobado') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${o.status}</span>
+                            </div>
+                            <p class="text-sm text-slate-600"><strong>Destino:</strong> ${o.location} - ${o.address} | <strong>WhatsApp:</strong> ${o.whatsapp}</p>
+                            <div class="flex gap-3">
+                                ${o.receiptUrl ? `<a href="${o.receiptUrl}" target="_blank" class="text-xs font-bold text-pristino-700 bg-pristino-50 px-3 py-2 rounded-xl">Ver Comprobante</a>` : `<button onclick="openReceiptModal('${orderId}')" class="text-xs font-bold text-white bg-amber-600 px-3 py-2 rounded-xl">Subir Comprobante</button>`}
+                                <a href="https://wa.me/${ADMIN_WHATSAPP}?text=${waText}" target="_blank" class="text-xs font-bold text-white bg-emerald-600 px-3 py-2 rounded-xl flex items-center space-x-1.5"><i class="fa-brands fa-whatsapp text-sm"></i><span>WhatsApp</span></a>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch(e) {}
+        }
+
+        async function loadAdminOrders() {
+            if(!currentUser || currentUser.email !== ADMIN_EMAIL) return;
+            const container = document.getElementById('admin-orders-list');
+            container.innerHTML = '<p class="text-center text-slate-500 py-4">Cargando...</p>';
+            try {
+                const snapshot = await db.collection('orders').orderBy('createdAt', 'desc').get();
+                if(snapshot.empty) { container.innerHTML = '<p class="text-center text-slate-500 py-4">Sin pedidos.</p>'; return; }
+                let html = '';
+                snapshot.forEach(doc => {
+                    const o = doc.data(), orderId = doc.id;
+                    html += `
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                                <div><span class="text-xs text-slate-500">Cliente: ${o.userName}</span><h4 class="font-bold">Orden #${orderId} - $${o.total.toLocaleString()}</h4></div>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100">${o.status}</span>
+                            </div>
+                            <p class="text-sm text-slate-600"><strong>Destino:</strong> ${o.location} - ${o.address} | <strong>WApp:</strong> ${o.whatsapp}</p>
+                            <div class="flex gap-3 items-center">
+                                ${o.receiptUrl ? `<a href="${o.receiptUrl}" target="_blank" class="text-xs font-bold text-pristino-700 bg-pristino-50 px-3 py-2 rounded-xl">Ver Comprobante</a>` : '<span class="text-xs text-red-500">Sin comprobante</span>'}
+                                <button onclick="updateOrderStatus('${orderId}', 'Aprobado - En camino (72hs)')" class="text-xs font-bold text-white bg-emerald-600 px-3 py-2 rounded-xl">Aprobar y Enviar</button>
+                                <button onclick="updateOrderStatus('${orderId}', 'Entregado')" class="text-xs font-bold text-white bg-blue-600 px-3 py-2 rounded-xl">Entregado</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch(e) {}
+        }
+
+        async function updateOrderStatus(orderId, status) {
+            await db.collection('orders').doc(orderId).update({ status });
+            alert("Actualizado."); loadAdminOrders();
+        }
+
+        function openProductModal() { document.getElementById('product-modal').classList.remove('hidden'); }
+        function closeProductModal() { document.getElementById('product-modal').classList.add('hidden'); }
+        function calculateSuggestedPrice() {
+            const cost = parseFloat(document.getElementById('prod-cost').value) || 0;
+            document.getElementById('prod-price').value = Math.round(cost * 1.71);
+        }
+
+        async function saveProduct() {
+            const name = document.getElementById('prod-name').value.trim();
+            const cost = parseFloat(document.getElementById('prod-cost').value) || 0;
+            const price = parseFloat(document.getElementById('prod-price').value) || 0;
+            const image = document.getElementById('prod-image-url').value.trim() || 'https://images.unsplash.com/photo-1599599810694-b5b37242c4fe?w=500';
+            if(!name || !price) { alert("Completa nombre y precio."); return; }
+            await db.collection('products').add({ name, cost, price, image });
+            alert("Producto guardado."); closeProductModal(); loadProductsFromFirestore();
+        }
+    </script>
+</body>
+</html>

@@ -2,11 +2,19 @@
 <html lang="es" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prístino - Alimentos Naturales y Saludables</title>
-    <!-- PWA Meta -->
-    <meta name="theme-color" content="#10b981">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Prístino - Alimentos Naturales</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#047857">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Alimentos naturales y saludables directo a tu hogar.">
+    
+    <!-- Icono para PWA -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23047857'/><path fill='%23ffffff' d='M25,18 L55,18 C70,18 80,25 80,40 C80,55 70,62 55,62 L42,62 L42,82 L25,82 Z M42,32 L42,48 L53,48 C60,48 64,45 64,40 C64,35 60,32 53,32 Z'/><path fill='%2310b981' d='M40,68 C45,48 65,28 88,22 C85,42 70,65 45,72 C41,73 39,70 40,68 Z'/><path fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' d='M42,70 C56,56 68,41 82,27'/></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23047857'/><path fill='%23ffffff' d='M25,18 L55,18 C70,18 80,25 80,40 C80,55 70,62 55,62 L42,62 L42,82 L25,82 Z'/></svg>">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -15,203 +23,213 @@
                 extend: {
                     colors: {
                         pristino: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Leaflet CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
-    <!-- Firebase SDKs (v8 compat) -->
+    <!-- FontAwesome & Leaflet -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
-<body class="h-full bg-slate-50 text-slate-800 flex flex-col font-sans">
+<body class="h-full bg-slate-50 text-slate-800 flex flex-col font-sans antialiased selection:bg-pristino-200 selection:text-pristino-900">
 
     <!-- Top Announcement Bar -->
-    <div class="bg-pristino-800 text-white text-xs sm:text-sm py-2 px-4 text-center font-medium">
-        <i class="fa-solid fa-truck-fast mr-2"></i> Envíos en Mar del Plata y zona de influencia con envío incluido | Compra 100% segura
+    <div class="bg-pristino-800 text-white text-[10px] sm:text-sm py-2 px-4 text-center font-medium leading-tight">
+        <i class="fa-solid fa-truck-fast mr-1"></i> Envíos en Mar del Plata y zona | Compra segura
     </div>
 
     <!-- Navigation Bar -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
+    <header class="bg-white shadow-sm sticky top-0 z-40 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
-                <!-- SVG Logo -->
-                <div class="w-12 h-10 flex items-center justify-center">
-                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="w-12 h-12">
-  <!-- Sombra tenue / Fondo suave (Opcional) -->
-  <defs>
-    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#10b981" />
-      <stop offset="100%" stop-color="#047857" />
-    </linearGradient>
-  </defs>
-
-  <!-- Letra P elegante en color Verde Esmeralda Oscuro -->
-  <path fill="#047857" d="M 50,30 L 105,30 C 135,30 155,45 155,75 C 155,105 135,120 105,120 L 82,120 L 82,170 L 50,170 Z M 82,60 L 82,90 L 102,90 C 118,90 123,83 123,75 C 123,67 118,60 102,60 Z" />
-
-  <!-- Hoja Orgánica integrándose en el espacio central -->
-  <path fill="url(#leafGrad)" d="M 78,135 C 85,95 125,55 170,45 C 165,85 135,130 85,145 C 80,146 76,140 78,135 Z" />
-  
-  <!-- Nervadura central de la hoja -->
-  <path fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" d="M 82,138 C 110,110 135,80 162,52" opacity="0.8" />
-</svg>
-                </div>
-                <div>
-                    <span class="text-2xl font-black tracking-tight text-pristino-800">Prístino</span>
-                    <span class="block text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Alimentos Saludables</span>
+            
+            <!-- Logo Area -->
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="switchTab('home')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="w-9 h-9 sm:w-10 sm:h-10">
+                  <defs>
+                    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#10b981" />
+                      <stop offset="100%" stop-color="#047857" />
+                    </linearGradient>
+                  </defs>
+                  <path fill="#047857" d="M 50,30 L 105,30 C 135,30 155,45 155,75 C 155,105 135,120 105,120 L 82,120 L 82,170 L 50,170 Z M 82,60 L 82,90 L 102,90 C 118,90 123,83 123,75 C 123,67 118,60 102,60 Z" />
+                  <path fill="url(#leafGrad)" d="M 78,135 C 85,95 125,55 170,45 C 165,85 135,130 85,145 C 80,146 76,140 78,135 Z" />
+                  <path fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" d="M 82,138 C 110,110 135,80 162,52" opacity="0.8" />
+                </svg>
+                <div class="hidden sm:block">
+                    <span class="text-xl sm:text-2xl font-black tracking-tight text-pristino-800">Prístino</span>
+                    <span class="block text-[9px] uppercase tracking-widest text-slate-500 font-semibold">Alimentos Saludables</span>
                 </div>
             </div>
             
+            <!-- Desktop Nav -->
             <nav class="hidden md:flex items-center space-x-6 text-sm font-semibold">
                 <button onclick="switchTab('home')" class="text-slate-600 hover:text-pristino-600 transition">Inicio</button>
                 <button onclick="switchTab('catalog')" class="text-slate-600 hover:text-pristino-600 transition">Productos</button>
                 <button onclick="switchTab('about')" class="text-slate-600 hover:text-pristino-600 transition">Quiénes Somos</button>
                 <button onclick="switchTab('orders')" id="nav-orders" class="text-slate-600 hover:text-pristino-600 transition hidden">Mis Pedidos</button>
-                <button onclick="switchTab('admin')" id="nav-admin" class="text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition hidden"><i class="fa-solid fa-shield-halved mr-1"></i> Admin Panel</button>
+                <button onclick="switchTab('admin')" id="nav-admin" class="text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition hidden"><i class="fa-solid fa-shield-halved mr-1"></i> Admin</button>
             </nav>
 
-            <div class="flex items-center space-x-4">
+            <!-- Right Actions -->
+            <div class="flex items-center space-x-3 sm:space-x-4">
                 <!-- Cart Button -->
-                <button onclick="toggleCartModal(true)" class="relative bg-slate-100 hover:bg-slate-200 p-2.5 rounded-full text-slate-700 transition">
+                <button onclick="toggleCartModal(true)" class="relative bg-slate-100 hover:bg-slate-200 active:scale-95 p-2.5 rounded-full text-slate-700 transition touch-manipulation">
                     <i class="fa-solid fa-cart-shopping text-lg"></i>
-                    <span id="cart-badge" class="absolute -top-1 -right-1 bg-pristino-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                    <span id="cart-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold hidden ring-2 ring-white">0</span>
                 </button>
 
                 <!-- Auth Section -->
-                <div id="auth-container">
+                <div id="auth-container" class="hidden sm:block">
                     <button onclick="loginWithGoogle()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium px-4 py-2 rounded-xl text-sm shadow-sm flex items-center space-x-2 transition">
                         <i class="fa-brands fa-google text-red-500"></i>
-                        <span>Ingresar con Google</span>
+                        <span>Ingresar</span>
                     </button>
                 </div>
+                
                 <div id="user-menu" class="hidden flex items-center space-x-3">
-                    <img id="user-avatar" src="" alt="Avatar" class="w-9 h-9 rounded-full border border-pristino-500 object-cover">
+                    <img id="user-avatar" src="" alt="Avatar" class="w-8 h-8 rounded-full border border-pristino-500 object-cover">
                     <button onclick="logout()" class="text-xs text-slate-500 hover:text-red-600 font-medium"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-slate-600 hover:text-pristino-700 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-100 absolute w-full shadow-lg z-50">
+            <div class="px-4 py-3 space-y-2">
+                <button onclick="switchTab('home'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-pristino-700">Inicio</button>
+                <button onclick="switchTab('catalog'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-pristino-700">Catálogo</button>
+                <button onclick="switchTab('about'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-pristino-700">Nosotros</button>
+                <button onclick="switchTab('orders'); toggleMobileMenu()" id="mob-nav-orders" class="hidden block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-pristino-700">Mis Pedidos</button>
+                <button onclick="switchTab('admin'); toggleMobileMenu()" id="mob-nav-admin" class="hidden block w-full text-left px-3 py-2 rounded-md text-base font-medium text-emerald-700 bg-emerald-50">Panel Admin</button>
+                
+                <div id="mob-auth-btn" class="pt-2 border-t border-slate-100 mt-2">
+                     <button onclick="loginWithGoogle(); toggleMobileMenu()" class="w-full bg-pristino-600 text-white font-bold py-3 rounded-xl flex justify-center items-center space-x-2">
+                        <i class="fa-brands fa-google"></i> <span>Iniciar Sesión</span>
+                    </button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
 
         <!-- HOME TAB -->
-        <section id="tab-home" class="space-y-12">
-            <div class="relative bg-gradient-to-br from-pristino-900 via-pristino-800 to-emerald-900 rounded-3xl text-white p-8 sm:p-12 overflow-hidden shadow-xl">
-                <div class="absolute right-0 bottom-0 opacity-10 translate-x-10 translate-y-10">
-                    <i class="fa-solid fa-seedling text-[300px]"></i>
+        <section id="tab-home" class="space-y-12 animate-fade-in">
+            <div class="relative bg-gradient-to-br from-pristino-900 via-pristino-800 to-emerald-900 rounded-3xl text-white p-6 sm:p-12 overflow-hidden shadow-xl">
+                <div class="absolute right-0 bottom-0 opacity-10 translate-x-10 translate-y-10 pointer-events-none">
+                    <i class="fa-solid fa-seedling text-[200px] sm:text-[300px]"></i>
                 </div>
                 <div class="relative z-10 max-w-2xl space-y-6">
-                    <span class="bg-emerald-500/30 text-emerald-200 text-xs uppercase font-bold tracking-wider px-3 py-1 rounded-full border border-emerald-400/30">Directo del Productor a tu Casa</span>
-                    <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">Alimentación natural, justa y sin intermediarios</h1>
-                    <p class="text-emerald-100 text-base sm:text-lg">Frutos secos, semillas, harinas y productos saludables seleccionados con el compromiso de ofrecer lo mejor para vos y tu familia.</p>
-                    <div class="flex flex-wrap gap-4 pt-2">
-                        <button onclick="switchTab('catalog')" class="bg-white text-pristino-900 hover:bg-emerald-50 font-bold px-6 py-3.5 rounded-xl shadow-lg transition flex items-center space-x-2">
+                    <span class="inline-block bg-emerald-500/30 text-emerald-100 text-[10px] sm:text-xs uppercase font-bold tracking-wider px-3 py-1 rounded-full border border-emerald-400/30 backdrop-blur-sm">Directo del Productor</span>
+                    <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">Alimentación natural y justa</h1>
+                    <p class="text-emerald-100 text-sm sm:text-lg opacity-90">Frutos secos, semillas y harinas seleccionadas. Sin intermediarios.</p>
+                    <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                        <button onclick="switchTab('catalog')" class="w-full sm:w-auto bg-white text-pristino-900 hover:bg-emerald-50 font-bold px-6 py-3.5 rounded-xl shadow-lg transition flex justify-center items-center space-x-2">
                             <span>Ver Catálogo</span>
                             <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                        <button onclick="switchTab('about')" class="bg-transparent hover:bg-white/10 border border-white/30 text-white font-semibold px-6 py-3.5 rounded-xl transition">
-                            Conocé nuestra historia
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Features -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-3">
-                    <div class="w-12 h-12 bg-pristino-50 text-pristino-600 rounded-xl flex items-center justify-center text-xl">
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                    <div class="w-10 h-10 bg-pristino-50 text-pristino-600 rounded-lg flex items-center justify-center text-lg">
                         <i class="fa-solid fa-truck"></i>
                     </div>
-                    <h3 class="font-bold text-lg text-slate-900">Envíos Coordinados</h3>
-                    <p class="text-slate-600 text-sm">Llegamos a Mar del Plata y 20 localidades de la zona en un plazo de 72 horas.</p>
+                    <h3 class="font-bold text-slate-900">Envíos Rápidos</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm">Llegamos a Mar del Plata y zona en 72hs.</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-3">
-                    <div class="w-12 h-12 bg-pristino-50 text-pristino-600 rounded-xl flex items-center justify-center text-xl">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                    <div class="w-10 h-10 bg-pristino-50 text-pristino-600 rounded-lg flex items-center justify-center text-lg">
                         <i class="fa-solid fa-tags"></i>
                     </div>
-                    <h3 class="font-bold text-lg text-slate-900">Precios Justos</h3>
-                    <p class="text-slate-600 text-sm">Trabajamos con márgenes transparentes, conectando proveedores mayoristas directamente con vos.</p>
+                    <h3 class="font-bold text-slate-900">Precios Justos</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm">Sin intermediarios innecesarios.</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-3">
-                    <div class="w-12 h-12 bg-pristino-50 text-pristino-600 rounded-xl flex items-center justify-center text-xl">
-                        <i class="fa-solid fa-shield-heart"></i>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                    <div class="w-10 h-10 bg-pristino-50 text-pristino-600 rounded-lg flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-heart"></i>
                     </div>
-                    <h3 class="font-bold text-lg text-slate-900">Calidad Garantizada</h3>
-                    <p class="text-slate-600 text-sm">Selección rigurosa de cada producto para asegurar frescura y propiedades nutricionales óptimas.</p>
+                    <h3 class="font-bold text-slate-900">Calidad Premium</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm">Selección rigurosa de frescura.</p>
                 </div>
             </div>
 
             <!-- Featured Products -->
             <div class="space-y-6">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-2xl font-black text-slate-900">Productos Destacados</h2>
-                    <button onclick="switchTab('catalog')" class="text-pristino-700 hover:text-pristino-800 font-bold text-sm flex items-center space-x-1">
-                        <span>Ver todos</span>
-                        <i class="fa-solid fa-chevron-right text-xs"></i>
-                    </button>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-900">Destacados</h2>
+                    <button onclick="switchTab('catalog')" class="text-pristino-700 font-bold text-sm">Ver todos <i class="fa-solid fa-chevron-right text-xs ml-1"></i></button>
                 </div>
                 <div id="featured-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
             </div>
         </section>
 
         <!-- CATALOG TAB -->
-        <section id="tab-catalog" class="hidden space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200">
-                <div>
-                    <h2 class="text-2xl font-black text-slate-900">Catálogo de Productos</h2>
-                    <p class="text-slate-500 text-sm">Frutos secos, semillas, repostería y alimentos saludables.</p>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <input type="text" id="search-input" placeholder="Buscar producto..." oninput="filterCatalog()" class="bg-white border border-slate-300 px-4 py-2 rounded-xl text-sm focus:outline-none focus:border-pristino-500 w-full sm:w-64 shadow-sm">
+        <section id="tab-catalog" class="hidden space-y-6 animate-fade-in">
+            <div class="sticky top-0 bg-slate-50 z-30 pb-4 pt-2">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h2 class="text-2xl font-black text-slate-900">Catálogo</h2>
+                    <div class="relative w-full sm:w-64">
+                        <input type="text" id="search-input" placeholder="Buscar..." oninput="filterCatalog()" class="w-full bg-white border border-slate-300 pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-pristino-500 focus:ring-1 focus:ring-pristino-500 shadow-sm">
+                        <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400"></i>
+                    </div>
                 </div>
             </div>
-            <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+            <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pb-10"></div>
         </section>
 
         <!-- ABOUT TAB -->
-        <section id="tab-about" class="hidden max-w-3xl mx-auto space-y-8 bg-white p-8 sm:p-12 rounded-3xl shadow-sm border border-slate-100">
-            <div class="space-y-4">
-                <span class="text-xs uppercase font-bold text-pristino-600 tracking-wider bg-pristino-50 px-3 py-1 rounded-full border border-pristino-200">Nuestra Esencia</span>
-                <h2 class="text-3xl font-black text-slate-900">Quiénes Somos</h2>
+        <section id="tab-about" class="hidden max-w-3xl mx-auto space-y-8 bg-white p-6 sm:p-10 rounded-3xl shadow-sm border border-slate-100 animate-fade-in">
+            <div class="space-y-2">
+                <h2 class="text-2xl font-black text-slate-900">Nuestra Historia</h2>
+                <div class="h-1 w-20 bg-pristino-500 rounded-full"></div>
             </div>
-            <div class="prose prose-slate text-slate-600 space-y-4 text-base sm:text-lg leading-relaxed">
-                <p>
-                    <strong>Prístino</strong> nació con un propósito claro: acercar alimentos naturales y saludables directamente a las personas, sin intermediarios innecesarios. Creemos que todos merecen acceso a productos frescos y de calidad a un precio justo.
-                </p>
-                <p>
-                    Trabajamos en contacto directo con productores, seleccionando cada producto con el compromiso de ofrecer lo mejor. Somos una empresa familiar en crecimiento, impulsada por la pasión por la alimentación saludable y la transparencia en cada paso del proceso.
-                </p>
+            <div class="prose prose-slate text-slate-600 space-y-4 text-sm sm:text-base leading-relaxed">
+                <p><strong>Prístino</strong> nació con un propósito claro: acercar alimentos naturales directamente a las personas. Creemos que comer sano no debería ser un lujo.</p>
+                <p>Trabajamos con productores locales para garantizar frescura y precios accesibles para tu familia.</p>
             </div>
         </section>
 
         <!-- ORDERS TAB -->
-        <section id="tab-orders" class="hidden space-y-6">
+        <section id="tab-orders" class="hidden space-y-6 animate-fade-in">
             <h2 class="text-2xl font-black text-slate-900">Mis Pedidos</h2>
             <div id="user-orders-list" class="space-y-4"></div>
         </section>
 
         <!-- ADMIN TAB -->
-        <section id="tab-admin" class="hidden space-y-8">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+        <section id="tab-admin" class="hidden space-y-8 animate-fade-in">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-200 gap-4">
                 <div>
-                    <h2 class="text-2xl font-black text-slate-900">Panel de Administración</h2>
-                    <p class="text-slate-500 text-sm">Control manual de pedidos, pagos y gestión de productos.</p>
+                    <h2 class="text-2xl font-black text-slate-900">Admin Panel</h2>
+                    <p class="text-slate-500 text-xs">Gestión de pedidos y productos.</p>
                 </div>
-                <button onclick="openProductModal()" class="bg-pristino-600 hover:bg-pristino-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow transition flex items-center space-x-2">
+                <button onclick="openProductModal()" class="w-full sm:w-auto bg-pristino-600 hover:bg-pristino-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow transition flex items-center justify-center space-x-2">
                     <i class="fa-solid fa-plus"></i>
                     <span>Nuevo Producto</span>
                 </button>
             </div>
             <div class="space-y-6">
-                <h3 class="text-xl font-bold text-slate-800">Todos los Pedidos de Clientes</h3>
+                <h3 class="text-lg font-bold text-slate-800">Pedidos Recientes</h3>
                 <div id="admin-orders-list" class="space-y-4"></div>
             </div>
         </section>
@@ -219,83 +237,99 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 mt-16 py-8 text-center text-xs text-slate-500">
+    <footer class="bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-500">
         <div class="max-w-7xl mx-auto px-4 space-y-2">
-            <p class="font-bold text-slate-700">Prístino - Alimentos Naturales y Saludables</p>
-            <p>Mar del Plata y zona de influencia. Todos los derechos reservados © 2026</p>
+            <p class="font-bold text-slate-700 text-sm">Prístino - Alimentos Naturales</p>
+            <p>Mar del Plata © 2026</p>
+            <button id="install-pwa-btn" class="hidden mt-4 bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg">
+                <i class="fa-solid fa-download mr-1"></i> Instalar App
+            </button>
         </div>
     </footer>
 
-    <!-- CART & CHECKOUT MODAL -->
-    <div id="cart-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-8 space-y-6">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                <h3 class="text-xl font-black text-slate-900 flex items-center space-x-2">
-                    <i class="fa-solid fa-cart-shopping text-pristino-600"></i>
-                    <span>Tu Carrito de Compras</span>
+    <!-- CART MODAL -->
+    <div id="cart-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden transition-opacity duration-300">
+        <!-- Overlay click to close -->
+        <div class="absolute inset-0" onclick="toggleCartModal(false)"></div>
+        
+        <div class="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl relative z-10 flex flex-col animate-slide-up">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-slate-100 bg-white sticky top-0 z-20">
+                <h3 class="text-lg font-black text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-basket-shopping text-pristino-600"></i>
+                    <span>Tu Pedido</span>
                 </h3>
-                <button onclick="toggleCartModal(false)" class="text-slate-400 hover:text-slate-600 font-bold text-lg"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="toggleCartModal(false)" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
-            <div id="cart-items-container" class="space-y-4 divide-y divide-slate-100"></div>
+            <!-- Modal Body -->
+            <div class="p-6 space-y-6 flex-grow overflow-y-auto">
+                <div id="cart-items-container" class="space-y-4 divide-y divide-slate-100"></div>
 
-            <div class="pt-4 border-t border-slate-100 space-y-3">
-                <div class="flex justify-between text-base font-bold text-slate-900">
-                    <span>Total con Envío Incluido:</span>
-                    <span id="cart-total-price" class="text-pristino-700">$0</span>
+                <div class="bg-slate-50 p-4 rounded-xl space-y-2">
+                    <div class="flex justify-between text-sm text-slate-600">
+                        <span>Subtotal:</span>
+                        <span id="cart-subtotal">$0</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-emerald-600 font-medium">
+                        <span>Envío:</span>
+                        <span>GRATIS</span>
+                    </div>
+                    <div class="flex justify-between text-xl font-black text-slate-900 pt-2 border-t border-slate-200">
+                        <span>Total:</span>
+                        <span id="cart-total-price" class="text-pristino-700">$0</span>
+                    </div>
+                </div>
+
+                <!-- Checkout Form -->
+                <div id="checkout-form-container" class="space-y-4 pt-2">
+                    <h4 class="font-bold text-slate-800 text-sm border-l-4 border-pristino-500 pl-2">Datos de Entrega</h4>
+                    
+                    <div class="grid grid-cols-1 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">WhatsApp (Importante)</label>
+                            <input type="tel" id="checkout-whatsapp" placeholder="Tu número" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pristino-500 focus:ring-1 focus:ring-pristino-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">Localidad</label>
+                            <select id="checkout-location" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pristino-500 appearance-none">
+                                <option value="">Selecciona...</option>
+                                <option value="Mar del Plata">Mar del Plata</option>
+                                <option value="Miramar">Miramar</option>
+                                <option value="Batán">Batán</option>
+                                <option value="Chapadmalal">Chapadmalal</option>
+                                <option value="Santa Clara del Mar">Santa Clara del Mar</option>
+                                <option value="Otra">Otra (Consultar)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">Dirección Exacta</label>
+                            <input type="text" id="checkout-address" placeholder="Calle, número y depto" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pristino-500">
+                        </div>
+                    </div>
+
+                    <!-- Map Container -->
+                    <div class="pt-2">
+                        <label class="block text-xs font-bold text-slate-500 mb-2">Ubicación en Mapa (Arrastra el pin)</label>
+                        <div id="map-picker" class="w-full h-48 rounded-xl border border-slate-300 z-0"></div>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-blue-800 text-xs flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-info mt-0.5"></i>
+                        <p>Al confirmar, serás redirigido para pagar y subir el comprobante.</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Checkout Form -->
-            <div id="checkout-form-container" class="space-y-4 pt-4 border-t border-slate-100">
-                <h4 class="font-bold text-slate-800 text-sm">Datos de Envío y Contacto</h4>
-                
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">WhatsApp de Contacto (Obligatorio)</label>
-                    <input type="text" id="checkout-whatsapp" placeholder="Ej: 1121722028" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-pristino-500">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Localidad de Envío (Zona Restringida)</label>
-                    <select id="checkout-location" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-pristino-500">
-                        <option value="">Selecciona tu localidad...</option>
-                        <option value="Atlántida">Atlántida</option>
-                        <option value="Balneario Parque Mar Chiquita">Balneario Parque Mar Chiquita</option>
-                        <option value="Batán">Batán</option>
-                        <option value="Camet Norte">Camet Norte</option>
-                        <option value="Chapadmalal">Chapadmalal</option>
-                        <option value="El Coyunco">El Coyunco</option>
-                        <option value="El Marquesado">El Marquesado</option>
-                        <option value="Estación Camet">Estación Camet</option>
-                        <option value="Félix U. Camet">Félix U. Camet</option>
-                        <option value="La Caleta">La Caleta</option>
-                        <option value="La Peregrina">La Peregrina</option>
-                        <option value="Laguna de los Padres">Laguna de los Padres</option>
-                        <option value="Mar de Cobo">Mar de Cobo</option>
-                        <option value="Mar del Plata">Mar del Plata</option>
-                        <option value="Mar del Sur">Mar del Sur</option>
-                        <option value="Miramar">Miramar</option>
-                        <option value="Playa Dorada">Playa Dorada</option>
-                        <option value="San Eduardo del Mar">San Eduardo del Mar</option>
-                        <option value="Santa Clara del Mar">Santa Clara del Mar</option>
-                        <option value="Santa Elena">Santa Elena</option>
-                        <option value="Sierra de los Padres">Sierra de los Padres</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Dirección Exacta y Mapa</label>
-                    <input type="text" id="checkout-address" placeholder="Calle y número" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-pristino-500 mb-2">
-                    <div id="map-picker" class="w-full h-48 rounded-xl border border-slate-300 z-10"></div>
-                </div>
-
-                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-xs space-y-1">
-                    <p class="font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Aviso Importante antes de Pagar:</p>
-                    <p>Por favor, al realizar el pago, <strong>guarda y toma captura de pantalla del comprobante</strong>. Lo vas a necesitar subir en el siguiente paso para confirmar tu pedido y obtener tu número de orden y seguimiento.</p>
-                </div>
-
-                <button onclick="processCheckout()" class="w-full bg-pristino-600 hover:bg-pristino-700 text-white font-bold py-3 rounded-xl shadow transition">
-                    Pagar con Mercado Pago / Confirmar Pedido
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-slate-100 bg-white sticky bottom-0 z-20">
+                <button onclick="processCheckout()" class="w-full bg-pristino-600 hover:bg-pristino-700 active:bg-pristino-800 text-white font-bold py-3.5 rounded-xl shadow-lg transition transform active:scale-[0.98] text-base">
+                    Confirmar y Pagar
                 </button>
             </div>
         </div>
@@ -303,25 +337,15 @@
 
     <!-- PRODUCT MODAL (ADMIN) -->
     <div id="product-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4">
-            <h3 class="text-xl font-bold text-slate-900">Agregar Nuevo Producto</h3>
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 animate-scale-in">
+            <h3 class="text-xl font-bold text-slate-900">Nuevo Producto</h3>
             <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre</label>
-                    <input type="text" id="prod-name" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
+                <input type="text" id="prod-name" placeholder="Nombre del producto" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="prod-cost" placeholder="Costo $" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm" oninput="calculateSuggestedPrice()">
+                    <input type="number" id="prod-price" placeholder="Venta $" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Precio Costo ($)</label>
-                    <input type="number" id="prod-cost" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm" oninput="calculateSuggestedPrice()">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Precio Venta con Envío Incluido ($) [Sugerido +71%]</label>
-                    <input type="number" id="prod-price" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Imagen (URL ImgBB)</label>
-                    <input type="text" id="prod-image-url" placeholder="https://i.ibb.co/..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
-                </div>
+                <input type="text" id="prod-image-url" placeholder="URL Imagen (ImgBB)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
             </div>
             <div class="flex space-x-3 pt-2">
                 <button onclick="saveProduct()" class="flex-1 bg-pristino-600 text-white font-bold py-2 rounded-xl text-sm">Guardar</button>
@@ -330,24 +354,27 @@
         </div>
     </div>
 
-    <!-- PAYMENT RECEIPT UPLOAD MODAL -->
+    <!-- RECEIPT UPLOAD MODAL -->
     <div id="receipt-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4">
-            <h3 class="text-xl font-bold text-slate-900">Subir Comprobante de Pago</h3>
-            <p class="text-xs text-slate-500">Sube la captura de pantalla de tu comprobante para que el administrador apruebe tu orden.</p>
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 animate-scale-in">
+            <h3 class="text-xl font-bold text-slate-900 text-center">Subir Comprobante</h3>
+            <p class="text-xs text-slate-500 text-center">Adjunta la captura de pantalla del pago.</p>
             <input type="hidden" id="receipt-order-id">
-            <div>
-                <input type="file" id="receipt-file" class="w-full text-xs text-slate-500 mb-2">
+            <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition cursor-pointer relative">
+                <input type="file" id="receipt-file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-2"></i>
+                <p class="text-xs text-slate-500 font-medium">Toca para seleccionar imagen</p>
             </div>
             <div class="flex space-x-3 pt-2">
-                <button onclick="uploadReceiptAndSubmit()" class="flex-1 bg-pristino-600 text-white font-bold py-2 rounded-xl text-sm">Subir Comprobante</button>
-                <button onclick="document.getElementById('receipt-modal').classList.add('hidden')" class="flex-1 bg-slate-200 text-slate-700 font-bold py-2 rounded-xl text-sm">Cancelar</button>
+                <button onclick="uploadReceiptAndSubmit()" class="flex-1 bg-pristino-600 text-white font-bold py-2 rounded-xl text-sm">Enviar</button>
+                <button onclick="document.getElementById('receipt-modal').classList.add('hidden')" class="flex-1 bg-slate-200 text-slate-700 font-bold py-2 rounded-xl text-sm">Cerrar</button>
             </div>
         </div>
     </div>
 
-    <!-- Script -->
+    <!-- Script Logic -->
     <script>
+        // --- CONFIGURACIÓN FIREBASE Y API ---
         const firebaseConfig = {
             apiKey: "AIzaSyC6bjIuLJyEUhUSnMjlpgZW_DW7gRek0eg",
             authDomain: "almendra-5b24a.firebaseapp.com",
@@ -357,11 +384,13 @@
             appId: "1:966237946242:web:53225d90ca1e98c99e4f9b"
         };
         const IMGBB_API_KEY = "b000e610658055f1ff9319512830cede";
-        const MERCADO_PAGO_TOKEN = "APP_USR-2955434807999492-091915-855e6dc48a84e7b02a51fb8a9425c966-323912180";
         const ADMIN_EMAIL = "cepedademian2005@gmail.com";
         const ADMIN_WHATSAPP = "5491121722028";
 
-        firebase.initializeApp(firebaseConfig);
+        // Inicializar Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const auth = firebase.auth();
         const db = firebase.firestore();
 
@@ -370,7 +399,9 @@
         let products = [];
         let map = null, marker = null;
         let selectedLat = -38.0055, selectedLng = -57.5426;
+        let deferredPrompt; // Para PWA Install
 
+        // --- INICIALIZACIÓN ---
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged(user => {
                 currentUser = user;
@@ -378,42 +409,69 @@
                 loadProductsFromFirestore();
             });
             renderCatalog();
-            initMap();
+            setupPWA();
         });
+
+        // --- UI HELPERS ---
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
 
         function switchTab(tabId) {
             ['home', 'catalog', 'about', 'orders', 'admin'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
+                const el = document.getElementById(`tab-${t}`);
+                if(el) el.classList.add('hidden');
             });
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const target = document.getElementById(`tab-${tabId}`);
+            if(target) target.classList.remove('hidden');
+            
+            window.scrollTo(0,0);
+            
             if(tabId === 'orders') loadUserOrders();
             if(tabId === 'admin') loadAdminOrders();
         }
 
         function updateAuthUI() {
             const authContainer = document.getElementById('auth-container');
+            const mobAuthBtn = document.getElementById('mob-auth-btn');
             const userMenu = document.getElementById('user-menu');
             const navAdmin = document.getElementById('nav-admin');
+            const mobNavAdmin = document.getElementById('mob-nav-admin');
             const navOrders = document.getElementById('nav-orders');
+            const mobNavOrders = document.getElementById('mob-nav-orders');
 
             if (currentUser) {
-                authContainer.classList.add('hidden');
+                if(authContainer) authContainer.classList.add('hidden');
+                if(mobAuthBtn) mobAuthBtn.classList.add('hidden');
                 userMenu.classList.remove('hidden');
                 document.getElementById('user-avatar').src = currentUser.photoURL || 'https://via.placeholder.com/40';
+                
                 navOrders.classList.remove('hidden');
-                if (currentUser.email === ADMIN_EMAIL) navAdmin.classList.remove('hidden');
-                else navAdmin.classList.add('hidden');
+                mobNavOrders.classList.remove('hidden');
+
+                if (currentUser.email === ADMIN_EMAIL) {
+                    navAdmin.classList.remove('hidden');
+                    mobNavAdmin.classList.remove('hidden');
+                } else {
+                    navAdmin.classList.add('hidden');
+                    mobNavAdmin.classList.add('hidden');
+                }
             } else {
-                authContainer.classList.remove('hidden');
+                if(authContainer) authContainer.classList.remove('hidden');
+                if(mobAuthBtn) mobAuthBtn.classList.remove('hidden');
                 userMenu.classList.add('hidden');
                 navAdmin.classList.add('hidden');
+                mobNavAdmin.classList.add('hidden');
                 navOrders.classList.add('hidden');
+                mobNavOrders.classList.add('hidden');
             }
         }
 
+        // --- AUTH ---
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => alert("Error al iniciar sesión: " + error.message));
+            auth.signInWithPopup(provider).catch(error => alert("Error: " + error.message));
         }
 
         function logout() {
@@ -421,24 +479,31 @@
             switchTab('home');
         }
 
+        // --- MAPA ---
         function initMap() {
             setTimeout(() => {
-                if (!map && document.getElementById('map-picker')) {
+                const mapEl = document.getElementById('map-picker');
+                if (mapEl && !map) {
                     map = L.map('map-picker').setView([selectedLat, selectedLng], 13);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
                     marker = L.marker([selectedLat, selectedLng], {draggable: true}).addTo(map);
+                    
                     marker.on('dragend', function() {
                         const pos = marker.getLatLng();
                         selectedLat = pos.lat; selectedLng = pos.lng;
                     });
+                    
                     map.on('click', function(e) {
                         marker.setLatLng(e.latlng);
                         selectedLat = e.latlng.lat; selectedLng = e.latlng.lng;
                     });
+                } else if (map) {
+                    map.invalidateSize();
                 }
-            }, 500);
+            }, 300);
         }
 
+        // --- PRODUCTOS ---
         async function loadProductsFromFirestore() {
             try {
                 const snapshot = await db.collection('products').get();
@@ -447,7 +512,7 @@
                     snapshot.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
                 }
                 renderCatalog();
-            } catch(e) {}
+            } catch(e) { console.error(e); }
         }
 
         function renderCatalog() {
@@ -456,135 +521,191 @@
             if(!grid) return;
 
             if (products.length === 0) {
-                grid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-8">Aún no hay productos cargados en la tienda.</p>';
-                if (featuredGrid) featuredGrid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-8">Aún no hay productos disponibles.</p>';
+                grid.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400">Cargando catálogo...</div>';
                 return;
             }
 
-            let html = '';
-            products.forEach(p => {
-                html += `
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between">
-                        <div>
-                            <div class="h-48 bg-slate-100 relative">
-                                <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover">
-                                <span class="absolute top-3 right-3 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Envío Incluido</span>
-                            </div>
-                            <div class="p-5 space-y-2">
-                                <h3 class="font-bold text-slate-900">${p.name}</h3>
-                                <div class="text-2xl font-black text-pristino-700">$${p.price.toLocaleString()}</div>
-                            </div>
-                        </div>
-                        <div class="p-5 pt-0">
-                            <button onclick="addToCart('${p.id}')" class="w-full bg-pristino-50 hover:bg-pristino-500 text-pristino-700 hover:text-white font-bold py-2.5 rounded-xl transition text-sm">Agregar al Carrito</button>
-                        </div>
+            const generateCard = (p) => `
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col group hover:shadow-md transition">
+                    <div class="h-48 bg-slate-100 relative overflow-hidden">
+                        <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <span class="absolute top-2 right-2 bg-white/90 backdrop-blur text-pristino-700 text-[10px] font-bold px-2 py-1 rounded-full uppercase shadow-sm">Envío Gratis</span>
                     </div>
-                `;
-            });
-            grid.innerHTML = html;
-            if(featuredGrid) featuredGrid.innerHTML = html.split('<div class="bg-white').slice(0, 4).map(s => '<div class="bg-white' + s).join('');
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="font-bold text-slate-900 text-sm sm:text-base mb-1">${p.name}</h3>
+                        <div class="text-xl font-black text-pristino-700 mb-3">$${p.price.toLocaleString()}</div>
+                        <button onclick="addToCart('${p.id}')" class="mt-auto w-full bg-slate-50 hover:bg-pristino-600 hover:text-white text-pristino-700 font-bold py-2.5 rounded-xl transition text-sm border border-slate-200 hover:border-pristino-600">
+                            Agregar
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            grid.innerHTML = products.map(generateCard).join('');
+            
+            // Featured logic (first 4)
+            if(featuredGrid) {
+                featuredGrid.innerHTML = products.slice(0, 4).map(generateCard).join('');
+            }
         }
 
         function filterCatalog() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const filtered = products.filter(p => p.name.toLowerCase().includes(query));
-            document.getElementById('catalog-grid').innerHTML = filtered.map(p => `
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between">
-                    <div>
-                        <div class="h-48 bg-slate-100 relative"><img src="${p.image}" class="w-full h-full object-cover"></div>
-                        <div class="p-5 space-y-2">
-                            <h3 class="font-bold text-slate-900">${p.name}</h3>
-                            <div class="text-2xl font-black text-pristino-700">$${p.price.toLocaleString()}</div>
-                        </div>
-                    </div>
-                    <div class="p-5 pt-0">
-                        <button onclick="addToCart('${p.id}')" class="w-full bg-pristino-50 hover:bg-pristino-500 text-pristino-700 hover:text-white font-bold py-2.5 rounded-xl transition text-sm">Agregar al Carrito</button>
+            const grid = document.getElementById('catalog-grid');
+            
+            if(filtered.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-8 text-slate-400">No se encontraron productos.</div>';
+                return;
+            }
+
+            const generateCard = (p) => `
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+                    <div class="h-48 bg-slate-100"><img src="${p.image}" class="w-full h-full object-cover"></div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="font-bold text-slate-900">${p.name}</h3>
+                        <div class="text-xl font-black text-pristino-700 my-2">$${p.price.toLocaleString()}</div>
+                        <button onclick="addToCart('${p.id}')" class="mt-auto w-full bg-pristino-50 text-pristino-700 font-bold py-2 rounded-xl text-sm">Agregar</button>
                     </div>
                 </div>
-            `).join('');
+            `;
+            grid.innerHTML = filtered.map(generateCard).join('');
         }
 
+        // --- CARRITO ---
         function addToCart(id) {
             const prod = products.find(p => p.id === id);
             const existing = cart.find(item => item.id === id);
             if(existing) existing.qty++;
             else cart.push({ ...prod, qty: 1 });
+            
             updateCartBadge();
+            
+            // Feedback visual simple
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "¡Listo!";
+            btn.classList.add("bg-pristino-600", "text-white");
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.classList.remove("bg-pristino-600", "text-white");
+            }, 1000);
         }
 
         function updateCartBadge() {
             const badge = document.getElementById('cart-badge');
             const totalCount = cart.reduce((sum, i) => sum + i.qty, 0);
-            if(totalCount > 0) { badge.innerText = totalCount; badge.classList.remove('hidden'); }
-            else badge.classList.add('hidden');
+            if(totalCount > 0) { 
+                badge.innerText = totalCount; 
+                badge.classList.remove('hidden'); 
+            } else {
+                badge.classList.add('hidden');
+            }
         }
 
-        // Reemplaza tu función toggleCartModal actual por esta:
-function toggleCartModal(show) {
-    const modal = document.getElementById('cart-modal');
-    if(show) { 
-        renderCartItems(); 
-        modal.classList.remove('hidden'); 
-        initMap(); 
-        // Forzar a que el mapa cargue bien el tamaño al abrir el modal
-        setTimeout(() => { 
-            if(map) map.invalidateSize(); 
-        }, 250); 
-    }
-    else {
-        modal.classList.add('hidden');
-    }
-}
+        function toggleCartModal(show) {
+            const modal = document.getElementById('cart-modal');
+            if(show) { 
+                renderCartItems(); 
+                modal.classList.remove('hidden'); 
+                initMap(); 
+                // Bloquear scroll del body
+                document.body.style.overflow = 'hidden';
+            } else {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
 
         function renderCartItems() {
             const container = document.getElementById('cart-items-container');
             const totalEl = document.getElementById('cart-total-price');
-            if(cart.length === 0) { container.innerHTML = '<p class="text-center text-slate-500 py-4">Tu carrito está vacío</p>'; totalEl.innerText = '$0'; return; }
+            const subtotalEl = document.getElementById('cart-subtotal');
+            
+            if(cart.length === 0) { 
+                container.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fa-solid fa-basket-shopping text-4xl mb-2 opacity-30"></i><p>Tu carrito está vacío</p></div>'; 
+                totalEl.innerText = '$0'; 
+                subtotalEl.innerText = '$0';
+                return; 
+            }
+            
             let html = '', total = 0;
             cart.forEach((item, index) => {
                 total += item.price * item.qty;
                 html += `
                     <div class="flex items-center justify-between py-3">
-                        <div>
-                            <h4 class="font-bold text-sm text-slate-900">${item.name}</h4>
-                            <p class="text-xs text-slate-500">$${item.price.toLocaleString()} x ${item.qty}</p>
+                        <div class="flex items-center space-x-3">
+                             <div class="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0">
+                                <img src="${item.image}" class="w-full h-full object-cover">
+                             </div>
+                             <div>
+                                <h4 class="font-bold text-sm text-slate-900">${item.name}</h4>
+                                <p class="text-xs text-slate-500">$${item.price.toLocaleString()} x ${item.qty}</p>
+                             </div>
                         </div>
                         <div class="flex items-center space-x-3">
                             <span class="font-bold text-sm text-slate-800">$${(item.price * item.qty).toLocaleString()}</span>
-                            <button onclick="removeFromCart(${index})" class="text-red-500 text-sm"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="removeFromCart(${index})" class="text-slate-300 hover:text-red-500 p-1"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
                     </div>
                 `;
             });
             container.innerHTML = html;
+            subtotalEl.innerText = '$' + total.toLocaleString();
             totalEl.innerText = '$' + total.toLocaleString();
         }
 
-        function removeFromCart(index) { cart.splice(index, 1); renderCartItems(); updateCartBadge(); }
+        function removeFromCart(index) { 
+            cart.splice(index, 1); 
+            renderCartItems(); 
+            updateCartBadge(); 
+        }
 
+        // --- CHECKOUT ---
         async function processCheckout() {
-            if(!currentUser) { alert("Inicia sesión con Google."); loginWithGoogle(); return; }
+            if(!currentUser) { 
+                alert("Por favor inicia sesión para continuar."); 
+                toggleCartModal(false);
+                loginWithGoogle(); 
+                return; 
+            }
             if(cart.length === 0) { alert("Carrito vacío."); return; }
+            
             const whatsapp = document.getElementById('checkout-whatsapp').value.trim();
             const location = document.getElementById('checkout-location').value;
             const address = document.getElementById('checkout-address').value.trim();
 
-            if(!whatsapp || !location || !address) { alert("Completa tu WhatsApp, localidad y dirección."); return; }
+            if(!whatsapp || !location || !address) { alert("Por favor completa todos los datos de envío."); return; }
 
             const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            
+            // Botón loading
+            const btn = event.target;
+            const oldText = btn.innerText;
+            btn.innerText = "Procesando...";
+            btn.disabled = true;
+
             const orderData = {
                 userId: currentUser.uid, userEmail: currentUser.email, userName: currentUser.displayName,
                 whatsapp, location, address, coordinates: { lat: selectedLat, lng: selectedLng },
-                items: cart, total, status: 'Pendiente de Comprobante', receiptUrl: '',
+                items: cart, total, status: 'Pendiente de Pago', receiptUrl: '',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
                 const docRef = await db.collection('orders').add(orderData);
-                alert("¡Pedido registrado! ID: " + docRef.id + "\n\nSube ahora tu comprobante de pago.");
                 cart = []; updateCartBadge(); toggleCartModal(false);
+                
+                // Simular flujo de pago (En producción aquí iría la integración real de MP)
+                alert("¡Pedido creado exitosamente!\n\nAhora sube el comprobante de transferencia para validar tu orden #" + docRef.id.substring(0,6));
+                
                 openReceiptModal(docRef.id);
-            } catch(e) { alert("Error: " + e.message); }
+            } catch(e) { 
+                alert("Error al crear pedido: " + e.message); 
+            } finally {
+                btn.innerText = oldText;
+                btn.disabled = false;
+            }
         }
 
         function openReceiptModal(orderId) {
@@ -595,71 +716,112 @@ function toggleCartModal(show) {
         async function uploadReceiptAndSubmit() {
             const orderId = document.getElementById('receipt-order-id').value;
             const fileInput = document.getElementById('receipt-file');
-            if(fileInput.files.length === 0) { alert("Selecciona la captura."); return; }
-            const formData = new FormData(); formData.append('image', fileInput.files[0]);
+            if(fileInput.files.length === 0) { alert("Selecciona una imagen."); return; }
+            
+            const formData = new FormData(); 
+            formData.append('image', fileInput.files[0]);
+
+            const btn = event.target;
+            btn.innerText = "Subiendo...";
+            btn.disabled = true;
 
             try {
                 const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
                 const data = await res.json();
                 if(data.success) {
-                    await db.collection('orders').doc(orderId).update({ receiptUrl: data.data.url, status: 'Pendiente de Aprobación Manual' });
-                    alert("¡Comprobante subido!");
+                    await db.collection('orders').doc(orderId).update({ 
+                        receiptUrl: data.data.url, 
+                        status: 'Pendiente de Aprobación' 
+                    });
+                    alert("¡Comprobante enviado! Te avisaremos por WhatsApp cuando lo revisemos.");
                     document.getElementById('receipt-modal').classList.add('hidden');
                     switchTab('orders');
-                } else alert("Error al subir.");
-            } catch(e) { alert("Error: " + e.message); }
+                } else alert("Error al subir imagen.");
+            } catch(e) { alert("Error de conexión: " + e.message); }
+            finally {
+                btn.innerText = "Enviar";
+                btn.disabled = false;
+            }
         }
 
+        // --- USER ORDERS ---
         async function loadUserOrders() {
             if(!currentUser) return;
             const container = document.getElementById('user-orders-list');
-            container.innerHTML = '<p class="text-center text-slate-500 py-4">Cargando...</p>';
+            container.innerHTML = '<div class="flex justify-center py-8"><i class="fa-solid fa-spinner fa-spin text-pristino-600 text-2xl"></i></div>';
+            
             try {
-                const snapshot = await db.collection('orders').where('userId', '==', currentUser.uid).get();
-                if(snapshot.empty) { container.innerHTML = '<p class="text-center text-slate-500 py-4">Sin pedidos.</p>'; return; }
+                const snapshot = await db.collection('orders').where('userId', '==', currentUser.uid).orderBy('createdAt', 'desc').get();
+                if(snapshot.empty) { container.innerHTML = '<p class="text-center text-slate-500 py-8 bg-white rounded-xl">Aún no has realizado pedidos.</p>'; return; }
+                
                 let html = '';
                 snapshot.forEach(doc => {
                     const o = doc.data(), orderId = doc.id;
-                    const waText = encodeURIComponent(`Hola! Quiero consultar sobre mi pedido #${orderId} (${o.location} - ${o.address}).`);
+                    const date = o.createdAt ? new Date(o.createdAt.seconds * 1000).toLocaleDateString() : 'Reciente';
+                    
+                    let statusColor = 'bg-slate-100 text-slate-600';
+                    if(o.status.includes('Aprobado')) statusColor = 'bg-emerald-100 text-emerald-800';
+                    if(o.status.includes('Pendiente')) statusColor = 'bg-amber-100 text-amber-800';
+
                     html += `
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-                            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                                <div><span class="text-xs font-bold text-pristino-600 bg-pristino-50 px-2.5 py-1 rounded-lg">Orden #${orderId.substring(0,8)}</span><h4 class="font-bold text-slate-900 mt-1">Total: $${o.total.toLocaleString()}</h4></div>
-                                <span class="px-3 py-1 rounded-full text-xs font-bold ${o.status.includes('Aprobado') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${o.status}</span>
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-xs font-bold text-slate-400">#${orderId.substring(0,6)}</span>
+                                    <h4 class="font-bold text-slate-900 text-lg">$${o.total.toLocaleString()}</h4>
+                                    <p class="text-xs text-slate-500">${date}</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold ${statusColor}">${o.status}</span>
                             </div>
-                            <p class="text-sm text-slate-600"><strong>Destino:</strong> ${o.location} - ${o.address} | <strong>WhatsApp:</strong> ${o.whatsapp}</p>
-                            <div class="flex gap-3">
-                                ${o.receiptUrl ? `<a href="${o.receiptUrl}" target="_blank" class="text-xs font-bold text-pristino-700 bg-pristino-50 px-3 py-2 rounded-xl">Ver Comprobante</a>` : `<button onclick="openReceiptModal('${orderId}')" class="text-xs font-bold text-white bg-amber-600 px-3 py-2 rounded-xl">Subir Comprobante</button>`}
-                                <a href="https://wa.me/${ADMIN_WHATSAPP}?text=${waText}" target="_blank" class="text-xs font-bold text-white bg-emerald-600 px-3 py-2 rounded-xl flex items-center space-x-1.5"><i class="fa-brands fa-whatsapp text-sm"></i><span>WhatsApp</span></a>
+                            <div class="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg">
+                                <p><i class="fa-solid fa-location-dot w-5 text-center"></i> ${o.location}</p>
+                                <p><i class="fa-solid fa-house w-5 text-center"></i> ${o.address}</p>
+                            </div>
+                            <div class="flex gap-2 pt-2">
+                                ${o.receiptUrl ? `<a href="${o.receiptUrl}" target="_blank" class="flex-1 text-center text-xs font-bold text-pristino-700 bg-pristino-50 py-2 rounded-lg border border-pristino-100">Ver Pago</a>` : `<button onclick="openReceiptModal('${orderId}')" class="flex-1 text-xs font-bold text-white bg-amber-500 py-2 rounded-lg shadow-sm">Pagar Ahora</button>`}
+                                <a href="https://wa.me/${ADMIN_WHATSAPP}?text=Hola,%20consulta%20pedido%20${orderId}" target="_blank" class="w-10 flex items-center justify-center bg-emerald-500 text-white rounded-lg"><i class="fa-brands fa-whatsapp"></i></a>
                             </div>
                         </div>
                     `;
                 });
                 container.innerHTML = html;
-            } catch(e) {}
+            } catch(e) { console.error(e); container.innerHTML = '<p class="text-red-500 text-center">Error al cargar.</p>'; }
         }
 
+        // --- ADMIN ---
         async function loadAdminOrders() {
             if(!currentUser || currentUser.email !== ADMIN_EMAIL) return;
             const container = document.getElementById('admin-orders-list');
-            container.innerHTML = '<p class="text-center text-slate-500 py-4">Cargando...</p>';
+            container.innerHTML = '<div class="flex justify-center py-8"><i class="fa-solid fa-spinner fa-spin text-pristino-600 text-2xl"></i></div>';
+            
             try {
-                const snapshot = await db.collection('orders').orderBy('createdAt', 'desc').get();
-                if(snapshot.empty) { container.innerHTML = '<p class="text-center text-slate-500 py-4">Sin pedidos.</p>'; return; }
+                const snapshot = await db.collection('orders').orderBy('createdAt', 'desc').limit(20).get();
+                if(snapshot.empty) { container.innerHTML = '<p class="text-center text-slate-500 py-4">Sin pedidos recientes.</p>'; return; }
+                
                 let html = '';
                 snapshot.forEach(doc => {
                     const o = doc.data(), orderId = doc.id;
                     html += `
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-                            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                                <div><span class="text-xs text-slate-500">Cliente: ${o.userName}</span><h4 class="font-bold">Orden #${orderId} - $${o.total.toLocaleString()}</h4></div>
-                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100">${o.status}</span>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-slate-900">${o.userName}</span>
+                                    <span class="text-xs text-slate-400">#${orderId.substring(0,6)}</span>
+                                </div>
+                                <p class="text-sm text-slate-600">$${o.total.toLocaleString()} - ${o.location}</p>
+                                <p class="text-xs text-slate-500 truncate max-w-[200px]">${o.address}</p>
                             </div>
-                            <p class="text-sm text-slate-600"><strong>Destino:</strong> ${o.location} - ${o.address} | <strong>WApp:</strong> ${o.whatsapp}</p>
-                            <div class="flex gap-3 items-center">
-                                ${o.receiptUrl ? `<a href="${o.receiptUrl}" target="_blank" class="text-xs font-bold text-pristino-700 bg-pristino-50 px-3 py-2 rounded-xl">Ver Comprobante</a>` : '<span class="text-xs text-red-500">Sin comprobante</span>'}
-                                <button onclick="updateOrderStatus('${orderId}', 'Aprobado - En camino (72hs)')" class="text-xs font-bold text-white bg-emerald-600 px-3 py-2 rounded-xl">Aprobar y Enviar</button>
-                                <button onclick="updateOrderStatus('${orderId}', 'Entregado')" class="text-xs font-bold text-white bg-blue-600 px-3 py-2 rounded-xl">Entregado</button>
+                            
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs px-2 py-1 rounded bg-slate-100 font-medium">${o.status}</span>
+                                ${o.receiptUrl ? `<a href="${o.receiptUrl}" target="_blank" class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded">Img</a>` : ''}
+                                
+                                <select onchange="updateOrderStatus('${orderId}', this.value)" class="text-xs border border-slate-300 rounded p-1">
+                                    <option value="">Cambiar Estado</option>
+                                    <option value="Aprobado - En Camino">Aprobar</option>
+                                    <option value="Entregado">Entregado</option>
+                                    <option value="Cancelado">Cancelar</option>
+                                </select>
                             </div>
                         </div>
                     `;
@@ -669,26 +831,109 @@ function toggleCartModal(show) {
         }
 
         async function updateOrderStatus(orderId, status) {
+            if(!status) return;
             await db.collection('orders').doc(orderId).update({ status });
-            alert("Actualizado."); loadAdminOrders();
+            loadAdminOrders();
         }
 
+        // --- ADMIN PRODUCTS ---
         function openProductModal() { document.getElementById('product-modal').classList.remove('hidden'); }
         function closeProductModal() { document.getElementById('product-modal').classList.add('hidden'); }
         function calculateSuggestedPrice() {
             const cost = parseFloat(document.getElementById('prod-cost').value) || 0;
             document.getElementById('prod-price').value = Math.round(cost * 1.71);
         }
-
         async function saveProduct() {
             const name = document.getElementById('prod-name').value.trim();
-            const cost = parseFloat(document.getElementById('prod-cost').value) || 0;
             const price = parseFloat(document.getElementById('prod-price').value) || 0;
             const image = document.getElementById('prod-image-url').value.trim() || 'https://images.unsplash.com/photo-1599599810694-b5b37242c4fe?w=500';
-            if(!name || !price) { alert("Completa nombre y precio."); return; }
-            await db.collection('products').add({ name, cost, price, image });
-            alert("Producto guardado."); closeProductModal(); loadProductsFromFirestore();
+            
+            if(!name || !price) { alert("Faltan datos"); return; }
+            
+            await db.collection('products').add({ name, price, image, cost: 0 });
+            alert("Guardado!"); 
+            closeProductModal(); 
+            loadProductsFromFirestore();
+        }
+
+        // --- PWA LOGIC ---
+        function setupPWA() {
+            // 1. Crear Manifest dinámicamente
+            const manifest = {
+                "name": "Prístino Alimentos",
+                "short_name": "Prístino",
+                "start_url": ".",
+                "display": "standalone",
+                "background_color": "#ffffff",
+                "theme_color": "#047857",
+                "icons": [
+                    {
+                        "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23047857'/><path fill='%23ffffff' d='M25,18 L55,18 C70,18 80,25 80,40 C80,55 70,62 55,62 L42,62 L42,82 L25,82 Z'/></svg>",
+                        "sizes": "192x192",
+                        "type": "image/svg+xml"
+                    },
+                    {
+                        "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23047857'/><path fill='%23ffffff' d='M25,18 L55,18 C70,18 80,25 80,40 C80,55 70,62 55,62 L42,62 L42,82 L25,82 Z'/></svg>",
+                        "sizes": "512x512",
+                        "type": "image/svg+xml"
+                    }
+                ]
+            };
+            
+            const stringManifest = JSON.stringify(manifest);
+            const blob = new Blob([stringManifest], {type: 'application/json'});
+            const manifestURL = URL.createObjectURL(blob);
+            
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = manifestURL;
+            document.head.appendChild(link);
+
+            // 2. Registrar Service Worker básico (para que Chrome permita instalar)
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+                    self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => new Response("Offline"))));
+                `;
+                const swBlob = new Blob([swCode], {type: 'application/javascript'});
+                const swUrl = URL.createObjectURL(swBlob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log('SW Registrado'))
+                    .catch(err => console.log('SW Error', err));
+            }
+
+            // 3. Manejar evento de instalación
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                const installBtn = document.getElementById('install-pwa-btn');
+                installBtn.classList.remove('hidden');
+                
+                installBtn.addEventListener('click', () => {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('Usuario aceptó instalar');
+                            installBtn.classList.add('hidden');
+                        }
+                        deferredPrompt = null;
+                    });
+                });
+            });
         }
     </script>
+    
+    <style>
+        /* Animaciones suaves */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-scale-in { animation: scaleIn 0.2s ease-out forwards; }
+    </style>
 </body>
 </html>

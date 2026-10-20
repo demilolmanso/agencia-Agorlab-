@@ -272,6 +272,7 @@
                         <option value="La Peregrina">La Peregrina</option>
                         <option value="Laguna de los Padres">Laguna de los Padres</option>
                         <option value="Mar de Cobo">Mar de Cobo</option>
+                        <option value="Mar del Plata">Mar del Plata</option>
                         <option value="Mar del Sur">Mar del Sur</option>
                         <option value="Miramar">Miramar</option>
                         <option value="Playa Dorada">Playa Dorada</option>
@@ -518,11 +519,22 @@
             else badge.classList.add('hidden');
         }
 
-        function toggleCartModal(show) {
-            const modal = document.getElementById('cart-modal');
-            if(show) { renderCartItems(); modal.classList.remove('hidden'); initMap(); }
-            else modal.classList.add('hidden');
-        }
+        // Reemplaza tu función toggleCartModal actual por esta:
+function toggleCartModal(show) {
+    const modal = document.getElementById('cart-modal');
+    if(show) { 
+        renderCartItems(); 
+        modal.classList.remove('hidden'); 
+        initMap(); 
+        // Forzar a que el mapa cargue bien el tamaño al abrir el modal
+        setTimeout(() => { 
+            if(map) map.invalidateSize(); 
+        }, 250); 
+    }
+    else {
+        modal.classList.add('hidden');
+    }
+}
 
         function renderCartItems() {
             const container = document.getElementById('cart-items-container');

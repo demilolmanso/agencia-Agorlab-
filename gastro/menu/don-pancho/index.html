@@ -1,1 +1,1787 @@
-sjhhdjsdh
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Menú Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f9fafb;
+            --header-bg: #ffffff;
+            --accent-color: #3b82f6;
+            --text-color: #1f2937;
+            --text-muted: #6b7280;
+            --card-bg: #ffffff;
+            --card-border-radius: 12px;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --custom-font: 'Inter', sans-serif;
+            --tabs-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --category-font-size: 2rem;
+        }
+
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--custom-font);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.4s ease;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        .menu-header {
+            background: var(--header-bg);
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .business-name { cursor: pointer; user-select: none; transition: transform 0.15s; }
+        .business-name:active { transform: scale(0.97); }
+
+        .auth-buttons-wrapper {
+            max-height: 0; overflow: hidden; opacity: 0;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .auth-buttons-wrapper.visible,
+        .auth-buttons-wrapper.permanent { max-height: 60px; opacity: 1; }
+
+        /* ============================================ */
+        /* SELECTOR DE CATEGORÍAS (pantalla inicial)    */
+        /* ============================================ */
+        .selector-title {
+            font-size: 1.6rem; font-weight: 800;
+            color: var(--text-color);
+            margin: 0 0 6px;
+        }
+        .selector-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 0 0 24px;
+        }
+        .selector-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+        @media (min-width: 640px) { .selector-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
+        @media (min-width: 1024px) { .selector-grid { grid-template-columns: repeat(4, 1fr); gap: 22px; } }
+
+        .selector-card {
+            background: var(--card-bg);
+            border-radius: var(--card-border-radius);
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.25s, box-shadow 0.25s;
+            animation: fadeInUp 0.4s ease-out both;
+            border: 1px solid var(--border-color);
+        }
+        .selector-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,0.15); }
+        .selector-card:active { transform: scale(0.97); }
+        .selector-card .sel-thumb {
+            width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+        }
+        .selector-card .sel-body { padding: 12px 14px; }
+        .selector-card .sel-name {
+            font-weight: 700; color: var(--text-color);
+            font-size: 1rem; line-height: 1.2; display: block;
+        }
+        .selector-card .sel-count {
+            color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; display: block;
+        }
+        .selector-card .sel-arrow {
+            position: absolute; top: 10px; right: 10px;
+            background: var(--accent-color); color: #fff;
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 700;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        }
+
+        /* ============================================ */
+        /* BARRA DE VISTA DE CATEGORÍA                  */
+        /* ============================================ */
+        .category-view-bar {
+            position: sticky; top: 64px; z-index: 30;
+            background: var(--tabs-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 16px;
+            display: flex; align-items: center; gap: 12px;
+            backdrop-filter: blur(10px);
+        }
+        .back-btn {
+            background: transparent;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 14px; border-radius: 999px;
+            font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .back-btn:hover { color: var(--accent-color); border-color: var(--accent-color); }
+        .cv-info { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 10px; }
+        .cv-title {
+            font-weight: 800; color: var(--accent-color);
+            font-size: 1.05rem; letter-spacing: 0.5px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .cv-counter { color: var(--text-muted); font-size: 0.75rem; flex-shrink: 0; }
+        .cv-dots { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+        .cv-dots .dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--border-color);
+            cursor: pointer; transition: all 0.3s;
+        }
+        .cv-dots .dot.active { background: var(--accent-color); width: 20px; border-radius: 999px; }
+        .cv-arrow {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            color: var(--text-color);
+            width: 36px; height: 36px; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0; transition: all 0.2s;
+        }
+        .cv-arrow:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        @media (min-width: 768px) { .cv-arrow { display: flex; } }
+
+        /* ============================================ */
+        /* CARRUSEL DE CATEGORÍAS (una a la vez)        */
+        /* ============================================ */
+        .categories-slider {
+            display: flex;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+            padding-bottom: 16px;
+        }
+        .categories-slider::-webkit-scrollbar { display: none; }
+
+        .category-slide {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            padding: 16px 4px 0;
+            min-width: 0;
+        }
+        @media (min-width: 768px) {
+            .category-slide { flex: 0 0 92%; padding: 20px 12px 0; }
+        }
+        @media (min-width: 1024px) {
+            .category-slide { flex: 0 0 84%; padding: 24px 24px 0; }
+        }
+
+        .category-title {
+            color: var(--accent-color);
+            font-weight: 700;
+            padding-bottom: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        @media (min-width: 640px) {
+            .products-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        }
+        @media (min-width: 1024px) {
+            .products-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        }
+
+        /* ============================================ */
+        /* PLANTILLAS TEMÁTICAS                         */
+        /* ============================================ */
+        [data-template="moderna"] {
+            --bg-color: #f9fafb; --header-bg: #ffffff; --accent-color: #3b82f6;
+            --text-color: #1f2937; --text-muted: #6b7280; --card-bg: #ffffff;
+            --card-border-radius: 16px; --border-color: #e5e7eb;
+        }
+        [data-template="moderna"] .product-card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        [data-template="moderna"] .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+        }
+
+        [data-template="rustica"] {
+            --bg-color: #fdf6e3; --header-bg: #8b4513; --accent-color: #d2691e;
+            --text-color: #3e2723; --text-muted: #795548; --card-bg: #fff8e7;
+            --card-border-radius: 4px; --border-color: #8b4513; --tabs-bg: #fff8e7;
+        }
+        [data-template="rustica"] .menu-header { color: #fdf6e3; }
+        [data-template="rustica"] .menu-header h1 { color: #fdf6e3 !important; }
+        [data-template="rustica"] .product-card {
+            border: 2px solid #8b4513;
+            box-shadow: 4px 4px 0 #8b4513;
+            transition: all 0.2s;
+        }
+        [data-template="rustica"] .product-card:hover {
+            box-shadow: 6px 6px 0 #d2691e;
+            transform: translate(-2px, -2px);
+        }
+        [data-template="rustica"] .category-title {
+            text-transform: uppercase; letter-spacing: 3px; font-size: 1.5rem;
+        }
+
+        [data-template="elegante"] {
+            --bg-color: #0f0f0f; --header-bg: #1a1a1a; --accent-color: #d4af37;
+            --text-color: #f5f5f5; --text-muted: #b8b8b8; --card-bg: #2d2d2d;
+            --card-border-radius: 4px; --border-color: #d4af37; --tabs-bg: #1a1a1a;
+        }
+        [data-template="elegante"] .menu-header { border-bottom: 1px solid #d4af37; }
+        [data-template="elegante"] .product-card {
+            border: 1px solid #d4af37; transition: all 0.3s;
+        }
+        [data-template="elegante"] .product-card:hover {
+            border-color: #f0d060;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+        }
+        [data-template="elegante"] .category-title { font-style: italic; }
+
+        [data-template="urbana"] {
+            --bg-color: #0f0f0f; --header-bg: #ff006e; --accent-color: #00f5d4;
+            --text-color: #ffffff; --text-muted: #b8b8b8; --card-bg: #1f1f1f;
+            --card-border-radius: 0; --border-color: #ff006e; --tabs-bg: #1a1a1a;
+        }
+        [data-template="urbana"] .menu-header { color: white; }
+        [data-template="urbana"] .menu-header h1 {
+            color: white !important; text-transform: uppercase;
+            letter-spacing: 4px; font-weight: 900;
+        }
+        [data-template="urbana"] .product-card {
+            border-left: 6px solid var(--accent-color); transition: all 0.25s;
+        }
+        [data-template="urbana"] .product-card:hover {
+            border-left-width: 12px; transform: translateX(4px);
+        }
+        [data-template="urbana"] .product-name {
+            text-transform: uppercase; letter-spacing: 1px; font-weight: 900;
+        }
+        [data-template="urbana"] .category-title {
+            text-transform: uppercase; letter-spacing: 6px;
+            font-size: 2.5rem; color: var(--accent-color);
+        }
+
+        [data-template="tropical"] {
+            --bg-color: #fff8e1; --header-bg: #00b894; --accent-color: #ff6b9d;
+            --text-color: #2d3436; --text-muted: #636e72; --card-bg: #ffffff;
+            --card-border-radius: 24px; --border-color: #00b894; --tabs-bg: #ffffff;
+        }
+        [data-template="tropical"] .menu-header { color: white; }
+        [data-template="tropical"] .menu-header h1 { color: white !important; }
+        [data-template="tropical"] .product-card {
+            box-shadow: 0 4px 16px rgba(0, 184, 148, 0.15);
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        [data-template="tropical"] .product-card::before {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: linear-gradient(90deg, #ff6b9d, #00b894, #ffd93d);
+            z-index: 1;
+        }
+        [data-template="tropical"] .product-card:hover {
+            transform: scale(1.03) rotate(-1deg);
+            box-shadow: 0 12px 32px rgba(255, 107, 157, 0.25);
+        }
+
+        [data-template="italiana"] {
+            --bg-color: #faf3e0; --header-bg: #c0392b; --accent-color: #27ae60;
+            --text-color: #3e2723; --text-muted: #795548; --card-bg: #ffffff;
+            --card-border-radius: 8px; --border-color: #c0392b; --tabs-bg: #ffffff;
+        }
+        [data-template="italiana"] .menu-header { color: white; }
+        [data-template="italiana"] .menu-header h1 { color: white !important; font-style: italic; }
+        [data-template="italiana"] .product-card {
+            border: 1px solid #d4c2a0;
+            box-shadow: 0 2px 8px rgba(192, 57, 43, 0.1);
+            transition: all 0.3s;
+        }
+        [data-template="italiana"] .product-card:hover {
+            border-color: #c0392b;
+            box-shadow: 0 8px 20px rgba(192, 57, 43, 0.2);
+        }
+        [data-template="italiana"] .category-title {
+            font-style: italic; border-bottom: 2px solid #c0392b; padding-bottom: 8px;
+        }
+
+        [data-template="zen"] {
+            --bg-color: #f5f5f0; --header-bg: #f5f5f0; --accent-color: #c41e3a;
+            --text-color: #2c2c2c; --text-muted: #666; --card-bg: #ffffff;
+            --card-border-radius: 0; --border-color: #ddd; --tabs-bg: #f5f5f0;
+        }
+        [data-template="zen"] .menu-header { border-bottom: 2px solid #c41e3a; }
+        [data-template="zen"] .product-card {
+            border-top: 3px solid #c41e3a; box-shadow: none; transition: all 0.3s;
+        }
+        [data-template="zen"] .product-card:hover { border-top-width: 6px; }
+        [data-template="zen"] .category-title {
+            letter-spacing: 8px; text-transform: uppercase;
+            font-size: 1.25rem; color: #c41e3a;
+        }
+        [data-template="zen"] .product-name { letter-spacing: 1px; }
+
+        [data-template="cafe"] {
+            --bg-color: #3e2723; --header-bg: #4e342e; --accent-color: #ffab00;
+            --text-color: #efebe9; --text-muted: #bcaaa4; --card-bg: #5d4037;
+            --card-border-radius: 12px; --border-color: #6d4c41; --tabs-bg: #4e342e;
+        }
+        [data-template="cafe"] .menu-header { color: #ffab00; }
+        [data-template="cafe"] .menu-header h1 { color: #ffab00 !important; }
+        [data-template="cafe"] .product-card {
+            border: 1px solid #6d4c41;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: all 0.3s;
+        }
+        [data-template="cafe"] .product-card:hover {
+            background: #6d4c41; transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        /* PRODUCT CARDS */
+        .product-card {
+            background: var(--card-bg);
+            border-radius: var(--card-border-radius);
+            overflow: hidden;
+            animation: fadeInUp 0.4s ease-out;
+            animation-fill-mode: both;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+        .product-card:active { transform: scale(0.98); }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .product-card .thumb-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+        }
+        .product-card .thumb-wrap img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 0.4s;
+        }
+        .product-card:hover .thumb-wrap img { transform: scale(1.05); }
+        .product-card .thumb-badge {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(0,0,0,0.6); color: white;
+            padding: 4px 8px; border-radius: 999px;
+            font-size: 0.7rem; font-weight: 600;
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; gap: 4px;
+        }
+
+        @media (min-width: 640px) {
+            .product-card { flex-direction: row; align-items: stretch; }
+            .product-card .thumb-wrap {
+                width: 140px; flex-shrink: 0;
+                aspect-ratio: 1;
+            }
+        }
+
+        .product-name { color: var(--text-color); }
+        .product-description { color: var(--text-muted); }
+        .price-tag { color: var(--accent-color); font-weight: 700; }
+
+        /* Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite; border-radius: 8px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Botón flotante admin */
+        .admin-badge {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--accent-color); color: white;
+            width: 56px; height: 56px; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            z-index: 45; cursor: pointer; transition: transform 0.2s;
+        }
+        .admin-badge:active { transform: scale(0.9); }
+        .admin-badge.visible { display: flex; }
+
+        /* Botón flotante Maps */
+        .maps-badge {
+            position: fixed; bottom: 20px; left: 20px;
+            background: #ffffff; color: #1f2937;
+            width: 56px; height: 56px; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            z-index: 45; cursor: pointer; transition: transform 0.2s;
+            border: 2px solid #4285F4;
+        }
+        .maps-badge:active { transform: scale(0.9); }
+        .maps-badge.visible { display: flex; }
+
+        /* ============================================ */
+        /* MODAL DETALLE PRODUCTO                       */
+        /* ============================================ */
+        #productModal {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 60;
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.2s ease;
+        }
+        #productModal.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal-close {
+            position: absolute; top: 16px; right: 16px;
+            background: rgba(0,0,0,0.6); color: white;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10; cursor: pointer; border: none;
+            backdrop-filter: blur(8px);
+        }
+        .modal-close:hover { background: rgba(0,0,0,0.8); }
+
+        .modal-gallery {
+            width: 100%;
+            height: 55vh;
+            max-height: 500px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            background: #000;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .modal-gallery::-webkit-scrollbar { display: none; }
+        .modal-gallery-slide {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            height: 100%;
+            position: relative;
+        }
+        .modal-gallery-slide img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .modal-gallery-empty {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #374151, #1f2937);
+            color: #9ca3af;
+        }
+
+        .gallery-indicator {
+            position: absolute; bottom: 16px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 6px;
+            background: rgba(0,0,0,0.5);
+            padding: 6px 10px; border-radius: 999px;
+            backdrop-filter: blur(8px);
+            z-index: 5;
+        }
+        .gallery-indicator .dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            transition: all 0.3s;
+        }
+        .gallery-indicator .dot.active {
+            background: white;
+            width: 18px; border-radius: 999px;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--card-bg, #ffffff);
+            color: var(--text-color, #1f2937);
+            padding: 24px 20px 40px;
+            border-radius: 24px 24px 0 0;
+            margin-top: -20px;
+            position: relative;
+        }
+        @media (min-width: 640px) {
+            .modal-body { padding: 32px; }
+        }
+
+        .modal-body h2 {
+            font-size: 1.75rem; font-weight: 700;
+            margin: 0 0 8px; color: var(--text-color, #1f2937);
+        }
+        .modal-body .modal-price {
+            font-size: 1.5rem; font-weight: 700;
+            color: var(--accent-color, #3b82f6);
+            margin-bottom: 20px;
+        }
+        .modal-body .modal-description {
+            font-size: 1rem; line-height: 1.6;
+            color: var(--text-muted, #6b7280);
+            margin-bottom: 24px;
+            white-space: pre-wrap;
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color, #e5e7eb);
+        }
+        .modal-section h4 {
+            font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted, #6b7280);
+            margin: 0 0 12px; font-weight: 600;
+        }
+
+        .ingredient-chip {
+            display: inline-block;
+            background: var(--bg-color, #f9fafb);
+            color: var(--text-color, #1f2937);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            margin: 0 6px 8px 0;
+            border: 1px solid var(--border-color, #e5e7eb);
+        }
+
+        /* ============================================ */
+        /* PREVIEW IMÁGENES EN FORMULARIOS              */
+        /* ============================================ */
+        .image-preview-list {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-top: 12px;
+        }
+        .image-preview-item {
+            position: relative;
+            width: 80px; height: 80px;
+            border-radius: 8px; overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .image-preview-item img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .image-preview-remove {
+            position: absolute; top: 2px; right: 2px;
+            background: rgba(239,68,68,0.95); color: white;
+            width: 20px; height: 20px; border-radius: 50%;
+            border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; line-height: 1;
+        }
+        .image-preview-empty {
+            color: #9ca3af; font-size: 0.8rem;
+            text-align: center; padding: 8px;
+        }
+
+        /* ============================================ */
+        /* AISLAMIENTO DE PANELES Y MODAL               */
+        /* ============================================ */
+        #localAdminPanel,
+        #superAdminPanel,
+        #loginModal {
+            --bg-color: #f3f4f6;
+            --header-bg: #ffffff;
+            --accent-color: #3b82f6;
+            --text-color: #111827;
+            --text-muted: #6b7280;
+            --card-bg: #ffffff;
+            --card-border-radius: 12px;
+            --custom-font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --tabs-bg: #ffffff;
+            --border-color: #e5e7eb;
+
+            color: #111827;
+            font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f3f4f6;
+            background-image: none;
+        }
+        #loginModal { background-color: rgba(0, 0, 0, 0.6); }
+
+        #localAdminPanel :is(input, select, textarea),
+        #superAdminPanel :is(input, select, textarea),
+        #loginModal :is(input, select, textarea) {
+            color: #111827 !important;
+            font-family: inherit;
+        }
+        #localAdminPanel :is(input:not([type="color"]):not([type="file"]), select, textarea),
+        #superAdminPanel :is(input:not([type="color"]):not([type="file"]), select, textarea) {
+            background-color: #ffffff !important;
+        }
+        #localAdminPanel input[type="color"],
+        #superAdminPanel input[type="color"] {
+            background-color: #ffffff; padding: 2px;
+        }
+        #localAdminPanel :is(h1, h2, h3, h4):not([class*="text-"]),
+        #superAdminPanel :is(h1, h2, h3, h4):not([class*="text-"]),
+        #loginModal h2 {
+            color: #111827;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const TENANT_SLUG = "don-pancho"; 
+        const SUPER_ADMIN_EMAIL = "cepedademian2005@gmail.com";
+        const WHATSAPP_SUPPORT = "1121722028";
+        const IMGBB_API_KEY = "e41d51a6d0217b9fa7382f54f3baa623";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkSxw0jp9cT8tlodlm1pjK-PlmI_Fcf7M",
+            authDomain: "agorlab-menus.firebaseapp.com",
+            projectId: "agorlab-menus",
+            storageBucket: "agorlab-menus.firebasestorage.app",
+            messagingSenderId: "375135961059",
+            appId: "1:375135961059:web:b644f565c52081a3f9ead6"
+        };
+    </script>
+
+    <header class="menu-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center gap-3">
+            <div class="flex items-center space-x-3 min-w-0">
+                <img id="logo" class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover flex-shrink-0" style="display:none;">
+                <h1 id="businessName" class="business-name text-xl sm:text-2xl font-bold truncate" style="color: var(--text-color);">Cargando...</h1>
+            </div>
+            <div id="authButtonsWrapper" class="auth-buttons-wrapper flex items-center space-x-2 flex-shrink-0">
+                <div id="authButtons" class="flex items-center space-x-2">
+                    <button id="loginBtn" class="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium">Iniciar</button>
+                    <button id="logoutBtn" class="bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-medium" style="display:none;">Salir</button>
+                    <button id="adminPanelBtn" class="bg-purple-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-purple-700 transition text-sm font-medium" style="display:none;">Panel</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="publicMenu">
+        <!-- Skeletons de carga -->
+        <div id="loadingMessage" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 px-4 py-8 max-w-7xl mx-auto">
+            <div class="skeleton h-44"></div>
+            <div class="skeleton h-44"></div>
+            <div class="skeleton h-44"></div>
+            <div class="skeleton h-44"></div>
+        </div>
+
+        <!-- PANTALLA 1: Selector de categorías (sin productos) -->
+        <section id="categorySelector" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" style="display:none;">
+            <h2 class="selector-title">Nuestro Menú</h2>
+            <p class="selector-subtitle">Tocá una categoría para explorarla · una vez adentro, deslizá lateralmente para cambiar</p>
+            <div id="selectorGrid" class="selector-grid"></div>
+        </section>
+
+        <!-- PANTALLA 2: Vista de una categoría con swipe lateral -->
+        <section id="categoryView" style="display:none;">
+            <div class="category-view-bar">
+                <button id="backToSelector" class="back-btn">← Categorías</button>
+                <div class="cv-info">
+                    <span id="cvTitle" class="cv-title"></span>
+                    <span id="cvCounter" class="cv-counter"></span>
+                </div>
+                <div id="cvDots" class="cv-dots"></div>
+                <button id="cvPrev" class="cv-arrow" title="Categoría anterior">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button id="cvNext" class="cv-arrow" title="Categoría siguiente">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+            <div id="menuContent" class="categories-slider" style="display:none;"></div>
+        </section>
+    </main>
+
+    <!-- Botón flotante admin -->
+    <button id="floatingAdminBtn" class="admin-badge" title="Panel Admin">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+    </button>
+
+    <!-- Botón flotante Maps -->
+    <button id="mapsBtn" class="maps-badge" title="Ver en Google Maps">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z" fill="#4285F4"/>
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13" stroke="#1a73e8" stroke-width="0.5" fill="none"/>
+        </svg>
+    </button>
+
+    <!-- Modal detalle producto -->
+    <div id="productModal">
+        <button class="modal-close" id="modalCloseBtn">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+        <div class="modal-gallery" id="modalGallery">
+            <div class="modal-gallery-empty">
+                <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+
+    <!-- Panel Admin Local -->
+    <div id="localAdminPanel" class="fixed inset-0 bg-gray-100 overflow-y-auto z-50" style="display:none;">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="sticky top-0 bg-gray-100 pb-4 z-10">
+                <button id="closeLocalPanelBtn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    <span>Volver al Menú</span>
+                </button>
+            </div>
+
+            <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-5 mb-6 flex items-center justify-between flex-wrap gap-4 shadow-lg">
+                <div class="text-white">
+                    <h3 class="text-lg font-bold">🚀 Soporte & Cadetería</h3>
+                    <p class="text-sm opacity-90 mt-1">Soporte técnico o contratación de cadetería con costo fijo mensual</p>
+                </div>
+                <button id="whatsappSupportBtn" class="bg-white text-green-600 px-5 py-3 rounded-lg font-bold flex items-center space-x-2 hover:bg-gray-100 transition shadow">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    <span>WhatsApp</span>
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-5 sm:p-6">
+                <h2 class="text-xl sm:text-2xl font-bold mb-5">Gestión de Menú</h2>
+                
+                <div class="bg-gray-50 p-5 rounded-lg mb-6">
+                    <h3 id="formTitle" class="text-lg font-semibold mb-4">Agregar Producto</h3>
+                    <input type="hidden" id="editingProductId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                            <input type="text" id="productName" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
+                            <input type="text" id="productCategory" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ej: Pizzas">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Precio *</label>
+                            <input type="number" id="productPrice" step="0.01" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ingredientes</label>
+                            <input type="text" id="productIngredients" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ej: Tomate, Mozzarella, Albahaca">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Imágenes (podés subir varias)</label>
+                            <input type="file" id="productImages" accept="image/*" multiple class="w-full px-3 py-2 border rounded-lg">
+                            <div id="productImagesPreview" class="image-preview-list"></div>
+                            <p class="text-xs text-gray-500 mt-1">La primera imagen se usa como miniatura. Las demás aparecen en el detalle al tocar el producto.</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                        <textarea id="productDescription" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Contá los detalles, preparación, maridaje..."></textarea>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button id="saveProductBtn" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition">Guardar</button>
+                        <button id="cancelEditBtn" class="bg-gray-400 text-white px-5 py-2 rounded-lg hover:bg-gray-500 transition" style="display:none;">Cancelar</button>
+                    </div>
+                </div>
+
+                <h3 class="text-lg font-semibold mb-3">Productos actuales</h3>
+                <div id="productsList" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Super Admin -->
+    <div id="superAdminPanel" class="fixed inset-0 bg-gray-100 overflow-y-auto z-50" style="display:none;">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="sticky top-0 bg-gray-100 pb-4 z-10">
+                <button id="closeSuperPanelBtn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    <span>Volver al Menú</span>
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-5 sm:p-6">
+                <h2 class="text-xl sm:text-2xl font-bold mb-5">🛠 Configuración del Local</h2>
+                
+                <div class="bg-blue-50 p-5 rounded-lg mb-6">
+                    <h3 class="text-lg font-semibold mb-4">General</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Local</label>
+                            <input type="text" id="tenantName" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email Admin Local</label>
+                            <input type="email" id="tenantAdminEmail" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Link Google Maps (opcional)</label>
+                            <input type="url" id="tenantMapsUrl" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="https://maps.google.com/...">
+                        </div>
+                        <div class="flex items-center">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="tenantShowMapsBtn" class="w-5 h-5 rounded">
+                                <span class="text-sm font-medium text-gray-700">Mostrar botón de Maps en el menú</span>
+                            </label>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Logo del Local</label>
+                            <input type="file" id="tenantLogo" accept="image/*" class="w-full px-3 py-2 border rounded-lg">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 p-5 rounded-lg mb-6">
+                    <h3 class="text-lg font-semibold mb-4">🎨 Estilo Visual</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Plantilla</label>
+                            <select id="tenantTemplate" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="moderna">🎨 Moderna</option>
+                                <option value="rustica">🪵 Rústica</option>
+                                <option value="elegante">✨ Elegante</option>
+                                <option value="urbana">🔥 Urbana</option>
+                                <option value="tropical">🌴 Tropical</option>
+                                <option value="italiana">🍝 Italiana</option>
+                                <option value="zen">🎎 Zen / Japonesa</option>
+                                <option value="cafe">☕ Café</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipografía</label>
+                            <select id="tenantFont" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="Inter">Inter (Moderna)</option>
+                                <option value="Poppins">Poppins (Friendly)</option>
+                                <option value="Roboto">Roboto (Clásica)</option>
+                                <option value="Montserrat">Montserrat (Versátil)</option>
+                                <option value="Oswald">Oswald (Impacto)</option>
+                                <option value="Bebas Neue">Bebas Neue (Industrial)</option>
+                                <option value="Playfair Display">Playfair Display (Elegante)</option>
+                                <option value="Merriweather">Merriweather (Serif)</option>
+                                <option value="Nunito">Nunito (Suave)</option>
+                                <option value="Dancing Script">Dancing Script (Script)</option>
+                                <option value="Rubik">Rubik (Redonda)</option>
+                                <option value="Josefin Sans">Josefin Sans (Geométrica)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Color Fondo</label>
+                            <div class="flex gap-2">
+                                <input type="color" id="tenantBgColor" class="w-12 h-10 border rounded-lg cursor-pointer">
+                                <input type="text" id="tenantBgColorText" class="flex-1 px-3 py-2 border rounded-lg text-sm uppercase" placeholder="#ffffff">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Color Acento</label>
+                            <div class="flex gap-2">
+                                <input type="color" id="tenantAccentColor" class="w-12 h-10 border rounded-lg cursor-pointer">
+                                <input type="text" id="tenantAccentColorText" class="flex-1 px-3 py-2 border rounded-lg text-sm uppercase" placeholder="#3b82f6">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Color Header</label>
+                            <div class="flex gap-2">
+                                <input type="color" id="tenantHeaderColor" class="w-12 h-10 border rounded-lg cursor-pointer">
+                                <input type="text" id="tenantHeaderColorText" class="flex-1 px-3 py-2 border rounded-lg text-sm uppercase" placeholder="#ffffff">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Color Texto</label>
+                            <div class="flex gap-2">
+                                <input type="color" id="tenantTextColor" class="w-12 h-10 border rounded-lg cursor-pointer">
+                                <input type="text" id="tenantTextColorText" class="flex-1 px-3 py-2 border rounded-lg text-sm uppercase" placeholder="#1f2937">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button id="saveTenantBtn" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition">💾 Guardar Configuración</button>
+                        <button id="previewTenantBtn" class="bg-gray-500 text-white px-5 py-2 rounded-lg hover:bg-gray-600 transition">👁 Vista Previa</button>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-5 rounded-lg mb-6">
+                    <h3 id="superFormTitle" class="text-lg font-semibold mb-4">Agregar Producto</h3>
+                    <input type="hidden" id="superEditingProductId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                            <input type="text" id="superProductName" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                            <input type="text" id="superProductCategory" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+                            <input type="number" id="superProductPrice" step="0.01" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ingredientes</label>
+                            <input type="text" id="superProductIngredients" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Imágenes (múltiples)</label>
+                            <input type="file" id="superProductImages" accept="image/*" multiple class="w-full px-3 py-2 border rounded-lg">
+                            <div id="superProductImagesPreview" class="image-preview-list"></div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                        <textarea id="superProductDescription" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button id="superSaveProductBtn" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition">Guardar</button>
+                        <button id="superCancelEditBtn" class="bg-gray-400 text-white px-5 py-2 rounded-lg hover:bg-gray-500 transition" style="display:none;">Cancelar</button>
+                    </div>
+                </div>
+
+                <h3 class="text-lg font-semibold mb-3">Productos actuales</h3>
+                <div id="superProductsList" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Login -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4" style="display:none;">
+        <div class="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl">
+            <h2 class="text-xl sm:text-2xl font-bold mb-6 text-center">Iniciar Sesión</h2>
+            <button id="googleLoginBtn" class="w-full bg-white border-2 border-gray-200 text-gray-800 py-3 rounded-xl hover:bg-gray-50 transition flex items-center justify-center space-x-3 font-medium">
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                <span>Continuar con Google</span>
+            </button>
+            <button id="closeLoginModal" class="w-full mt-3 bg-gray-100 text-gray-700 py-3 rounded-xl hover:bg-gray-200 transition">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let currentRole = null;
+        let tenantData = null;
+        let products = [];
+        let authButtonsVisible = false;
+        let hideAuthTimer = null;
+        let tapCount = 0;
+        let tapTimer = null;
+        let localProductImages = [];
+        let superProductImages = [];
+        // Estado de navegación del menú
+        let currentView = 'selector';   // 'selector' | 'category'
+        let categoryOrder = [];
+        let activeCatIndex = 0;
+        let scrollDebounce = null;
+
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminPanelBtn = document.getElementById('adminPanelBtn');
+        const publicMenu = document.getElementById('publicMenu');
+        const localAdminPanel = document.getElementById('localAdminPanel');
+        const superAdminPanel = document.getElementById('superAdminPanel');
+        const loginModal = document.getElementById('loginModal');
+        const authButtonsWrapper = document.getElementById('authButtonsWrapper');
+        const floatingAdminBtn = document.getElementById('floatingAdminBtn');
+        const mapsBtn = document.getElementById('mapsBtn');
+        const businessName = document.getElementById('businessName');
+
+        // ============================================
+        // TRIPLE-TAP AUTH
+        // ============================================
+        businessName.addEventListener('click', () => {
+            tapCount++;
+            clearTimeout(tapTimer);
+            tapTimer = setTimeout(() => { tapCount = 0; }, 800);
+            if (tapCount >= 3) {
+                tapCount = 0;
+                if (!authButtonsVisible) {
+                    showAuthButtons();
+                    scheduleHideAuthButtons();
+                }
+            }
+        });
+        function showAuthButtons() {
+            authButtonsWrapper.classList.add('visible');
+            authButtonsVisible = true;
+        }
+        function hideAuthButtons() {
+            if (currentUser) return;
+            authButtonsWrapper.classList.remove('visible');
+            authButtonsVisible = false;
+        }
+        function scheduleHideAuthButtons() {
+            clearTimeout(hideAuthTimer);
+            if (currentUser) return;
+            hideAuthTimer = setTimeout(hideAuthButtons, 5000);
+        }
+        document.getElementById('authButtons').addEventListener('mouseenter', () => { if (!currentUser) scheduleHideAuthButtons(); });
+        document.getElementById('authButtons').addEventListener('touchstart', () => { if (!currentUser) scheduleHideAuthButtons(); });
+        document.getElementById('authButtons').addEventListener('click', () => { if (!currentUser) scheduleHideAuthButtons(); });
+
+        // ============================================
+        // AUTH
+        // ============================================
+        loginBtn.addEventListener('click', () => { loginModal.style.display = 'flex'; });
+        document.getElementById('closeLoginModal').addEventListener('click', () => {
+            loginModal.style.display = 'none';
+            scheduleHideAuthButtons();
+        });
+        document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                await auth.signInWithPopup(provider);
+                loginModal.style.display = 'none';
+            } catch (error) { alert('Error: ' + error.message); }
+        });
+        logoutBtn.addEventListener('click', async () => {
+            await auth.signOut();
+            authButtonsWrapper.classList.remove('permanent');
+        });
+
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            await loadTenantData();
+            updateUI();
+            await loadProducts();
+        });
+
+        function updateUI() {
+            if (currentUser) {
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                adminPanelBtn.style.display = 'block';
+                authButtonsWrapper.classList.add('visible', 'permanent');
+                authButtonsVisible = true;
+                clearTimeout(hideAuthTimer);
+
+                if (currentUser.email === SUPER_ADMIN_EMAIL) {
+                    currentRole = 'superadmin';
+                    floatingAdminBtn.classList.add('visible');
+                } else if (tenantData && tenantData.adminEmail && tenantData.adminEmail === currentUser.email) {
+                    currentRole = 'localadmin';
+                    floatingAdminBtn.classList.add('visible');
+                } else {
+                    currentRole = null;
+                    floatingAdminBtn.classList.remove('visible');
+                }
+            } else {
+                loginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                adminPanelBtn.style.display = 'none';
+                floatingAdminBtn.classList.remove('visible');
+                currentRole = null;
+                authButtonsWrapper.classList.remove('permanent');
+                scheduleHideAuthButtons();
+            }
+        }
+
+        // ============================================
+        // STYLES
+        // ============================================
+        function applyTenantStyles() {
+            if (!tenantData) return;
+            const template = tenantData.template || 'moderna';
+            document.body.setAttribute('data-template', template);
+            const root = document.documentElement;
+            if (tenantData.fontFamily) {
+                const existingFont = document.getElementById('dynamic-font');
+                if (existingFont) existingFont.remove();
+                const link = document.createElement('link');
+                link.id = 'dynamic-font';
+                link.rel = 'stylesheet';
+                link.href = `https://fonts.googleapis.com/css2?family=${tenantData.fontFamily.replace(/ /g, '+')}:wght@300;400;500;600;700;900&display=swap`;
+                document.head.appendChild(link);
+                root.style.setProperty('--custom-font', `'${tenantData.fontFamily}', sans-serif`);
+            }
+            if (tenantData.bgColor) root.style.setProperty('--bg-color', tenantData.bgColor);
+            if (tenantData.accentColor) root.style.setProperty('--accent-color', tenantData.accentColor);
+            if (tenantData.headerColor) root.style.setProperty('--header-bg', tenantData.headerColor);
+            if (tenantData.textColor) root.style.setProperty('--text-color', tenantData.textColor);
+
+            if (tenantData.showMapsBtn && tenantData.mapsUrl) {
+                mapsBtn.classList.add('visible');
+            } else {
+                mapsBtn.classList.remove('visible');
+            }
+        }
+
+        // ============================================
+        // LOAD
+        // ============================================
+        async function loadTenantData() {
+            try {
+                const tenantRef = db.collection('tenants').doc(TENANT_SLUG);
+                const doc = await tenantRef.get();
+                const defaults = {
+                    name: TENANT_SLUG, adminEmail: '', logoUrl: '',
+                    mapsUrl: '', showMapsBtn: false,
+                    template: 'moderna', fontFamily: 'Inter',
+                    bgColor: '#f9fafb', accentColor: '#3b82f6',
+                    headerColor: '#ffffff', textColor: '#1f2937',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isActive: true
+                };
+                if (!doc.exists) {
+                    if (currentUser && currentUser.email === SUPER_ADMIN_EMAIL) {
+                        await tenantRef.set(defaults);
+                        tenantData = defaults;
+                    } else {
+                        tenantData = defaults;
+                    }
+                } else {
+                    tenantData = { ...defaults, ...doc.data() };
+                }
+                businessName.textContent = tenantData.name || TENANT_SLUG;
+                const logo = document.getElementById('logo');
+                if (tenantData.logoUrl) { logo.src = tenantData.logoUrl; logo.style.display = 'block'; }
+                else { logo.style.display = 'none'; }
+
+                applyTenantStyles();
+
+                if (currentRole === 'superadmin') {
+                    document.getElementById('tenantName').value = tenantData.name || '';
+                    document.getElementById('tenantAdminEmail').value = tenantData.adminEmail || '';
+                    document.getElementById('tenantMapsUrl').value = tenantData.mapsUrl || '';
+                    document.getElementById('tenantShowMapsBtn').checked = !!tenantData.showMapsBtn;
+                    document.getElementById('tenantTemplate').value = tenantData.template || 'moderna';
+                    document.getElementById('tenantFont').value = tenantData.fontFamily || 'Inter';
+                    const setColor = (cId, tId, v) => {
+                        document.getElementById(cId).value = v;
+                        document.getElementById(tId).value = v;
+                    };
+                    setColor('tenantBgColor','tenantBgColorText', tenantData.bgColor || '#f9fafb');
+                    setColor('tenantAccentColor','tenantAccentColorText', tenantData.accentColor || '#3b82f6');
+                    setColor('tenantHeaderColor','tenantHeaderColorText', tenantData.headerColor || '#ffffff');
+                    setColor('tenantTextColor','tenantTextColorText', tenantData.textColor || '#1f2937');
+                }
+            } catch (e) { console.error('Error tenant:', e); }
+        }
+
+        function normalizeProduct(p) {
+            if (!p.images || !Array.isArray(p.images) || p.images.length === 0) {
+                p.images = p.imageUrl ? [p.imageUrl] : [];
+            }
+            p.ingredients = p.ingredients || [];
+            return p;
+        }
+        function fmtPrice(p) {
+            const n = typeof p.price === 'number' ? p.price : parseFloat(p.price);
+            return (isNaN(n) ? 0 : n).toFixed(2);
+        }
+        function groupProducts() {
+            const grouped = {};
+            products.forEach(p => {
+                const c = p.category || 'Otros';
+                if (!grouped[c]) grouped[c] = [];
+                grouped[c].push(p);
+            });
+            return grouped;
+        }
+
+                async function loadProducts() {
+            try {
+                const snap = await db.collection('tenants').doc(TENANT_SLUG).collection('products').orderBy('category').get();
+                products = [];
+                snap.forEach(d => products.push(normalizeProduct({ id: d.id, ...d.data() })));
+
+                const grouped = groupProducts();
+                try { renderCategorySelector(grouped); } catch (e) { console.error('render selector:', e); }
+                try { renderPublicMenu(grouped); } catch (e) { console.error('render menu:', e); }
+                try { renderLocalAdminProducts(); } catch (e) { console.error('render lista local:', e); }
+                try { renderSuperAdminProducts(); } catch (e) { console.error('render lista super:', e); }
+
+                document.getElementById('loadingMessage').style.display = 'none';
+
+                if (products.length === 0) {
+                    currentView = 'selector';
+                    document.getElementById('categoryView').style.display = 'none';
+                    document.getElementById('menuContent').style.display = 'none';
+                    document.getElementById('categorySelector').style.display = 'block';
+                } else if (currentView === 'category') {
+                    openCategoryView(Math.min(activeCatIndex, categoryOrder.length - 1), false);
+                } else {
+                    currentView = 'selector';
+                    document.getElementById('categoryView').style.display = 'none';
+                    document.getElementById('menuContent').style.display = 'none';
+                    document.getElementById('categorySelector').style.display = 'block';
+                }
+            } catch (e) { console.error('Error products:', e); }
+        }
+
+        // ============================================
+        // PANTALLA 1: SELECTOR DE CATEGORÍAS
+        // ============================================
+        function renderCategorySelector(grouped) {
+            categoryOrder = Object.keys(grouped).sort();
+            const grid = document.getElementById('selectorGrid');
+
+            if (categoryOrder.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; padding: 32px 0; color: var(--text-muted);">Menú en preparación...</p>';
+            } else {
+                grid.innerHTML = categoryOrder.map((cat, i) => {
+                    const items = grouped[cat];
+                    const thumbItem = items.find(p => p.images && p.images[0]);
+                    const thumb = thumbItem ? thumbItem.images[0] : '';
+                    return `
+                    <div class="selector-card" data-index="${i}" style="animation-delay:${i * 60}ms">
+                        ${thumb
+                            ? `<img class="sel-thumb" src="${thumb}" alt="${cat}" loading="lazy">`
+                            : `<div class="sel-thumb" style="background:var(--border-color);"></div>`}
+                        <span class="sel-arrow">›</span>
+                        <div class="sel-body">
+                            <span class="sel-name">${cat}</span>
+                            <span class="sel-count">${items.length} ${items.length === 1 ? 'producto' : 'productos'}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                grid.querySelectorAll('.selector-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        openCategoryView(parseInt(card.dataset.index), true);
+                    });
+                });
+            }
+
+            // Dots de la barra de vista de categoría
+            const dots = document.getElementById('cvDots');
+            dots.innerHTML = categoryOrder.map((_, i) => `<span class="dot" data-index="${i}"></span>`).join('');
+            dots.querySelectorAll('.dot').forEach(d => {
+                d.addEventListener('click', () => goToSlide(parseInt(d.dataset.index), true));
+            });
+        }
+
+        // ============================================
+        // PANTALLA 2: VISTA DE CATEGORÍA (swipe)
+        // ============================================
+        function openCategoryView(index, smooth = false) {
+            if (categoryOrder.length === 0) return;
+            currentView = 'category';
+            document.getElementById('categorySelector').style.display = 'none';
+            document.getElementById('categoryView').style.display = 'block';
+            document.getElementById('menuContent').style.display = 'flex';
+            goToSlide(index, smooth);
+        }
+
+        function backToSelector() {
+            currentView = 'selector';
+            document.getElementById('categoryView').style.display = 'none';
+            document.getElementById('menuContent').style.display = 'none';
+            document.getElementById('categorySelector').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goToSlide(index, smooth = true) {
+            const slider = document.getElementById('menuContent');
+            const slide = slider.children[index];
+            if (!slide) return;
+            const left = slide.getBoundingClientRect().left - slider.getBoundingClientRect().left + slider.scrollLeft;
+            slider.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' });
+            setActiveCategory(index);
+        }
+
+        function setActiveCategory(index) {
+            activeCatIndex = index;
+            updateCategoryBar(index);
+        }
+
+        function updateCategoryBar(index) {
+            document.getElementById('cvTitle').textContent = categoryOrder[index] || '';
+            document.getElementById('cvCounter').textContent = `${index + 1} / ${categoryOrder.length}`;
+            document.querySelectorAll('#cvDots .dot').forEach((d, i) => {
+                d.classList.toggle('active', i === index);
+            });
+        }
+
+        // Detecta qué slide quedó activo tras el swipe del usuario
+        function detectActiveSlide() {
+            const slider = document.getElementById('menuContent');
+            if (!slider.children.length) return;
+            const sLeft = slider.getBoundingClientRect().left;
+            let best = 0, bestDist = Infinity;
+            [...slider.children].forEach((s, i) => {
+                const d = Math.abs(s.getBoundingClientRect().left - sLeft);
+                if (d < bestDist) { bestDist = d; best = i; }
+            });
+            if (best !== activeCatIndex) setActiveCategory(best);
+        }
+
+        document.getElementById('menuContent').addEventListener('scroll', () => {
+            clearTimeout(scrollDebounce);
+            scrollDebounce = setTimeout(detectActiveSlide, 90);
+        }, { passive: true });
+
+        document.getElementById('backToSelector').addEventListener('click', backToSelector);
+        document.getElementById('cvPrev').addEventListener('click', () => {
+            goToSlide(Math.max(0, activeCatIndex - 1), true);
+        });
+        document.getElementById('cvNext').addEventListener('click', () => {
+            goToSlide(Math.min(categoryOrder.length - 1, activeCatIndex + 1), true);
+        });
+
+        // ============================================
+        // RENDER SLIDES (una categoría por slide)
+        // ============================================
+        function renderPublicMenu(grouped) {
+            const content = document.getElementById('menuContent');
+            if (products.length === 0) {
+                content.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            categoryOrder.forEach((cat) => {
+                const items = grouped[cat];
+                html += `<section class="category-slide" data-cat="${cat}">`;
+                html += `<h2 class="category-title text-2xl sm:text-3xl font-bold px-2"><span>${cat}</span></h2>`;
+                html += `<div class="products-grid px-2">`;
+                items.forEach(p => {
+                    const thumbUrl = p.images && p.images.length > 0 ? p.images[0] : '';
+                    const extraCount = p.images ? Math.max(0, p.images.length - 1) : 0;
+                    const badge = extraCount > 0 ? `<span class="thumb-badge">+${extraCount}</span>` : '';
+                    html += `
+                        <article class="product-card" data-product-id="${p.id}">
+                            <div class="thumb-wrap">
+                                ${thumbUrl
+                                    ? `<img src="${thumbUrl}" alt="${p.name}" loading="lazy">${badge}`
+                                    : `<div style="width:100%;height:100%;background:var(--border-color);"></div>`
+                                }
+                            </div>
+                            <div class="p-4 sm:p-5 flex-1 flex flex-col justify-center">
+                                <div class="flex justify-between items-start gap-3 mb-2">
+                                    <h3 class="product-name text-lg font-semibold leading-tight">${p.name}</h3>
+                                    <span class="price-tag text-xl font-bold whitespace-nowrap">$${p.price.toFixed(2)}</span>
+                                </div>
+                                ${p.description
+                                    ? `<p class="product-description text-sm">${p.description.split('\n')[0]}</p>`
+                                    : ''}
+                            </div>
+                        </article>`;
+                });
+                html += '</div></section>';
+            });
+            content.innerHTML = html;
+
+            content.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = card.dataset.productId;
+                    const product = products.find(p => p.id === id);
+                    if (product) openProductModal(product);
+                });
+            });
+        }
+
+        // ============================================
+        // MODAL DETALLE PRODUCTO
+        // ============================================
+        const productModal = document.getElementById('productModal');
+        const modalGallery = document.getElementById('modalGallery');
+        const modalBody = document.getElementById('modalBody');
+
+        function openProductModal(p) {
+            if (p.images && p.images.length > 0) {
+                let gHtml = '';
+                p.images.forEach(url => {
+                    gHtml += `<div class="modal-gallery-slide"><img src="${url}" alt="${p.name}" loading="lazy"></div>`;
+                });
+                if (p.images.length > 1) {
+                    gHtml += `<div class="gallery-indicator" id="galleryIndicator">`;
+                    p.images.forEach((_, i) => {
+                        gHtml += `<div class="dot ${i === 0 ? 'active' : ''}"></div>`;
+                    });
+                    gHtml += `</div>`;
+                }
+                modalGallery.innerHTML = gHtml;
+            } else {
+                modalGallery.innerHTML = `
+                    <div class="modal-gallery-empty">
+                        <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>`;
+            }
+
+            let bHtml = `
+                <h2>${p.name}</h2>
+                <div class="modal-price">$${p.price.toFixed(2)}</div>`;
+            if (p.description) {
+                bHtml += `<div class="modal-description">${p.description}</div>`;
+            }
+            if (p.ingredients && p.ingredients.length > 0) {
+                bHtml += `<div class="modal-section"><h4>🍽 Ingredientes</h4><div>`;
+                p.ingredients.forEach(i => {
+                    bHtml += `<span class="ingredient-chip">${i}</span>`;
+                });
+                bHtml += `</div></div>`;
+            }
+            if (p.category) {
+                bHtml += `<div class="modal-section"><h4>Categoría</h4><p style="color:var(--text-color,#1f2937);">${p.category}</p></div>`;
+            }
+            modalBody.innerHTML = bHtml;
+
+            if (p.images && p.images.length > 1) {
+                const indicator = document.getElementById('galleryIndicator');
+                const dots = indicator.querySelectorAll('.dot');
+                const galleryObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const idx = [...modalGallery.querySelectorAll('.modal-gallery-slide')].indexOf(entry.target);
+                            dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+                        }
+                    });
+                }, { root: modalGallery, threshold: 0.6 });
+                modalGallery.querySelectorAll('.modal-gallery-slide').forEach(s => galleryObserver.observe(s));
+            }
+
+            productModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProductModal() {
+            productModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('modalCloseBtn').addEventListener('click', closeProductModal);
+        productModal.addEventListener('click', (e) => {
+            if (e.target === productModal) closeProductModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && productModal.classList.contains('active')) closeProductModal();
+        });
+
+        // ============================================
+        // PANELES
+        // ============================================
+        adminPanelBtn.addEventListener('click', openAdminPanel);
+        floatingAdminBtn.addEventListener('click', openAdminPanel);
+
+                function openAdminPanel() {
+            if (currentRole === 'superadmin') {
+                publicMenu.style.display = 'none';
+                superAdminPanel.style.display = 'block';
+                renderSuperAdminProducts();
+            } else if (currentRole === 'localadmin') {
+                publicMenu.style.display = 'none';
+                localAdminPanel.style.display = 'block';
+                renderLocalAdminProducts();
+            } else { alert('Sin permisos'); }
+        }
+
+        document.getElementById('closeLocalPanelBtn').addEventListener('click', closePanels);
+        document.getElementById('closeSuperPanelBtn').addEventListener('click', closePanels);
+        function closePanels() {
+            publicMenu.style.display = 'block';
+            localAdminPanel.style.display = 'none';
+            superAdminPanel.style.display = 'none';
+        }
+
+        document.getElementById('whatsappSupportBtn').addEventListener('click', () => {
+            const localName = tenantData?.name || TENANT_SLUG;
+            const msg = encodeURIComponent(`Hola! Te escribo de parte de "${localName}". Me interesa conocer más sobre el soporte técnico y la cadetería con costo fijo mensual.`);
+            window.open(`https://wa.me/549${WHATSAPP_SUPPORT}?text=${msg}`, '_blank');
+        });
+
+        mapsBtn.addEventListener('click', () => {
+            if (tenantData && tenantData.mapsUrl) {
+                window.open(tenantData.mapsUrl, '_blank');
+            }
+        });
+
+        // ============================================
+        // IMGBB
+        // ============================================
+        async function uploadToImgBB(file) {
+            const fd = new FormData();
+            fd.append('image', file);
+            try {
+                const r = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: fd });
+                const d = await r.json();
+                if (d.success) return d.data.url;
+                throw new Error(d.error.message);
+            } catch (e) {
+                alert('Error imagen: ' + e.message);
+                return null;
+            }
+        }
+
+        document.getElementById('productImages').addEventListener('change', async (e) => {
+            await handleImageFiles(e.target.files, localProductImages, 'productImagesPreview');
+        });
+        document.getElementById('superProductImages').addEventListener('change', async (e) => {
+            await handleImageFiles(e.target.files, superProductImages, 'superProductImagesPreview');
+        });
+
+        async function handleImageFiles(fileList, stateArr, previewId) {
+            const files = Array.from(fileList);
+            for (const file of files) {
+                const url = await uploadToImgBB(file);
+                if (url) stateArr.push(url);
+            }
+            renderImagePreview(stateArr, previewId);
+        }
+
+        function renderImagePreview(arr, previewId) {
+            const wrap = document.getElementById(previewId);
+            if (!arr || arr.length === 0) {
+                wrap.innerHTML = '<p class="image-preview-empty">No hay imágenes</p>';
+                return;
+            }
+            wrap.innerHTML = arr.map((url, i) => `
+                <div class="image-preview-item">
+                    <img src="${url}" alt="">
+                    <button class="image-preview-remove" data-index="${i}" data-preview="${previewId}">×</button>
+                </div>
+            `).join('');
+            wrap.querySelectorAll('.image-preview-remove').forEach(btn => {
+                btn.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    const idx = parseInt(btn.dataset.index);
+                    const targetId = btn.dataset.preview;
+                    const targetArr = targetId === 'productImagesPreview' ? localProductImages : superProductImages;
+                    targetArr.splice(idx, 1);
+                    renderImagePreview(targetArr, targetId);
+                });
+            });
+        }
+        // ============================================
+        // LISTAS DE PRODUCTOS EN PANELES ADMIN
+        // ============================================
+        function renderLocalAdminProducts() {
+            const list = document.getElementById('productsList');
+            if (!list) return;
+            if (products.length === 0) { list.innerHTML = '<p class="text-gray-500 py-4">Sin productos aún</p>'; return; }
+            list.innerHTML = products.map(p => `
+                <div class="bg-white border rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <div class="flex items-center gap-3 min-w-0">
+                        ${p.images && p.images[0] ? `<img src="${p.images[0]}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">` : ''}
+                        <div class="min-w-0">
+                            <h4 class="font-semibold truncate">${p.name}</h4>
+                            <p class="text-sm text-gray-600">${p.category} · $${fmtPrice(p)}${p.images && p.images.length > 1 ? ` · ${p.images.length} imgs` : ''}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 flex-shrink-0">
+                        <button onclick="editProduct('${p.id}', false)" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700">Editar</button>
+                        <button onclick="deleteProduct('${p.id}', false)" class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-red-700">Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderSuperAdminProducts() {
+            const list = document.getElementById('superProductsList');
+            if (!list) return;
+            if (products.length === 0) { list.innerHTML = '<p class="text-gray-500 py-4">Sin productos aún</p>'; return; }
+            list.innerHTML = products.map(p => `
+                <div class="bg-white border rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <div class="flex items-center gap-3 min-w-0">
+                        ${p.images && p.images[0] ? `<img src="${p.images[0]}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">` : ''}
+                        <div class="min-w-0">
+                            <h4 class="font-semibold truncate">${p.name}</h4>
+                            <p class="text-sm text-gray-600">${p.category} · $${fmtPrice(p)}${p.images && p.images.length > 1 ? ` · ${p.images.length} imgs` : ''}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 flex-shrink-0">
+                        <button onclick="editProduct('${p.id}', true)" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700">Editar</button>
+                        <button onclick="deleteProduct('${p.id}', true)" class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-red-700">Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        // ============================================
+        // CRUD
+        // ============================================
+        document.getElementById('saveProductBtn').addEventListener('click', () => saveProduct(false));
+        document.getElementById('cancelEditBtn').addEventListener('click', () => resetProductForm(false));
+        document.getElementById('superSaveProductBtn').addEventListener('click', () => saveProduct(true));
+        document.getElementById('superCancelEditBtn').addEventListener('click', () => resetProductForm(true));
+
+        async function saveProduct(isSuper) {
+            const nameEl = document.getElementById(isSuper ? 'superProductName' : 'productName');
+            const catEl = document.getElementById(isSuper ? 'superProductCategory' : 'productCategory');
+            const priceEl = document.getElementById(isSuper ? 'superProductPrice' : 'productPrice');
+            const descEl = document.getElementById(isSuper ? 'superProductDescription' : 'productDescription');
+            const ingrEl = document.getElementById(isSuper ? 'superProductIngredients' : 'productIngredients');
+            const editEl = document.getElementById(isSuper ? 'superEditingProductId' : 'editingProductId');
+
+            const name = nameEl.value.trim();
+            const category = catEl.value.trim();
+            const price = parseFloat(priceEl.value);
+            const description = descEl.value.trim();
+            const ingredientsRaw = ingrEl.value.trim();
+            const editId = editEl.value;
+            const stateArr = isSuper ? superProductImages : localProductImages;
+
+            if (!name || !category || !price || isNaN(price)) {
+                alert('Nombre, categoría y precio son obligatorios');
+                return;
+            }
+
+            const ingredients = ingredientsRaw
+                ? ingredientsRaw.split(',').map(s => s.trim()).filter(Boolean)
+                : [];
+
+            const data = {
+                name, category, price, description, ingredients,
+                images: stateArr,
+                imageUrl: stateArr.length > 0 ? stateArr[0] : '',
+                isAvailable: true,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                const ref = db.collection('tenants').doc(TENANT_SLUG).collection('products');
+                if (editId) {
+                    await ref.doc(editId).update(data);
+                } else {
+                    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await ref.add(data);
+                }
+                resetProductForm(isSuper);
+                await loadProducts();
+            } catch (e) { alert('Error: ' + e.message); }
+        }
+
+        function resetProductForm(isSuper) {
+            const ids = isSuper
+                ? ['superProductName','superProductCategory','superProductPrice','superProductDescription','superProductIngredients','superEditingProductId']
+                : ['productName','productCategory','productPrice','productDescription','productIngredients','editingProductId'];
+            ids.forEach(f => {
+                const el = document.getElementById(f);
+                if (el) el.value = '';
+            });
+            const fileInput = document.getElementById(isSuper ? 'superProductImages' : 'productImages');
+            if (fileInput) fileInput.value = '';
+            document.getElementById(isSuper ? 'superFormTitle' : 'formTitle').textContent = 'Agregar Producto';
+            document.getElementById(isSuper ? 'superCancelEditBtn' : 'cancelEditBtn').style.display = 'none';
+            const stateArr = isSuper ? superProductImages : localProductImages;
+            stateArr.length = 0;
+            renderImagePreview(stateArr, isSuper ? 'superProductImagesPreview' : 'productImagesPreview');
+        }
+
+        window.editProduct = (id, isSuper) => {
+            const prod = products.find(p => p.id === id);
+            if (!prod) return;
+            document.getElementById(isSuper ? 'superEditingProductId' : 'editingProductId').value = id;
+            document.getElementById(isSuper ? 'superProductName' : 'productName').value = prod.name;
+            document.getElementById(isSuper ? 'superProductCategory' : 'productCategory').value = prod.category;
+            document.getElementById(isSuper ? 'superProductPrice' : 'productPrice').value = prod.price;
+            document.getElementById(isSuper ? 'superProductDescription' : 'productDescription').value = prod.description || '';
+            document.getElementById(isSuper ? 'superProductIngredients' : 'productIngredients').value = (prod.ingredients || []).join(', ');
+            document.getElementById(isSuper ? 'superFormTitle' : 'formTitle').textContent = 'Editar Producto';
+            document.getElementById(isSuper ? 'superCancelEditBtn' : 'cancelEditBtn').style.display = 'block';
+            const stateArr = isSuper ? superProductImages : localProductImages;
+            stateArr.length = 0;
+            if (prod.images) prod.images.forEach(u => stateArr.push(u));
+            renderImagePreview(stateArr, isSuper ? 'superProductImagesPreview' : 'productImagesPreview');
+            document.getElementById(isSuper ? 'superProductName' : 'productName').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+
+        window.deleteProduct = async (id, isSuper) => {
+            if (!confirm('¿Eliminar este producto?')) return;
+            try {
+                await db.collection('tenants').doc(TENANT_SLUG).collection('products').doc(id).delete();
+                await loadProducts();
+            } catch (e) { alert('Error: ' + e.message); }
+        };
+
+        // ============================================
+        // SAVE TENANT
+        // ============================================
+        document.getElementById('saveTenantBtn').addEventListener('click', () => saveTenant(true));
+        document.getElementById('previewTenantBtn').addEventListener('click', () => saveTenant(false));
+
+        async function saveTenant(persist = true) {
+            const name = document.getElementById('tenantName').value.trim();
+            const adminEmail = document.getElementById('tenantAdminEmail').value.trim();
+            const mapsUrl = document.getElementById('tenantMapsUrl').value.trim();
+            const showMapsBtn = document.getElementById('tenantShowMapsBtn').checked;
+            const logoFile = document.getElementById('tenantLogo').files[0];
+            const template = document.getElementById('tenantTemplate').value;
+            const fontFamily = document.getElementById('tenantFont').value;
+            const bgColor = document.getElementById('tenantBgColor').value;
+            const accentColor = document.getElementById('tenantAccentColor').value;
+            const headerColor = document.getElementById('tenantHeaderColor').value;
+            const textColor = document.getElementById('tenantTextColor').value;
+
+            if (!name) { alert('El nombre es obligatorio'); return; }
+
+            let logoUrl = tenantData.logoUrl;
+            if (logoFile) {
+                logoUrl = await uploadToImgBB(logoFile);
+                if (!logoUrl) return;
+            }
+
+            const updateData = {
+                name, adminEmail, logoUrl, mapsUrl, showMapsBtn,
+                template, fontFamily, bgColor, accentColor, headerColor, textColor
+            };
+
+            if (persist) {
+                try {
+                    await db.collection('tenants').doc(TENANT_SLUG).update(updateData);
+                    await loadTenantData();
+                    await loadProducts();
+                    alert('✅ Configuración guardada');
+                } catch (e) { alert('Error: ' + e.message); }
+            } else {
+                const prev = { ...tenantData };
+                tenantData = { ...tenantData, ...updateData };
+                applyTenantStyles();
+                renderPublicMenu(groupProducts());
+                setTimeout(() => { tenantData = prev; }, 500);
+            }
+        }
+
+        ['BgColor','AccentColor','HeaderColor','TextColor'].forEach(key => {
+            const picker = document.getElementById(`tenant${key}`);
+            const text = document.getElementById(`tenant${key}Text`);
+            picker.addEventListener('input', () => { text.value = picker.value; });
+            text.addEventListener('input', (e) => {
+                const v = e.target.value;
+                if (/^#[0-9A-Fa-f]{6}$/.test(v)) picker.value = v;
+            });
+        });
+
+        loadTenantData().then(() => {
+            updateUI();
+            loadProducts();
+        });
+    </script>
+</body>
+</html>

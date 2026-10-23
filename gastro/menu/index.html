@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AGORLAB — Menús Digitales</title>
     
-    <!-- Open Graph -->
+    <!-- Metadatos Open Graph -->
     <meta property="og:title" content="AGORLAB — Menús Digitales">
-    <meta property="og:description" content="El fin de las comisiones abusivas en gastronomía. Menús digitales propietarios y bajo tu control.">
+    <meta property="og:description" content="Catálogo y accesos directos a los menús digitales desarrollados para nuestros locales asociados.">
+    <meta property="og:image" content="https://agorlab.com/og-image.jpg">
     <meta property="og:url" content="https://agorlab.com/gastro/menu">
     <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
     
-    <!-- Favicon: Firma autógrafa -->
+    <!-- Favicon: Tu firma autógrafa -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 411 419'><path fill='none' stroke='white' stroke-width='20' stroke-linecap='round' stroke-linejoin='round' d='M 105.8 176.9 Q 122.3 189.7, 129.1 191.5 Q 135.8 193.4, 146.6 193.6 Q 157.4 193.9, 174.5 189.2 Q 191.7 184.6, 208.6 177.6 Q 225.6 170.6, 237.9 164.5 Q 250.2 158.4, 258.1 152.9 Q 266.1 147.5, 270.3 144.6 Q 274.5 141.8, 274.8 140.7 Q 275.2 139.6, 273.4 139.7 Q 271.7 139.8, 260.6 140.7 Q 249.4 141.6, 233.8 146.8 Q 218.1 151.9, 203.5 160.8 Q 188.8 169.7, 177.6 178.6 Q 166.5 187.4, 157.8 196.6 Q 149.1 205.8, 143.2 214.2 Q 137.4 222.7, 133.5 231.5 Q 129.7 240.2, 127.9 246.5 Q 126.2 252.7, 126.1 256.7 Q 126.0 260.7, 127.3 263.4 Q 128.5 266.1, 133.9 267.2 Q 139.2 268.3, 152.3 261.5 Q 165.5 254.8, 177.9 245.7 Q 190.4 236.7, 204.7 225.8 Q 219.1 214.9, 232.1 206.0 Q 245.1 197.0, 254.4 191.4 Q 263.7 185.8, 268.6 184.4 Q 273.5 183.0, 274.0 183.0 Q 274.4 183.0, 274.2 183.4 Q 274.0 183.8, 270.6 195.9 Q 267.2 208.0, 266.3 211.4 Q 265.4 214.9, 265.4 216.3 Q 265.3 217.8, 266.1 218.1 Q 266.9 218.4, 275.5 215.9 Q 284.1 213.5, 295.4 207.8 Q 306.6 202.1, 314.6 197.2 Q 322.7 192.2, 328.2 188.8 Q 333.8 185.3, 335.5 183.8 Q 337.2 182.2, 337.5 182.7 Q 337.7 183.2, 338.2 186.1 Q 338.7 188.9, 337.8 195.9 Q 336.8 202.8, 333.2 213.5 Q 329.7 224.2, 320.6 245.0 Q 311.5 265.8, 306.9 274.5 L 302.4 283.1'/></svg>">
     
-    <!-- Space Mono Font -->
+    <!-- Tipografía Space Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -46,7 +48,7 @@
             background: radial-gradient(circle at center, #111 0%, #000 100%);
         }
 
-        /* --- CRT EFFECT --- */
+        /* --- EFECTO CRT (Scanlines + Flicker) --- */
         .crt::before {
             content: " ";
             display: block;
@@ -77,7 +79,7 @@
             100% { opacity: 0.01; }
         }
 
-        /* --- LAYOUT --- */
+        /* --- LAYOUT GENERAL --- */
         .wrapper {
             position: relative;
             z-index: 10;
@@ -86,7 +88,7 @@
             padding: 40px 5vw;
         }
 
-        /* --- NAV --- */
+        /* --- NAVEGACIÓN --- */
         nav {
             display: flex;
             justify-content: space-between;
@@ -106,14 +108,11 @@
         }
 
         .nav-signature {
-            height: 1.8em;
+            height: 1.5em;
             width: auto;
             filter: var(--crt-svg-glow);
             cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .nav-signature:hover {
-            transform: scale(1.1);
+            user-select: none;
         }
 
         .nav-meta {
@@ -128,18 +127,17 @@
         }
 
         h1 {
-            font-size: clamp(2rem, 6vw, 5rem);
+            font-size: clamp(2.2rem, 7vw, 5rem);
             font-weight: 700;
-            line-height: 1.1;
+            line-height: 1;
             margin-bottom: 20px;
             text-transform: uppercase;
         }
 
         .hero-subtitle {
-            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
             margin-bottom: 40px;
             font-style: italic;
-            opacity: 0.8;
         }
 
         .manifesto-box {
@@ -147,46 +145,131 @@
             padding-left: 20px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
             font-size: clamp(0.9rem, 2.5vw, 1.1rem);
         }
 
-        .highlight-statement {
-            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+        /* --- BOTÓN FLOTANTE OCULTO DE LOGIN --- */
+        #secret-login-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .btn-secret-login {
+            background: #ffffff;
+            color: #000000;
+            border: 2px solid #ffffff;
+            padding: 12px 20px;
+            font-family: 'Space Mono', monospace;
             font-weight: 700;
-            margin-top: 10px;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            border: 2px solid var(--text);
-            padding: 15px;
-            display: inline-block;
-            line-height: 1.6;
+            cursor: pointer;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5);
+            transition: all 0.2s ease;
         }
 
-        .dynamic-word {
-            display: inline-block;
-            background-color: var(--text);
+        .btn-secret-login:hover {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        /* --- PANEL ADMIN --- */
+        #admin-panel {
+            display: none;
+            border: 2px dashed var(--text);
+            padding: 25px;
+            margin-bottom: 50px;
+            background: rgba(20, 20, 20, 0.8);
+        }
+
+        #admin-panel h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .admin-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .form-group input, .form-group textarea {
+            background: #000;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 10px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #fff;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .btn-admin {
+            background: var(--text);
             color: var(--bg);
-            padding: 0 8px;
-            margin: 0 4px;
+            border: 2px solid var(--text);
+            padding: 10px 20px;
+            font-family: 'Space Mono', monospace;
             font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
         }
 
-        /* --- SECTIONS --- */
+        .btn-admin:hover {
+            background: transparent;
+            color: var(--text);
+        }
+
+        .btn-logout {
+            background: transparent;
+            color: #ff5555;
+            border: 1px solid #ff5555;
+            padding: 8px 15px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        /* --- CATÁLOGO GRIDA --- */
         .section-title {
             font-size: 1rem;
             text-transform: uppercase;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             border-bottom: 1px dashed var(--border);
             padding-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .editorial-grid {
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 20px;
             margin-bottom: 80px;
         }
 
@@ -195,7 +278,6 @@
             padding: 30px 20px;
             transition: all 0.2s;
             position: relative;
-            background: rgba(0,0,0,0.5);
         }
 
         .editorial-item:hover {
@@ -210,28 +292,28 @@
         }
 
         .item-content h2 {
-            font-size: clamp(1.2rem, 3vw, 1.6rem);
-            margin-bottom: 12px;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            margin-bottom: 10px;
             font-weight: 700;
             text-transform: uppercase;
         }
 
         .item-content p {
             font-size: 0.95rem;
-            margin-bottom: 20px;
-            opacity: 0.9;
+            margin-bottom: 15px;
         }
 
-        .item-image {
-            width: 100%;
-            max-height: 300px;
+        .item-img {
+            max-width: 100%;
+            height: auto;
+            max-height: 250px;
             object-fit: cover;
             border: 1px solid var(--border);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .item-tag {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             border: 1px solid var(--text);
             padding: 4px 8px;
@@ -240,7 +322,7 @@
 
         .niche-link {
             display: inline-block;
-            margin-top: 15px;
+            margin-top: 20px;
             background: var(--text);
             color: var(--bg);
             padding: 10px 20px;
@@ -262,182 +344,24 @@
         .btn-delete {
             background: #ff3333;
             color: #fff;
-            border: 2px solid #ff3333;
-            padding: 8px 14px;
-            font-weight: 700;
-            font-size: 0.8rem;
+            border: none;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            font-family: 'Space Mono', monospace;
             cursor: pointer;
-            text-transform: uppercase;
             margin-top: 15px;
-            margin-left: 10px;
-            transition: all 0.2s;
-        }
-        .btn-delete:hover {
-            background: transparent;
-            color: #ff3333;
-        }
-
-        /* --- FLOATING ADMIN LOGIN BUTTON --- */
-        #secret-login-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--text);
-            color: var(--bg);
-            border: 2px solid var(--text);
-            padding: 12px 24px;
-            font-family: 'Space Mono', monospace;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            z-index: 1000;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
-            display: none;
-            text-transform: uppercase;
-            animation: pulse-btn 1.5s infinite;
-        }
-
-        @keyframes pulse-btn {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* --- ADMIN MODAL / PANEL --- */
-        #admin-panel {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
-            z-index: 2000;
-            display: none;
-            overflow-y: auto;
-            padding: 40px 20px;
-        }
-
-        .admin-container {
-            max-width: 700px;
-            margin: 0 auto;
-            border: 2px solid var(--text);
-            background: #0a0a0a;
-            padding: 30px;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-
-        .form-group input, .form-group textarea {
-            width: 100%;
-            background: #000;
-            border: 2px solid var(--border);
-            color: var(--text);
-            padding: 12px;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.95rem;
-        }
-
-        .form-group input:focus, .form-group textarea:focus {
-            border-color: var(--text);
-            outline: none;
-        }
-
-        .btn-admin {
-            background: var(--text);
-            color: var(--bg);
-            border: 2px solid var(--text);
-            padding: 12px 24px;
-            font-weight: 700;
-            font-family: 'Space Mono', monospace;
-            cursor: pointer;
-            text-transform: uppercase;
-            width: 100%;
-            transition: all 0.2s;
-        }
-        .btn-admin:hover {
-            background: transparent;
-            color: var(--text);
-        }
-
-        .btn-close-modal {
-            background: transparent;
-            color: var(--text);
-            border: 1px solid var(--text);
-            padding: 6px 12px;
-            cursor: pointer;
-            font-family: 'Space Mono', monospace;
             text-transform: uppercase;
         }
 
-        /* --- NOTIFICATION TOAST --- */
-        #toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--text);
-            color: var(--bg);
-            padding: 12px 24px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            z-index: 3000;
-            display: none;
-            border: 2px solid var(--text);
-            text-transform: uppercase;
+        .empty-state {
+            border: 2px dashed var(--border);
+            padding: 50px 20px;
+            text-align: center;
+            font-style: italic;
+            opacity: 0.7;
         }
 
-        /* --- FOOTER CTA --- */
-        .footer-cta {
-            padding: 60px 0;
-            border-top: 2px solid var(--text);
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 30px;
-        }
-
-        .footer-cta h2 {
-            font-size: clamp(1.4rem, 4vw, 2.5rem);
-            font-weight: 700;
-            text-transform: uppercase;
-            max-width: 900px;
-        }
-
-        .btn-cta {
-            display: inline-flex;
-            background: var(--text);
-            color: var(--bg);
-            padding: 15px 30px;
-            font-weight: 700;
-            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-            text-decoration: none;
-            text-transform: uppercase;
-            transition: all 0.2s;
-        }
-
-        .btn-cta:hover {
-            background: transparent;
-            color: var(--text);
-            border: 2px solid var(--text);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 0px rgba(255,255,255,0.5);
-        }
-
+        /* --- FIRMA FINAL --- */
         .footer-signature-container {
             display: flex;
             justify-content: flex-end;
@@ -451,6 +375,7 @@
             opacity: 0.8;
             filter: var(--crt-svg-glow);
             cursor: pointer;
+            user-select: none;
         }
 
         footer.bottom-bar {
@@ -474,6 +399,11 @@
                 padding: 40px;
             }
             .item-index { margin-bottom: 0; }
+            .item-content {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
             footer.bottom-bar {
                 flex-direction: row;
                 justify-content: space-between;
@@ -484,109 +414,73 @@
 </head>
 <body class="crt">
 
-    <div id="toast">Notificación</div>
-
-    <!-- Botón flotante secreto para login de Super Admin -->
-    <button id="secret-login-btn">ACCESO SUPER ADMIN (GOOGLE)</button>
-
-    <!-- Panel de Administración Modal -->
-    <div id="admin-panel">
-        <div class="admin-container">
-            <div class="admin-header">
-                <div>
-                    <h2>PANEL DE SUPER ADMIN</h2>
-                    <p style="font-size: 0.8rem; opacity: 0.7;" id="admin-user-email">Conectado como...</p>
-                </div>
-                <button class="btn-close-modal" id="btn-close-admin">Cerrar [X]</button>
-            </div>
-            
-            <form id="menu-form">
-                <h3 style="font-size: 1rem; margin-bottom: 15px; text-transform: uppercase;">// Agregar Nuevo Menú Digital</h3>
-                
-                <div class="form-group">
-                    <label>Título del Local</label>
-                    <input type="text" id="local-title" required placeholder="Ej: Viento Sur Resto-Bar">
-                </div>
-
-                <div class="form-group">
-                    <label>Categoría / Tag</label>
-                    <input type="text" id="local-tag" required placeholder="[ Gastronomía / Mar del Plata ]">
-                </div>
-
-                <div class="form-group">
-                    <label>Enlace al Menú Digital (URL)</label>
-                    <input type="url" id="local-url" required placeholder="https://tu-menu.com o enlace al PDF/Web">
-                </div>
-
-                <div class="form-group">
-                    <label>Descripción</label>
-                    <textarea id="local-desc" rows="3" required placeholder="Carta QR interactiva, pedidos directos por WhatsApp, etc."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Imagen (Subir archivo directo via ImgBB o URL manual)</label>
-                    <input type="file" id="local-img-file" accept="image/*" style="margin-bottom: 10px;">
-                    <input type="text" id="local-img-url" placeholder="O pega aquí la URL de la imagen directamente">
-                </div>
-
-                <button type="submit" class="btn-admin" id="btn-submit-menu">PUBLICAR LOCAL &rarr;</button>
-            </form>
-
-            <div style="margin-top: 30px; border-top: 1px dashed var(--border); padding-top: 20px;">
-                <button class="btn-admin" style="background: transparent; color: #ff3333; border-color: #ff3333;" id="btn-logout">Cerrar Sesión de Admin</button>
-            </div>
-        </div>
-    </div>
-
     <div class="wrapper">
         <!-- Navegación -->
         <nav>
             <div class="logo">
                 AGORLAB
-                <!-- Firma interactiva para el mecanismo de 3 clics -->
-                <svg class="nav-signature" id="signature-trigger" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 411 419" title="Hacer 3 clics rápidos">
-                    <path fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" d="M 105.8 176.9 Q 122.3 189.7, 129.1 191.5 Q 135.8 193.4, 146.6 193.6 Q 157.4 193.9, 174.5 189.2 Q 191.7 184.6, 208.6 177.6 Q 225.6 170.6, 237.9 164.5 Q 250.2 158.4, 258.1 152.9 Q 266.1 147.5, 270.3 144.6 Q 274.5 141.8, 274.8 140.7 Q 275.2 139.6, 273.4 139.7 Q 271.7 139.8, 260.6 140.7 Q 249.4 141.6, 233.8 146.8 Q 218.1 151.9, 203.5 160.8 Q 188.8 169.7, 177.6 178.6 Q 166.5 187.4, 157.8 196.6 Q 149.1 205.8, 143.2 214.2 Q 137.4 222.7, 133.5 231.5 Q 129.7 240.2, 127.9 246.5 Q 126.2 252.7, 126.1 256.7 Q 126.0 260.7, 127.3 263.4 Q 128.5 266.1, 133.9 267.2 Q 139.2 268.3, 152.3 261.5 Q 165.5 254.8, 177.9 245.7 Q 190.4 236.7, 204.7 225.8 Q 219.1 214.9, 232.1 206.0 Q 245.1 197.0, 254.4 191.4 Q 263.7 185.8, 268.6 184.4 Q 273.5 183.0, 274.0 183.0 Q 274.4 183.0, 274.2 183.4 Q 274.0 183.8, 270.6 195.9 Q 267.2 208.0, 266.3 211.4 Q 265.4 214.9, 265.4 216.3 Q 265.3 217.8, 266.1 218.1 Q 266.9 218.4, 275.5 215.9 Q 284.1 213.5, 295.4 207.8 Q 306.6 202.1, 314.6 197.2 Q 322.7 192.2, 328.2 188.8 Q 333.8 185.3, 335.5 183.8 Q 337.2 182.2, 337.5 182.7 Q 337.7 183.2, 338.2 186.1 Q 338.7 188.9, 337.8 195.9 Q 336.8 202.8, 333.2 213.5 Q 329.7 224.2, 320.6 245.0 Q 311.5 265.8, 306.9 274.5 L 302.4 283.1"/>
+                <svg id="nav-sig" class="nav-signature" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 411 419">
+                    <path fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" d="M 105.8 176.9 Q 122.3 189.7, 129.1 191.5 Q 135.8 193.4, 146.6 193.6 Q 157.4 193.9, 174.5 189.2 Q 191.7 184.6, 208.6 177.6 Q 225.6 170.6, 237.9 164.5 Q 250.2 158.4, 258.1 152.9 Q 266.1 147.5, 270.3 144.6 Q 274.5 141.8, 274.8 140.7 Q 275.2 139.6, 273.4 139.7 Q 271.7 139.8, 260.6 140.7 Q 249.4 141.6, 233.8 146.8 Q 218.1 151.9, 203.5 160.8 Q 188.8 169.7, 177.6 178.6 Q 166.5 187.4, 157.8 196.6 Q 149.1 205.8, 143.2 214.2 Q 137.4 222.7, 133.5 231.5 Q 129.7 240.2, 127.9 246.5 Q 126.2 252.7, 126.1 256.7 Q 126.0 260.7, 127.3 263.4 Q 128.5 266.1, 133.9 267.2 Q 139.2 268.3, 152.3 261.5 Q 165.5 254.8, 177.9 245.7 Q 190.4 236.7, 232.1 206.0 Q 245.1 197.0, 254.4 191.4 Q 263.7 185.8, 268.6 184.4 Q 273.5 183.0, 274.0 183.0 Q 274.4 183.0, 274.2 183.4 Q 274.0 183.8, 270.6 195.9 Q 267.2 208.0, 266.3 211.4 Q 265.4 214.9, 265.4 216.3 Q 265.3 217.8, 266.1 218.1 Q 266.9 218.4, 275.5 215.9 Q 284.1 213.5, 295.4 207.8 Q 306.6 202.1, 314.6 197.2 Q 322.7 192.2, 328.2 188.8 Q 333.8 185.3, 335.5 183.8 Q 337.2 182.2, 337.5 182.7 Q 337.7 183.2, 338.2 186.1 Q 338.7 188.9, 337.8 195.9 Q 336.8 202.8, 333.2 213.5 Q 329.7 224.2, 320.6 245.0 Q 311.5 265.8, 306.9 274.5 L 302.4 283.1"/>
                 </svg>
             </div>
-            <div class="nav-meta">Mar del Plata &mdash; Studio</div>
+            <div class="nav-meta">Mar del Plata &mdash; Gastronomía</div>
         </nav>
 
-        <!-- Hero & Manifiesto -->
+        <!-- Hero -->
         <header class="hero">
             <h1>MENÚS DIGITALES.</h1>
-            <div class="hero-subtitle">(El fin del pedido tercerizado y las comisiones abusivas).</div>
+            <div class="hero-subtitle">(Plataformas gastronómicas independientes).</div>
             
             <div class="manifesto-box">
-                <p>Las apps de delivery masivas se quedan con hasta un 30% de cada plato que vendés. Tu restaurante merece su propia infraestructura digital propietaria, sin intermediarios ni alquileres usureros.</p>
-                <p><strong>Construyamos tu menú digital inteligente.</strong></p>
-                
-                <div class="highlight-statement">
-                    CONTROLÁ <span id="changing-word" class="dynamic-word">TU CARTA</span>, TUS CLIENTES, TUS VENTAS.
-                </div>
+                <p>Directorio oficial de locales gastronómicos con cartas digitales avanzadas desarrolladas por AGORLAB.</p>
             </div>
         </header>
 
-        <!-- Catálogo de Menús Digitales -->
-        <div class="section-title">
-            <span>// LOCALES Y MENÚS DIGITALES ACTIVOS</span>
-            <span id="admin-status-badge" style="font-size: 0.75rem; display: none; background: #fff; color: #000; padding: 2px 6px; font-weight: 700;">ADMIN ACTIVO</span>
-        </div>
-        
-        <div class="editorial-grid" id="menus-grid">
-            <!-- Se llenará dinámicamente desde Firestore o mostrará ejemplos predeterminados -->
+        <!-- PANEL DE ADMINISTRACIÓN MODERNO -->
+        <div id="admin-panel">
+            <h3>// PANEL SUPER ADMIN (AGORLAB)</h3>
+            <form id="menu-form" class="admin-form">
+                <div class="form-group">
+                    <label>Nombre del Local / Comercio *</label>
+                    <input type="text" id="input-title" required placeholder="Ej: BEERLIN BREWPUB">
+                </div>
+                <div class="form-group">
+                    <label>Categoría / Tag *</label>
+                    <input type="text" id="input-tag" required placeholder="Ej: BAR & RESTO">
+                </div>
+                <div class="form-group">
+                    <label>URL del Menú Digital *</label>
+                    <input type="url" id="input-url" required placeholder="https://..." value="https://">
+                </div>
+                <div class="form-group">
+                    <label>Descripción corta</label>
+                    <textarea id="input-desc" rows="2" placeholder="Detalles de la propuesta gastronómica..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Subir Imagen promocional (vía ImgBB API)</label>
+                    <input type="file" id="input-file" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>o pegar URL de Imagen directamente</label>
+                    <input type="url" id="input-img-url" placeholder="https://i.ibb.co/...">
+                </div>
+                
+                <div class="admin-actions">
+                    <button type="submit" class="btn-admin" id="btn-save">PUBLICAR MENÚ</button>
+                    <button type="button" class="btn-logout" id="btn-logout">Cerrar Sesión</button>
+                </div>
+            </form>
         </div>
 
-        <!-- CTA Final -->
-        <section class="footer-cta">
-            <h2>Independizate de las comisiones en tu local gastronómico. Tengamos tu app propia hoy.</h2>
-            <a href="https://wa.me/5491121722028?text=Hola,%20quiero%20mi%20men%C3%uacute;%20digital%20propietario%20con%20AGORLAB." target="_blank" rel="noopener noreferrer" class="btn-cta">
-                INICIAR CONVERSACIÓN &rarr;
-            </a>
-        </section>
+        <!-- LISTA DE MENÚS -->
+        <div class="section-title">// DIRECTORIO DE MENÚS DIGITALES</div>
+        <div id="menus-container" class="editorial-grid">
+            <div class="empty-state">// Cargando menús digitales...</div>
+        </div>
 
         <!-- Firma Final -->
         <div class="footer-signature-container">
-            <svg class="footer-signature" id="signature-trigger-footer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 411 419">
+            <svg id="footer-sig" class="footer-signature" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 411 419">
                 <path fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" d="M 105.8 176.9 Q 122.3 189.7, 129.1 191.5 Q 135.8 193.4, 146.6 193.6 Q 157.4 193.9, 174.5 189.2 Q 191.7 184.6, 208.6 177.6 Q 225.6 170.6, 237.9 164.5 Q 250.2 158.4, 258.1 152.9 Q 266.1 147.5, 270.3 144.6 Q 274.5 141.8, 274.8 140.7 Q 275.2 139.6, 273.4 139.7 Q 271.7 139.8, 260.6 140.7 Q 249.4 141.6, 233.8 146.8 Q 218.1 151.9, 203.5 160.8 Q 188.8 169.7, 177.6 178.6 Q 166.5 187.4, 157.8 196.6 Q 149.1 205.8, 143.2 214.2 Q 137.4 222.7, 133.5 231.5 Q 129.7 240.2, 127.9 246.5 Q 126.2 252.7, 126.1 256.7 Q 126.0 260.7, 127.3 263.4 Q 128.5 266.1, 133.9 267.2 Q 139.2 268.3, 152.3 261.5 Q 165.5 254.8, 177.9 245.7 Q 190.4 236.7, 204.7 225.8 Q 219.1 214.9, 232.1 206.0 Q 245.1 197.0, 254.4 191.4 Q 263.7 185.8, 268.6 184.4 Q 273.5 183.0, 274.0 183.0 Q 274.4 183.0, 274.2 183.4 Q 274.0 183.8, 270.6 195.9 Q 267.2 208.0, 266.3 211.4 Q 265.4 214.9, 265.4 216.3 Q 265.3 217.8, 266.1 218.1 Q 266.9 218.4, 275.5 215.9 Q 284.1 213.5, 295.4 207.8 Q 306.6 202.1, 314.6 197.2 Q 322.7 192.2, 328.2 188.8 Q 333.8 185.3, 335.5 183.8 Q 337.2 182.2, 337.5 182.7 Q 337.7 183.2, 338.2 186.1 Q 338.7 188.9, 337.8 195.9 Q 336.8 202.8, 333.2 213.5 Q 329.7 224.2, 320.6 245.0 Q 311.5 265.8, 306.9 274.5 L 302.4 283.1"/>
             </svg>
         </div>
@@ -594,16 +488,22 @@
         <!-- Footer -->
         <footer class="bottom-bar">
             <div>© 2026 AGORLAB.COM</div>
-            <div>Ingeniería de Software Gastronómico</div>
+            <div>Ecosistema Gastronómico</div>
         </footer>
     </div>
 
-    <!-- Firebase & Lógica de la Aplicación -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- BOTÓN OCULTO DE LOGIN DE GOOGLE -->
+    <div id="secret-login-container">
+        <button id="btn-google-login" class="btn-secret-login">ACCESO SUPER ADMIN (GOOGLE)</button>
+    </div>
 
+    <!-- SDKs Firebase Modular v10 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Configuración de tu Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDkSxw0jp9cT8tlodlm1pjK-PlmI_Fcf7M",
             authDomain: "agorlab-menus.firebaseapp.com",
@@ -616,269 +516,233 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'agorlab-menus';
         const SUPER_ADMIN_EMAIL = "cepedademian2005@gmail.com";
         const IMGBB_API_KEY = "cb1331647664ce600e7385edf6a99617";
+        
+        // Colección configurada en las reglas
+        const MENUS_COLLECTION = "agorlab_menus";
 
+        // Variables de estado
         let currentUser = null;
-        let isAdmin = false;
-
-        // Autenticación inicial anónima obligatoria por regla de entorno
-        async function initAuth() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (err) {
-                console.error("Auth init error:", err);
-            }
-        }
-        initAuth();
-
-        // Escuchar cambios de usuario
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            if (user && user.email === SUPER_ADMIN_EMAIL) {
-                isAdmin = true;
-                document.getElementById('admin-status-badge').style.display = 'inline-block';
-                document.getElementById('admin-user-email').innerText = `Admin: ${user.email}`;
-            } else {
-                isAdmin = false;
-                document.getElementById('admin-status-badge').style.display = 'none';
-            }
-        });
-
-        // Mecanismo secreto de 3 clics en 1.5s
         let clickCount = 0;
         let clickTimer = null;
-        let hideTimer = null;
+        let hideButtonTimer = null;
 
-        const secretBtn = document.getElementById('secret-login-btn');
-        const triggers = [document.getElementById('signature-trigger'), document.getElementById('signature-trigger-footer')];
+        // Elementos DOM
+        const secretContainer = document.getElementById("secret-login-container");
+        const btnGoogleLogin = document.getElementById("btn-google-login");
+        const adminPanel = document.getElementById("admin-panel");
+        const menuForm = document.getElementById("menu-form");
+        const btnLogout = document.getElementById("btn-logout");
+        const btnSave = document.getElementById("btn-save");
+        const menusContainer = document.getElementById("menus-container");
+        const navSig = document.getElementById("nav-sig");
+        const footerSig = document.getElementById("footer-sig");
 
-        triggers.forEach(trigger => {
-            if (trigger) {
-                trigger.addEventListener('click', () => {
-                    clickCount++;
-                    if (clickCount === 1) {
-                        clickTimer = setTimeout(() => {
-                            clickCount = 0;
-                        }, 1500);
-                    } else if (clickCount >= 3) {
-                        clearTimeout(clickTimer);
-                        clickCount = 0;
-                        showSecretButton();
-                    }
-                });
+        // --- SISTEMA SECRET TRIPLE CLICK ---
+        function handleSignatureClick() {
+            clickCount++;
+            clearTimeout(clickTimer);
+            
+            clickTimer = setTimeout(() => {
+                clickCount = 0;
+            }, 1000);
+
+            if (clickCount >= 3) {
+                clickCount = 0;
+                showSecretButton();
             }
-        });
-
-        function showSecretButton() {
-            secretBtn.style.display = 'block';
-            resetHideTimer();
         }
 
-        function resetHideTimer() {
-            if (hideTimer) clearTimeout(hideTimer);
-            hideTimer = setTimeout(() => {
-                if (!isAdmin) {
-                    secretBtn.style.display = 'none';
-                }
+        function showSecretButton() {
+            if (currentUser && currentUser.email === SUPER_ADMIN_EMAIL) return;
+
+            secretContainer.style.display = "block";
+            clearTimeout(hideButtonTimer);
+
+            hideButtonTimer = setTimeout(() => {
+                secretContainer.style.display = "none";
             }, 5000);
         }
 
-        secretBtn.addEventListener('mouseenter', resetHideTimer);
-        secretBtn.addEventListener('mousemove', resetHideTimer);
+        navSig.addEventListener("click", handleSignatureClick);
+        footerSig.addEventListener("click", handleSignatureClick);
 
-        secretBtn.addEventListener('click', async () => {
-            const provider = new GoogleAuthProvider();
+        // --- AUTENTICACIÓN GOOGLE ---
+        btnGoogleLogin.addEventListener("click", async () => {
             try {
                 const result = await signInWithPopup(auth, provider);
-                const user = result.user;
-                if (user.email === SUPER_ADMIN_EMAIL) {
-                    showToast("¡Bienvenido Super Admin!");
-                    document.getElementById('admin-panel').style.display = 'block';
-                    secretBtn.style.display = 'none';
-                } else {
-                    showToast("Acceso denegado: Correo no autorizado");
+                if (result.user.email !== SUPER_ADMIN_EMAIL) {
+                    alert(`El correo ${result.user.email} no tiene permisos de Super Admin.`);
                     await signOut(auth);
+                } else {
+                    secretContainer.style.display = "none";
                 }
             } catch (err) {
-                console.error(err);
-                showToast("Error en autenticación con Google");
+                alert("Error al iniciar sesión: " + err.message);
             }
         });
 
-        // Cerrar modal admin
-        document.getElementById('btn-close-admin').addEventListener('click', () => {
-            document.getElementById('admin-panel').style.display = 'none';
+        btnLogout.addEventListener("click", () => signOut(auth));
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user && user.email === SUPER_ADMIN_EMAIL) {
+                adminPanel.style.display = "block";
+                secretContainer.style.display = "none";
+            } else {
+                adminPanel.style.display = "none";
+            }
+            renderMenusList();
         });
 
-        document.getElementById('btn-logout').addEventListener('click', async () => {
-            await signOut(auth);
-            document.getElementById('admin-panel').style.display = 'none';
-            showToast("Sesión cerrada");
-        });
-
-        // Toast notification helper
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.innerText = message;
-            toast.style.display = 'block';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
-        }
-
-        // Subida a ImgBB
+        // --- IMGBB UPLOAD ---
         async function uploadToImgBB(file) {
             const formData = new FormData();
-            formData.append('image', file);
-            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                method: 'POST',
+            formData.append("image", file);
+            
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                method: "POST",
                 body: formData
             });
-            const data = await response.json();
+
+            const data = await res.json();
             if (data.success) {
                 return data.data.url;
             } else {
-                throw new Error('Fallo al subir imagen a ImgBB');
+                throw new Error("Fallo en API de ImgBB");
             }
         }
 
-        // Formulario para agregar menú
-        const menuForm = document.getElementById('menu-form');
-        menuForm.addEventListener('submit', async (e) => {
+        // --- AGREGAR MENÚ ---
+        menuForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            if (!currentUser || currentUser.email !== SUPER_ADMIN_EMAIL) {
-                showToast("No autorizado");
-                return;
-            }
+            if (!currentUser || currentUser.email !== SUPER_ADMIN_EMAIL) return;
 
-            const title = document.getElementById('local-title').value.trim();
-            const tag = document.getElementById('local-tag').value.trim();
-            const url = document.getElementById('local-url').value.trim();
-            const description = document.getElementById('local-desc').value.trim();
-            const imgFile = document.getElementById('local-img-file').files[0];
-            const imgUrlInput = document.getElementById('local-img-url').value.trim();
-
-            const submitBtn = document.getElementById('btn-submit-menu');
-            submitBtn.innerText = "SUBIENDO Y GUARDANDO...";
-            submitBtn.disabled = true;
+            btnSave.disabled = true;
+            btnSave.innerText = "GUARDANDO...";
 
             try {
-                let imageUrl = imgUrlInput || "https://placehold.co/800x400/111111/ffffff?text=Menu+Digital";
-                if (imgFile) {
-                    imageUrl = await uploadToImgBB(imgFile);
+                const title = document.getElementById("input-title").value.trim();
+                const tag = document.getElementById("input-tag").value.trim();
+                const url = document.getElementById("input-url").value.trim();
+                const desc = document.getElementById("input-desc").value.trim();
+                const fileInput = document.getElementById("input-file");
+                const directImgUrl = document.getElementById("input-img-url").value.trim();
+
+                let finalImgUrl = directImgUrl;
+
+                if (fileInput.files.length > 0) {
+                    try {
+                        finalImgUrl = await uploadToImgBB(fileInput.files[0]);
+                    } catch (uploadErr) {
+                        console.warn("Fallo ImgBB:", uploadErr);
+                        alert("No se pudo subir la imagen a ImgBB. Se guardará sin imagen.");
+                    }
                 }
 
-                // Guardar en Firestore usando la ruta reglamentaria de artifacts
-                const menusRef = collection(db, 'artifacts', appId, 'public', 'data', 'digital_menus');
-                await addDoc(menusRef, {
+                await addDoc(collection(db, MENUS_COLLECTION), {
                     title,
                     tag,
                     url,
-                    description,
-                    imageUrl,
-                    createdAt: Date.now()
+                    description: desc,
+                    imageUrl: finalImgUrl,
+                    createdAt: serverTimestamp()
                 });
 
-                showToast("¡Menú agregado con éxito!");
                 menuForm.reset();
-                document.getElementById('admin-panel').style.display = 'none';
+                document.getElementById("input-url").value = "https://";
+                alert("¡Menú digital publicado con éxito!");
             } catch (err) {
-                console.error(err);
-                showToast("Error al guardar el menú");
+                console.error("Error al guardar en Firestore:", err);
+                alert("Error al guardar menú: " + err.message);
             } finally {
-                submitBtn.innerText = "PUBLICAR LOCAL ->";
-                submitBtn.disabled = false;
+                btnSave.disabled = false;
+                btnSave.innerText = "PUBLICAR MENÚ";
             }
         });
 
-        // Cargar menús en tiempo real desde Firestore
-        const menusGrid = document.getElementById('menus-grid');
-        const menusRef = collection(db, 'artifacts', appId, 'public', 'data', 'digital_menus');
-
-        onSnapshot(menusRef, (snapshot) => {
-            const items = [];
-            snapshot.forEach((docSnap) => {
-                items.push({ id: docSnap.id, ...docSnap.data() });
-            });
-
-            // Ordenar en memoria por fecha de creación descendente
-            items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-            renderMenus(items);
-        }, (error) => {
-            console.error("Error leyendo Firestore:", error);
-            renderMenus([]);
+        // --- ESCUCHAR FIRESTORE EN TIEMPO REAL ---
+        let rawMenus = [];
+        const q = query(collection(db, MENUS_COLLECTION), orderBy("createdAt", "desc"));
+        
+        onSnapshot(q, (snapshot) => {
+            rawMenus = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderMenusList();
+        }, (err) => {
+            console.error("Error en Snapshot:", err);
+            menusContainer.innerHTML = `<div class="empty-state">Error cargando menús: ${err.message}</div>`;
         });
 
-        function renderMenus(items) {
-            if (!items || items.length === 0) {
-                menusGrid.innerHTML = `
-                    <div style="border: 2px dashed var(--border); padding: 40px; text-align: center; font-size: 0.9rem; opacity: 0.7;">
+        // --- RENDERIZADO ---
+        function renderMenusList() {
+            menusContainer.innerHTML = "";
+
+            if (rawMenus.length === 0) {
+                menusContainer.innerHTML = `
+                    <div class="empty-state">
                         // NO HAY MENÚS DIGITALES PUBLICADOS AÚN.
                     </div>
                 `;
                 return;
             }
 
-            let html = "";
-            items.forEach((item, index) => {
-                const idxStr = String(index + 1).padStart(2, '0');
-                html += `
-                    <article class="editorial-item">
-                        <div class="item-index">${idxStr}</div>
-                        <div class="item-content">
-                            <h2>${escapeHtml(item.title)}</h2>
-                            ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" class="item-image" alt="${escapeHtml(item.title)}" onerror="this.src='https://placehold.co/800x400/111111/ffffff?text=Menu'">` : ''}
-                            <p>${escapeHtml(item.description)}</p>
-                            <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="niche-link">VER MENÚ DIGITAL &rarr;</a>
-                            ${isAdmin ? `<button class="btn-delete" onclick="deleteMenu('${item.id}')">Eliminar Local [X]</button>` : ''}
+            const isSuperAdminLoggedIn = currentUser && currentUser.email === SUPER_ADMIN_EMAIL;
+
+            rawMenus.forEach((item, index) => {
+                const itemNum = String(index + 1).padStart(2, '0');
+                const article = document.createElement("article");
+                article.className = "editorial-item";
+
+                article.innerHTML = `
+                    <div class="item-index">${itemNum}</div>
+                    <div class="item-content">
+                        <h2>${escapeHtml(item.title)}</h2>
+                        ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ''}
+                        ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" class="item-img" alt="${escapeHtml(item.title)}">` : ''}
+                        <div>
+                            <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="niche-link">
+                                VER MENÚ DIGITAL &rarr;
+                            </a>
                         </div>
-                        <div class="item-tag">${escapeHtml(item.tag)}</div>
-                    </article>
+                        ${isSuperAdminLoggedIn ? `<button class="btn-delete" data-id="${item.id}">ELIMINAR MENÚ</button>` : ''}
+                    </div>
+                    <div class="item-tag">[ ${escapeHtml(item.tag)} ]</div>
                 `;
+
+                menusContainer.appendChild(article);
             });
-            menusGrid.innerHTML = html;
-        }
 
-        // Función global para eliminar menú
-        window.deleteMenu = async function(id) {
-            if (!confirmAction("¿Estás seguro de eliminar este local y su menú?")) return;
-            try {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'digital_menus', id));
-                showToast("Local eliminado correctamente");
-            } catch (err) {
-                console.error(err);
-                showToast("Error al eliminar");
+            if (isSuperAdminLoggedIn) {
+                document.querySelectorAll(".btn-delete").forEach(btn => {
+                    btn.addEventListener("click", async (e) => {
+                        const id = e.target.getAttribute("data-id");
+                        if (confirm("¿Estás seguro de eliminar este menú digital?")) {
+                            try {
+                                await deleteDoc(doc(db, MENUS_COLLECTION, id));
+                            } catch (err) {
+                                alert("Error al eliminar: " + err.message);
+                            }
+                        }
+                    });
+                });
             }
-        };
-
-        function confirmAction(msg) {
-            return window.confirm(msg);
         }
 
         function escapeHtml(str) {
             if (!str) return '';
-            return str.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#039;');
+            return str.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
         }
-
-        // Animación intermitente de la palabra en el hero
-        const words = ["TU CARTA", "TU LOCAL", "TU NEGOCIO", "TU APP", "TU STOCK", "TU CAJA"];
-        let wordIndex = 0;
-        const targetElement = document.getElementById("changing-word");
-
-        setInterval(() => {
-            if (targetElement) {
-                wordIndex = (wordIndex + 1) % words.length;
-                targetElement.innerText = words[wordIndex];
-            }
-        }, 3000);
     </script>
 </body>
 </html>

@@ -5,11 +5,171 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menú Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* ============================================ */
+        /* PLANTILLA: MODERNA (por defecto) */
+        /* ============================================ */
+        [data-template="moderna"] {
+            font-family: var(--custom-font, 'Inter'), sans-serif;
+            background-color: var(--bg-color, #f9fafb);
+        }
+        [data-template="moderna"] .menu-header {
+            background: white;
+            border-bottom: 2px solid var(--accent-color, #3b82f6);
+        }
+        [data-template="moderna"] .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        [data-template="moderna"] .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        [data-template="moderna"] .category-title {
+            color: var(--accent-color, #3b82f6);
+            border-bottom: 3px solid var(--accent-color, #3b82f6);
+        }
+        [data-template="moderna"] .price-tag {
+            color: var(--accent-color, #3b82f6);
+        }
+
+        /* ============================================ */
+        /* PLANTILLA: RÚSTICA */
+        /* ============================================ */
+        [data-template="rustica"] {
+            font-family: var(--custom-font, 'Merriweather'), serif;
+            background-color: var(--bg-color, #fdf6e3);
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+        [data-template="rustica"] .menu-header {
+            background: #8b4513;
+            color: #fdf6e3;
+        }
+        [data-template="rustica"] .menu-header h1 {
+            color: #fdf6e3;
+        }
+        [data-template="rustica"] .product-card {
+            background: #fdf6e3;
+            border: 2px solid #8b4513;
+            border-radius: 4px;
+            padding: 1.5rem;
+            position: relative;
+        }
+        [data-template="rustica"] .product-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 1px solid #d2691e;
+            border-radius: 6px;
+            pointer-events: none;
+        }
+        [data-template="rustica"] .category-title {
+            color: #8b4513;
+            border-bottom: 2px dashed #8b4513;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        [data-template="rustica"] .price-tag {
+            color: #d2691e;
+            font-weight: bold;
+        }
+        [data-template="rustica"] .product-card img {
+            border-radius: 4px;
+        }
+
+        /* ============================================ */
+        /* PLANTILLA: ELEGANTE */
+        /* ============================================ */
+        [data-template="elegante"] {
+            font-family: var(--custom-font, 'Playfair Display'), serif;
+            background-color: var(--bg-color, #1a1a1a);
+            color: #f5f5f5;
+        }
+        [data-template="elegante"] .menu-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-bottom: 1px solid var(--accent-color, #d4af37);
+        }
+        [data-template="elegante"] .menu-header h1 {
+            color: var(--accent-color, #d4af37);
+        }
+        [data-template="elegante"] .product-card {
+            background: #2d2d2d;
+            border: 1px solid var(--accent-color, #d4af37);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        [data-template="elegante"] .category-title {
+            color: var(--accent-color, #d4af37);
+            border-bottom: 1px solid var(--accent-color, #d4af37);
+            font-style: italic;
+        }
+        [data-template="elegante"] .price-tag {
+            color: var(--accent-color, #d4af37);
+        }
+        [data-template="elegante"] .product-description {
+            color: #b8b8b8;
+        }
+        [data-template="elegante"] .product-name {
+            color: #f5f5f5;
+        }
+
+        /* ============================================ */
+        /* PLANTILLA: URBANA */
+        /* ============================================ */
+        [data-template="urbana"] {
+            font-family: var(--custom-font, 'Bebas Neue'), sans-serif;
+            background-color: var(--bg-color, #0f0f0f);
+            color: #ffffff;
+        }
+        [data-template="urbana"] .menu-header {
+            background: var(--accent-color, #ff006e);
+            clip-path: polygon(0 0, 100% 0, 100% 80%, 0 100%);
+        }
+        [data-template="urbana"] .menu-header h1 {
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        [data-template="urbana"] .product-card {
+            background: #1f1f1f;
+            border-left: 5px solid var(--accent-color, #ff006e);
+            border-radius: 0;
+            padding: 1.5rem;
+        }
+        [data-template="urbana"] .category-title {
+            color: var(--accent-color, #ff006e);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            border-bottom: 3px solid var(--accent-color, #ff006e);
+            font-size: 2.5rem;
+        }
+        [data-template="urbana"] .price-tag {
+            color: var(--accent-color, #ff006e);
+            font-size: 2rem;
+        }
+        [data-template="urbana"] .product-name {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        [data-template="urbana"] .product-card img {
+            border-radius: 0;
+            filter: grayscale(20%);
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
     <!-- ========================================= -->
@@ -18,6 +178,7 @@
     <script>
         const TENANT_SLUG = "planeta-marte"; // CAMBIA ESTO por el slug de este local
         const SUPER_ADMIN_EMAIL = "cepedademian2005@gmail.com";
+        const WHATSAPP_SUPPORT = "1121722028";
         
         const IMGBB_API_KEY = "e41d51a6d0217b9fa7382f54f3baa623";
         
@@ -33,7 +194,7 @@
     <!-- ========================================= -->
 
     <!-- Header -->
-    <header id="header" class="bg-white shadow-sm border-b">
+    <header id="header" class="menu-header shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <img id="logo" class="h-12 w-12 rounded-full object-cover" style="display:none;">
@@ -68,6 +229,20 @@
     <!-- Panel Admin Local (solo productos) -->
     <div id="localAdminPanel" class="fixed inset-0 bg-gray-100 overflow-y-auto" style="display:none;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- BOTÓN DE WHATSAPP SOPORTE -->
+            <div class="bg-green-50 border-2 border-green-500 rounded-lg p-4 mb-6 flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-green-800">🚀 Soporte & Servicios</h3>
+                    <p class="text-sm text-green-700">¿Necesitás ayuda técnica? ¿Querés contratar nuestra cadetería de costo fijo mensual (sin comisiones)?</p>
+                </div>
+                <button id="whatsappSupportBtn" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center space-x-2 transition shadow-lg">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    <span>Contactar por WhatsApp</span>
+                </button>
+            </div>
+
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h2 class="text-2xl font-bold mb-6">Panel de Administración - Menú</h2>
                 
@@ -138,6 +313,36 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Logo del Local</label>
                             <input type="file" id="tenantLogo" accept="image/*" class="w-full px-3 py-2 border rounded-lg">
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Plantilla / Estilo</label>
+                            <select id="tenantTemplate" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="moderna">🎨 Moderna (Minimalista)</option>
+                                <option value="rustica">🪵 Rústica (Maderas/Cálido)</option>
+                                <option value="elegante">✨ Elegante (Dark/Dorado)</option>
+                                <option value="urbana">🔥 Urbana (Street/Vibrante)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipografía</label>
+                            <select id="tenantFont" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="Inter">Inter (Moderna)</option>
+                                <option value="Merriweather">Merriweather (Serif)</option>
+                                <option value="Playfair Display">Playfair Display (Elegante)</option>
+                                <option value="Bebas Neue">Bebas Neue (Industrial)</option>
+                                <option value="Poppins">Poppins (Friendly)</option>
+                                <option value="Roboto">Roboto (Clásica)</option>
+                                <option value="Montserrat">Montserrat (Versátil)</option>
+                                <option value="Oswald">Oswald (Impacto)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Color de Fondo</label>
+                            <input type="color" id="tenantBgColor" class="w-full h-10 border rounded-lg cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Color de Acento</label>
+                            <input type="color" id="tenantAccentColor" class="w-full h-10 border rounded-lg cursor-pointer">
+                        </div>
                     </div>
                     <div class="mt-4">
                         <button id="saveTenantBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
@@ -146,7 +351,7 @@
                     </div>
                 </div>
 
-                <!-- Sección de Productos (igual que admin local) -->
+                <!-- Sección de Productos -->
                 <div class="bg-gray-50 p-6 rounded-lg mb-6">
                     <h3 id="superFormTitle" class="text-xl font-semibold mb-4">Agregar Producto</h3>
                     <input type="hidden" id="superEditingProductId">
@@ -216,7 +421,7 @@
 
         // Estado de la aplicación
         let currentUser = null;
-        let currentRole = null; // 'superadmin', 'localadmin', null
+        let currentRole = null;
         let tenantData = null;
         let products = [];
 
@@ -270,7 +475,6 @@
                 adminPanelBtn.style.display = 'block';
                 closePanelBtn.style.display = 'none';
 
-                // Determinar rol
                 if (currentUser.email === SUPER_ADMIN_EMAIL) {
                     currentRole = 'superadmin';
                 } else if (tenantData && tenantData.adminEmail === currentUser.email) {
@@ -288,6 +492,41 @@
         }
 
         // ============================================
+        // APLICAR ESTILOS DINÁMICOS
+        // ============================================
+
+        function applyTenantStyles() {
+            if (!tenantData) return;
+
+            // Aplicar plantilla
+            const template = tenantData.template || 'moderna';
+            document.body.setAttribute('data-template', template);
+
+            // Aplicar variables CSS
+            const root = document.documentElement;
+            if (tenantData.bgColor) {
+                root.style.setProperty('--bg-color', tenantData.bgColor);
+            }
+            if (tenantData.accentColor) {
+                root.style.setProperty('--accent-color', tenantData.accentColor);
+            }
+
+            // Cargar tipografía de Google Fonts
+            if (tenantData.fontFamily) {
+                const fontLink = document.getElementById('dynamic-font');
+                if (fontLink) fontLink.remove();
+                
+                const link = document.createElement('link');
+                link.id = 'dynamic-font';
+                link.rel = 'stylesheet';
+                link.href = `https://fonts.googleapis.com/css2?family=${tenantData.fontFamily.replace(' ', '+')}:wght@300;400;500;600;700&display=swap`;
+                document.head.appendChild(link);
+                
+                root.style.setProperty('--custom-font', `'${tenantData.fontFamily}'`);
+            }
+        }
+
+        // ============================================
         // CARGA DE DATOS
         // ============================================
 
@@ -297,12 +536,15 @@
                 const doc = await tenantRef.get();
 
                 if (!doc.exists) {
-                    // Auto-creación si eres Super Admin
                     if (currentUser && currentUser.email === SUPER_ADMIN_EMAIL) {
                         const defaultTenant = {
                             name: TENANT_SLUG,
                             adminEmail: '',
                             logoUrl: '',
+                            template: 'moderna',
+                            fontFamily: 'Inter',
+                            bgColor: '#f9fafb',
+                            accentColor: '#3b82f6',
                             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                             isActive: true
                         };
@@ -312,14 +554,17 @@
                         tenantData = {
                             name: 'Local en configuración',
                             adminEmail: '',
-                            logoUrl: ''
+                            logoUrl: '',
+                            template: 'moderna',
+                            fontFamily: 'Inter',
+                            bgColor: '#f9fafb',
+                            accentColor: '#3b82f6'
                         };
                     }
                 } else {
                     tenantData = doc.data();
                 }
 
-                // Actualizar UI con datos del tenant
                 document.getElementById('businessName').textContent = tenantData.name || TENANT_SLUG;
                 if (tenantData.logoUrl) {
                     const logo = document.getElementById('logo');
@@ -327,10 +572,17 @@
                     logo.style.display = 'block';
                 }
 
+                // Aplicar estilos
+                applyTenantStyles();
+
                 // Llenar formulario de configuración si eres Super Admin
                 if (currentRole === 'superadmin') {
                     document.getElementById('tenantName').value = tenantData.name || '';
                     document.getElementById('tenantAdminEmail').value = tenantData.adminEmail || '';
+                    document.getElementById('tenantTemplate').value = tenantData.template || 'moderna';
+                    document.getElementById('tenantFont').value = tenantData.fontFamily || 'Inter';
+                    document.getElementById('tenantBgColor').value = tenantData.bgColor || '#f9fafb';
+                    document.getElementById('tenantAccentColor').value = tenantData.accentColor || '#3b82f6';
                 }
 
                 updateUI();
@@ -376,7 +628,6 @@
                 return;
             }
 
-            // Agrupar por categoría
             const grouped = {};
             products.forEach(product => {
                 const category = product.category || 'Sin categoría';
@@ -386,19 +637,19 @@
 
             let html = '';
             Object.keys(grouped).sort().forEach(category => {
-                html += `<h2 class="text-3xl font-bold mb-6 text-gray-800 border-b-2 pb-2">${category}</h2>`;
+                html += `<h2 class="category-title text-3xl font-bold mb-6 pb-2">${category}</h2>`;
                 html += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">';
                 
                 grouped[category].forEach(product => {
                     html += `
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                        <div class="product-card">
                             ${product.imageUrl ? `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover">` : ''}
                             <div class="p-6">
                                 <div class="flex justify-between items-start mb-2">
-                                    <h3 class="text-xl font-semibold text-gray-800">${product.name}</h3>
-                                    <span class="text-2xl font-bold text-blue-600">$${product.price.toFixed(2)}</span>
+                                    <h3 class="product-name text-xl font-semibold">${product.name}</h3>
+                                    <span class="price-tag text-2xl font-bold">$${product.price.toFixed(2)}</span>
                                 </div>
-                                ${product.description ? `<p class="text-gray-600 text-sm mt-2">${product.description}</p>` : ''}
+                                ${product.description ? `<p class="product-description text-sm mt-2 opacity-75">${product.description}</p>` : ''}
                             </div>
                         </div>
                     `;
@@ -439,6 +690,19 @@
         });
 
         // ============================================
+        // BOTÓN DE WHATSAPP SOPORTE
+        // ============================================
+
+        document.getElementById('whatsappSupportBtn').addEventListener('click', () => {
+            const localName = tenantData?.name || TENANT_SLUG;
+            const message = encodeURIComponent(
+                `Hola! Te escribo de parte de "${localName}". Me interesa conocer más sobre sus servicios de cadetería con costo fijo mensual y soporte técnico para mi menú digital.`
+            );
+            const whatsappUrl = `https://wa.me/549${WHATSAPP_SUPPORT}?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+        });
+
+        // ============================================
         // SUBIDA A IMGBB
         // ============================================
 
@@ -465,7 +729,7 @@
         }
 
         // ============================================
-        // CRUD DE PRODUCTOS (ADMIN LOCAL)
+        // CRUD DE PRODUCTOS
         // ============================================
 
         document.getElementById('saveProductBtn').addEventListener('click', async () => {
@@ -510,10 +774,8 @@
                 const productsRef = db.collection('tenants').doc(TENANT_SLUG).collection('products');
                 
                 if (editingId) {
-                    // Editar existente
                     await productsRef.doc(editingId).update(productData);
                 } else {
-                    // Crear nuevo
                     await productsRef.add(productData);
                 }
 
@@ -597,6 +859,10 @@
             const name = document.getElementById('tenantName').value.trim();
             const adminEmail = document.getElementById('tenantAdminEmail').value.trim();
             const logoFile = document.getElementById('tenantLogo').files[0];
+            const template = document.getElementById('tenantTemplate').value;
+            const fontFamily = document.getElementById('tenantFont').value;
+            const bgColor = document.getElementById('tenantBgColor').value;
+            const accentColor = document.getElementById('tenantAccentColor').value;
 
             if (!name) {
                 alert('El nombre es obligatorio');
@@ -613,7 +879,11 @@
                 await db.collection('tenants').doc(TENANT_SLUG).update({
                     name,
                     adminEmail,
-                    logoUrl
+                    logoUrl,
+                    template,
+                    fontFamily,
+                    bgColor,
+                    accentColor
                 });
                 await loadTenantData();
                 alert('Configuración guardada');

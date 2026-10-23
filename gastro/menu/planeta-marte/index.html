@@ -1200,7 +1200,10 @@
             p.ingredients = p.ingredients || [];
             return p;
         }
-
+        function fmtPrice(p) {
+            const n = typeof p.price === 'number' ? p.price : parseFloat(p.price);
+            return (isNaN(n) ? 0 : n).toFixed(2);
+        }
         function groupProducts() {
             const grouped = {};
             products.forEach(p => {
@@ -1211,32 +1214,28 @@
             return grouped;
         }
 
-        async function loadProducts() {
+                async function loadProducts() {
             try {
                 const snap = await db.collection('tenants').doc(TENANT_SLUG).collection('products').orderBy('category').get();
                 products = [];
                 snap.forEach(d => products.push(normalizeProduct({ id: d.id, ...d.data() })));
 
                 const grouped = groupProducts();
-                renderCategorySelector(grouped);
-                renderPublicMenu(grouped);
-
-                if (currentRole === 'localadmin') renderLocalAdminProducts();
-                if (currentRole === 'superadmin') renderSuperAdminProducts();
+                try { renderCategorySelector(grouped); } catch (e) { console.error('render selector:', e); }
+                try { renderPublicMenu(grouped); } catch (e) { console.error('render menu:', e); }
+                try { renderLocalAdminProducts(); } catch (e) { console.error('render lista local:', e); }
+                try { renderSuperAdminProducts(); } catch (e) { console.error('render lista super:', e); }
 
                 document.getElementById('loadingMessage').style.display = 'none';
 
                 if (products.length === 0) {
-                    // Sin productos: mostrar selector vacío
                     currentView = 'selector';
                     document.getElementById('categoryView').style.display = 'none';
                     document.getElementById('menuContent').style.display = 'none';
                     document.getElementById('categorySelector').style.display = 'block';
                 } else if (currentView === 'category') {
-                    // Estaba viendo una categoría: mantener posición
                     openCategoryView(Math.min(activeCatIndex, categoryOrder.length - 1), false);
                 } else {
-                    // Default: selector
                     currentView = 'selector';
                     document.getElementById('categoryView').style.display = 'none';
                     document.getElementById('menuContent').style.display = 'none';
@@ -1492,13 +1491,15 @@
         adminPanelBtn.addEventListener('click', openAdminPanel);
         floatingAdminBtn.addEventListener('click', openAdminPanel);
 
-        function openAdminPanel() {
+                function openAdminPanel() {
             if (currentRole === 'superadmin') {
                 publicMenu.style.display = 'none';
                 superAdminPanel.style.display = 'block';
+                renderSuperAdminProducts();
             } else if (currentRole === 'localadmin') {
                 publicMenu.style.display = 'none';
                 localAdminPanel.style.display = 'block';
+                renderLocalAdminProducts();
             } else { alert('Sin permisos'); }
         }
 
@@ -1578,7 +1579,50 @@
                 });
             });
         }
+        // ============================================
+        // LISTAS DE PRODUCTOS EN PANELES ADMIN
+        // ============================================
+        function renderLocalAdminProducts() {
+            const list = document.getElementById('productsList');
+            if (!list) return;
+            if (products.length === 0) { list.innerHTML = '<p class="text-gray-500 py-4">Sin productos aún</p>'; return; }
+            list.innerHTML = products.map(p => `
+                <div class="bg-white border rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <div class="flex items-center gap-3 min-w-0">
+                        ${p.images && p.images[0] ? `<img src="${p.images[0]}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">` : ''}
+                        <div class="min-w-0">
+                            <h4 class="font-semibold truncate">${p.name}</h4>
+                            <p class="text-sm text-gray-600">${p.category} · $${fmtPrice(p)}${p.images && p.images.length > 1 ? ` · ${p.images.length} imgs` : ''}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 flex-shrink-0">
+                        <button onclick="editProduct('${p.id}', false)" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700">Editar</button>
+                        <button onclick="deleteProduct('${p.id}', false)" class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-red-700">Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
 
+        function renderSuperAdminProducts() {
+            const list = document.getElementById('superProductsList');
+            if (!list) return;
+            if (products.length === 0) { list.innerHTML = '<p class="text-gray-500 py-4">Sin productos aún</p>'; return; }
+            list.innerHTML = products.map(p => `
+                <div class="bg-white border rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <div class="flex items-center gap-3 min-w-0">
+                        ${p.images && p.images[0] ? `<img src="${p.images[0]}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">` : ''}
+                        <div class="min-w-0">
+                            <h4 class="font-semibold truncate">${p.name}</h4>
+                            <p class="text-sm text-gray-600">${p.category} · $${fmtPrice(p)}${p.images && p.images.length > 1 ? ` · ${p.images.length} imgs` : ''}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 flex-shrink-0">
+                        <button onclick="editProduct('${p.id}', true)" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700">Editar</button>
+                        <button onclick="deleteProduct('${p.id}', true)" class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-red-700">Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
         // ============================================
         // CRUD
         // ============================================

@@ -1588,13 +1588,19 @@
         document.getElementById('superCancelEditBtn').addEventListener('click', () => resetProductForm(true));
 
         async function saveProduct(isSuper) {
-            const p = isSuper ? 'super' : '';
-            const name = document.getElementById(`${p}ProductName`).value.trim();
-            const category = document.getElementById(`${p}ProductCategory`).value.trim();
-            const price = parseFloat(document.getElementById(`${p}ProductPrice`).value);
-            const description = document.getElementById(`${p}ProductDescription`).value.trim();
-            const ingredientsRaw = document.getElementById(`${p}ProductIngredients`).value.trim();
-            const editId = document.getElementById(`${p}EditingProductId`).value;
+            const nameEl = document.getElementById(isSuper ? 'superProductName' : 'productName');
+            const catEl = document.getElementById(isSuper ? 'superProductCategory' : 'productCategory');
+            const priceEl = document.getElementById(isSuper ? 'superProductPrice' : 'productPrice');
+            const descEl = document.getElementById(isSuper ? 'superProductDescription' : 'productDescription');
+            const ingrEl = document.getElementById(isSuper ? 'superProductIngredients' : 'productIngredients');
+            const editEl = document.getElementById(isSuper ? 'superEditingProductId' : 'editingProductId');
+
+            const name = nameEl.value.trim();
+            const category = catEl.value.trim();
+            const price = parseFloat(priceEl.value);
+            const description = descEl.value.trim();
+            const ingredientsRaw = ingrEl.value.trim();
+            const editId = editEl.value;
             const stateArr = isSuper ? superProductImages : localProductImages;
 
             if (!name || !category || !price || isNaN(price)) {
@@ -1628,77 +1634,38 @@
         }
 
         function resetProductForm(isSuper) {
-            const p = isSuper ? 'super' : '';
-            ['ProductName','ProductCategory','ProductPrice','ProductDescription','ProductIngredients','EditingProductId'].forEach(f => {
-                const el = document.getElementById(`${p}${f}`);
+            const ids = isSuper
+                ? ['superProductName','superProductCategory','superProductPrice','superProductDescription','superProductIngredients','superEditingProductId']
+                : ['productName','productCategory','productPrice','productDescription','productIngredients','editingProductId'];
+            ids.forEach(f => {
+                const el = document.getElementById(f);
                 if (el) el.value = '';
             });
-            const fileInput = document.getElementById(`${p}ProductImages`);
+            const fileInput = document.getElementById(isSuper ? 'superProductImages' : 'productImages');
             if (fileInput) fileInput.value = '';
-            document.getElementById(`${p}FormTitle`).textContent = 'Agregar Producto';
-            document.getElementById(`${p}CancelEditBtn`).style.display = 'none';
+            document.getElementById(isSuper ? 'superFormTitle' : 'formTitle').textContent = 'Agregar Producto';
+            document.getElementById(isSuper ? 'superCancelEditBtn' : 'cancelEditBtn').style.display = 'none';
             const stateArr = isSuper ? superProductImages : localProductImages;
             stateArr.length = 0;
-            renderImagePreview(stateArr, `${p}ProductImagesPreview`);
-        }
-
-        function renderLocalAdminProducts() {
-            const list = document.getElementById('productsList');
-            if (products.length === 0) { list.innerHTML = '<p class="text-gray-500 py-4">Sin productos aún</p>'; return; }
-            list.innerHTML = products.map(p => `
-                <div class="bg-white border rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                    <div class="flex items-center gap-3 min-w-0">
-                        ${p.images && p.images[0] ? `<img src="${p.images[0]}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">` : ''}
-                        <div class="min-w-0">
-                            <h4 class="font-semibold truncate">${p.name}</h4>
-                            <p class="text-sm text-gray-600">${p.category} · $${p.price.toFixed(2)}${p.images && p.images.length > 1 ? ` · ${p.images.length} imgs` : ''}</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-2 flex-shrink-0">
-                        <button onclick="editProduct('${p.id}', false)" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700">Editar</button>
-                        <button onclick="deleteProduct('${p.id}', false)" class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-red-700">Eliminar</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderSuperAdminProducts() {
-            const list = document.getElementById('superProductsList');
-            if (products.length === 0) { list.innerHTML = '<p class="text-gray-500 py-4">Sin productos aún</p>'; return; }
-            list.innerHTML = products.map(p => `
-                <div class="bg-white border rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                    <div class="flex items-center gap-3 min-w-0">
-                        ${p.images && p.images[0] ? `<img src="${p.images[0]}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">` : ''}
-                        <div class="min-w-0">
-                            <h4 class="font-semibold truncate">${p.name}</h4>
-                            <p class="text-sm text-gray-600">${p.category} · $${p.price.toFixed(2)}${p.images && p.images.length > 1 ? ` · ${p.images.length} imgs` : ''}</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-2 flex-shrink-0">
-                        <button onclick="editProduct('${p.id}', true)" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700">Editar</button>
-                        <button onclick="deleteProduct('${p.id}', true)" class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-red-700">Eliminar</button>
-                    </div>
-                </div>
-            `).join('');
+            renderImagePreview(stateArr, isSuper ? 'superProductImagesPreview' : 'productImagesPreview');
         }
 
         window.editProduct = (id, isSuper) => {
             const prod = products.find(p => p.id === id);
             if (!prod) return;
-            const p = isSuper ? 'super' : '';
-            document.getElementById(`${p}EditingProductId`).value = id;
-            document.getElementById(`${p}ProductName`).value = prod.name;
-            document.getElementById(`${p}ProductCategory`).value = prod.category;
-            document.getElementById(`${p}ProductPrice`).value = prod.price;
-            document.getElementById(`${p}ProductDescription`).value = prod.description || '';
-            document.getElementById(`${p}ProductIngredients`).value = (prod.ingredients || []).join(', ');
-            document.getElementById(`${p}FormTitle`).textContent = 'Editar Producto';
-            document.getElementById(`${p}CancelEditBtn`).style.display = 'block';
+            document.getElementById(isSuper ? 'superEditingProductId' : 'editingProductId').value = id;
+            document.getElementById(isSuper ? 'superProductName' : 'productName').value = prod.name;
+            document.getElementById(isSuper ? 'superProductCategory' : 'productCategory').value = prod.category;
+            document.getElementById(isSuper ? 'superProductPrice' : 'productPrice').value = prod.price;
+            document.getElementById(isSuper ? 'superProductDescription' : 'productDescription').value = prod.description || '';
+            document.getElementById(isSuper ? 'superProductIngredients' : 'productIngredients').value = (prod.ingredients || []).join(', ');
+            document.getElementById(isSuper ? 'superFormTitle' : 'formTitle').textContent = 'Editar Producto';
+            document.getElementById(isSuper ? 'superCancelEditBtn' : 'cancelEditBtn').style.display = 'block';
             const stateArr = isSuper ? superProductImages : localProductImages;
             stateArr.length = 0;
             if (prod.images) prod.images.forEach(u => stateArr.push(u));
-            renderImagePreview(stateArr, `${p}ProductImagesPreview`);
-            document.getElementById(`${p}ProductName`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+            renderImagePreview(stateArr, isSuper ? 'superProductImagesPreview' : 'productImagesPreview');
+            document.getElementById(isSuper ? 'superProductName' : 'productName').scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
 
         window.deleteProduct = async (id, isSuper) => {

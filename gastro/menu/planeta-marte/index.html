@@ -62,44 +62,113 @@
         .auth-buttons-wrapper.visible,
         .auth-buttons-wrapper.permanent { max-height: 60px; opacity: 1; }
 
-        /* TABS */
-        .category-tabs {
-            background: var(--tabs-bg);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 64px;
-            z-index: 30;
-            overflow-x: auto;
-            overflow-y: hidden;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            padding: 0 12px;
+        /* ============================================ */
+        /* SELECTOR DE CATEGORÍAS (pantalla inicial)    */
+        /* ============================================ */
+        .selector-title {
+            font-size: 1.6rem; font-weight: 800;
+            color: var(--text-color);
+            margin: 0 0 6px;
         }
-        .category-tabs::-webkit-scrollbar { display: none; }
-        .category-tabs-inner {
-            display: flex; gap: 8px;
-            padding: 12px 0; white-space: nowrap; min-width: max-content;
-        }
-        .category-tab {
-            padding: 10px 20px; border-radius: 999px;
-            font-size: 0.95rem; font-weight: 500;
+        .selector-subtitle {
             color: var(--text-muted);
-            background: transparent;
-            border: 1.5px solid var(--border-color);
-            cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;
+            font-size: 0.9rem;
+            margin: 0 0 24px;
         }
-        .category-tab:hover { color: var(--accent-color); border-color: var(--accent-color); }
-        .category-tab.active {
-            background: var(--accent-color); color: white;
-            border-color: var(--accent-color); transform: scale(1.05);
+        .selector-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+        @media (min-width: 640px) { .selector-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
+        @media (min-width: 1024px) { .selector-grid { grid-template-columns: repeat(4, 1fr); gap: 22px; } }
+
+        .selector-card {
+            background: var(--card-bg);
+            border-radius: var(--card-border-radius);
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.25s, box-shadow 0.25s;
+            animation: fadeInUp 0.4s ease-out both;
+            border: 1px solid var(--border-color);
+        }
+        .selector-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,0.15); }
+        .selector-card:active { transform: scale(0.97); }
+        .selector-card .sel-thumb {
+            width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+        }
+        .selector-card .sel-body { padding: 12px 14px; }
+        .selector-card .sel-name {
+            font-weight: 700; color: var(--text-color);
+            font-size: 1rem; line-height: 1.2; display: block;
+        }
+        .selector-card .sel-count {
+            color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; display: block;
+        }
+        .selector-card .sel-arrow {
+            position: absolute; top: 10px; right: 10px;
+            background: var(--accent-color); color: #fff;
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 700;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
         }
 
         /* ============================================ */
-        /* CARRUSEL DE CATEGORÍAS                       */
+        /* BARRA DE VISTA DE CATEGORÍA                  */
+        /* ============================================ */
+        .category-view-bar {
+            position: sticky; top: 64px; z-index: 30;
+            background: var(--tabs-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 16px;
+            display: flex; align-items: center; gap: 12px;
+            backdrop-filter: blur(10px);
+        }
+        .back-btn {
+            background: transparent;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 14px; border-radius: 999px;
+            font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .back-btn:hover { color: var(--accent-color); border-color: var(--accent-color); }
+        .cv-info { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 10px; }
+        .cv-title {
+            font-weight: 800; color: var(--accent-color);
+            font-size: 1.05rem; letter-spacing: 0.5px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .cv-counter { color: var(--text-muted); font-size: 0.75rem; flex-shrink: 0; }
+        .cv-dots { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+        .cv-dots .dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--border-color);
+            cursor: pointer; transition: all 0.3s;
+        }
+        .cv-dots .dot.active { background: var(--accent-color); width: 20px; border-radius: 999px; }
+        .cv-arrow {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            color: var(--text-color);
+            width: 36px; height: 36px; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0; transition: all 0.2s;
+        }
+        .cv-arrow:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        @media (min-width: 768px) { .cv-arrow { display: flex; } }
+
+        /* ============================================ */
+        /* CARRUSEL DE CATEGORÍAS (una a la vez)        */
         /* ============================================ */
         .categories-slider {
             display: flex;
             overflow-x: auto;
+            overflow-y: hidden;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
@@ -112,14 +181,14 @@
             flex: 0 0 100%;
             scroll-snap-align: start;
             scroll-snap-stop: always;
-            padding: 0 4px;
+            padding: 16px 4px 0;
             min-width: 0;
         }
         @media (min-width: 768px) {
-            .category-slide { flex: 0 0 90%; padding: 0 12px; }
+            .category-slide { flex: 0 0 92%; padding: 20px 12px 0; }
         }
         @media (min-width: 1024px) {
-            .category-slide { flex: 0 0 80%; padding: 0 24px; }
+            .category-slide { flex: 0 0 84%; padding: 24px 24px 0; }
         }
 
         .category-title {
@@ -131,12 +200,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-        }
-        .category-title .slide-hint {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: 400;
-            letter-spacing: 0.5px;
         }
 
         .products-grid {
@@ -225,9 +288,6 @@
         [data-template="urbana"] .category-title {
             text-transform: uppercase; letter-spacing: 6px;
             font-size: 2.5rem; color: var(--accent-color);
-        }
-        [data-template="urbana"] .category-tab.active {
-            background: var(--accent-color); color: #000;
         }
 
         [data-template="tropical"] {
@@ -626,17 +686,40 @@
         </div>
     </header>
 
-    <nav id="categoryTabs" class="category-tabs" style="display:none;">
-        <div class="category-tabs-inner max-w-7xl mx-auto" id="categoryTabsInner"></div>
-    </nav>
-
-    <main id="publicMenu" class="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 py-6">
-        <div id="loadingMessage" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
-            <div class="skeleton h-64"></div>
-            <div class="skeleton h-64"></div>
-            <div class="skeleton h-64"></div>
+    <main id="publicMenu">
+        <!-- Skeletons de carga -->
+        <div id="loadingMessage" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 px-4 py-8 max-w-7xl mx-auto">
+            <div class="skeleton h-44"></div>
+            <div class="skeleton h-44"></div>
+            <div class="skeleton h-44"></div>
+            <div class="skeleton h-44"></div>
         </div>
-        <div id="menuContent" class="categories-slider" style="display:none;"></div>
+
+        <!-- PANTALLA 1: Selector de categorías (sin productos) -->
+        <section id="categorySelector" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" style="display:none;">
+            <h2 class="selector-title">Nuestro Menú</h2>
+            <p class="selector-subtitle">Tocá una categoría para explorarla · una vez adentro, deslizá lateralmente para cambiar</p>
+            <div id="selectorGrid" class="selector-grid"></div>
+        </section>
+
+        <!-- PANTALLA 2: Vista de una categoría con swipe lateral -->
+        <section id="categoryView" style="display:none;">
+            <div class="category-view-bar">
+                <button id="backToSelector" class="back-btn">← Categorías</button>
+                <div class="cv-info">
+                    <span id="cvTitle" class="cv-title"></span>
+                    <span id="cvCounter" class="cv-counter"></span>
+                </div>
+                <div id="cvDots" class="cv-dots"></div>
+                <button id="cvPrev" class="cv-arrow" title="Categoría anterior">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button id="cvNext" class="cv-arrow" title="Categoría siguiente">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+            <div id="menuContent" class="categories-slider" style="display:none;"></div>
+        </section>
     </main>
 
     <!-- Botón flotante admin -->
@@ -918,9 +1001,13 @@
         let hideAuthTimer = null;
         let tapCount = 0;
         let tapTimer = null;
-        // Estado local de imágenes (array de URLs ya subidas) para preview
         let localProductImages = [];
         let superProductImages = [];
+        // Estado de navegación del menú
+        let currentView = 'selector';   // 'selector' | 'category'
+        let categoryOrder = [];
+        let activeCatIndex = 0;
+        let scrollDebounce = null;
 
         const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -987,13 +1074,11 @@
             authButtonsWrapper.classList.remove('permanent');
         });
 
-        // FIX CLAVE: updateUI() debe ejecutarse ANTES de loadProducts()
-        // para que currentRole esté definido cuando se intenta renderizar
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
-            await loadTenantData();   // 1) Cargar tenant (incluye adminEmail)
-            updateUI();                 // 2) Determinar rol usando tenantData
-            await loadProducts();       // 3) Ahora sí puede renderizar según el rol
+            await loadTenantData();
+            updateUI();
+            await loadProducts();
         });
 
         function updateUI() {
@@ -1049,7 +1134,6 @@
             if (tenantData.headerColor) root.style.setProperty('--header-bg', tenantData.headerColor);
             if (tenantData.textColor) root.style.setProperty('--text-color', tenantData.textColor);
 
-            // Botón Maps
             if (tenantData.showMapsBtn && tenantData.mapsUrl) {
                 mapsBtn.classList.add('visible');
             } else {
@@ -1109,7 +1193,6 @@
             } catch (e) { console.error('Error tenant:', e); }
         }
 
-        // Migración suave: si el producto viejo tiene "imageUrl", convertirlo a images: [url]
         function normalizeProduct(p) {
             if (!p.images || !Array.isArray(p.images) || p.images.length === 0) {
                 p.images = p.imageUrl ? [p.imageUrl] : [];
@@ -1118,124 +1201,184 @@
             return p;
         }
 
-        async function loadProducts() {
-            try {
-                const snap = await db.collection('tenants').doc(TENANT_SLUG).collection('products').orderBy('category').get();
-                products = [];
-                snap.forEach(d => products.push(normalizeProduct({ id: d.id, ...d.data() })));
-                
-                renderCategoryTabs();
-                renderPublicMenu();
-                
-                if (currentRole === 'localadmin') renderLocalAdminProducts();
-                if (currentRole === 'superadmin') renderSuperAdminProducts();
-                
-                document.getElementById('loadingMessage').style.display = 'none';
-                const mc = document.getElementById('menuContent');
-                mc.style.display = 'block';
-                document.getElementById('categoryTabs').style.display = products.length > 0 ? 'block' : 'none';
-                
-                setupScrollObserver();
-            } catch (e) { console.error('Error products:', e); }
-        }
-
-        // ============================================
-        // TABS + CARRUSEL
-        // ============================================
-        let isScrollingProgrammatically = false;
-
-        function renderCategoryTabs() {
-            const tabsInner = document.getElementById('categoryTabsInner');
-            const categories = [...new Set(products.map(p => p.category || 'Otros'))].sort();
-            if (categories.length === 0) {
-                document.getElementById('categoryTabs').style.display = 'none';
-                return;
-            }
-            let html = '';
-            categories.forEach((cat, i) => {
-                html += `<button class="category-tab ${i === 0 ? 'active' : ''}" data-cat="${cat}">${cat}</button>`;
-            });
-            tabsInner.innerHTML = html;
-            tabsInner.querySelectorAll('.category-tab').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const cat = e.target.dataset.cat;
-                    const slider = document.getElementById('menuContent');
-                    const slide = slider.querySelector(`.category-slide[data-cat="${cat}"]`);
-                    if (slide) {
-                        isScrollingProgrammatically = true;
-                        slide.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
-                        setTimeout(() => { isScrollingProgrammatically = false; }, 800);
-                    }
-                });
-            });
-        }
-
-        function setupScrollObserver() {
-            const slider = document.getElementById('menuContent');
-            if (!slider) return;
-            const slides = slider.querySelectorAll('.category-slide');
-            const tabs = document.querySelectorAll('.category-tab');
-
-            const observer = new IntersectionObserver((entries) => {
-                if (isScrollingProgrammatically) return;
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
-                        const cat = entry.target.dataset.cat;
-                        tabs.forEach(t => {
-                            t.classList.toggle('active', t.dataset.cat === cat);
-                            if (t.dataset.cat === cat) {
-                                t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                            }
-                        });
-                    }
-                });
-            }, {
-                root: slider,
-                threshold: [0.6],
-                rootMargin: '0px'
-            });
-            slides.forEach(s => observer.observe(s));
-        }
-
-        // ============================================
-        // RENDER MENÚ (como carrusel)
-        // ============================================
-        function renderPublicMenu() {
-            const content = document.getElementById('menuContent');
-            if (products.length === 0) {
-                content.innerHTML = '<p class="text-center py-12 px-6" style="color: var(--text-muted);">Menú en preparación...</p>';
-                return;
-            }
+        function groupProducts() {
             const grouped = {};
             products.forEach(p => {
                 const c = p.category || 'Otros';
                 if (!grouped[c]) grouped[c] = [];
                 grouped[c].push(p);
             });
-            const cats = Object.keys(grouped).sort();
-            const totalCats = cats.length;
+            return grouped;
+        }
+
+        async function loadProducts() {
+            try {
+                const snap = await db.collection('tenants').doc(TENANT_SLUG).collection('products').orderBy('category').get();
+                products = [];
+                snap.forEach(d => products.push(normalizeProduct({ id: d.id, ...d.data() })));
+
+                const grouped = groupProducts();
+                renderCategorySelector(grouped);
+                renderPublicMenu(grouped);
+
+                if (currentRole === 'localadmin') renderLocalAdminProducts();
+                if (currentRole === 'superadmin') renderSuperAdminProducts();
+
+                document.getElementById('loadingMessage').style.display = 'none';
+
+                if (products.length === 0) {
+                    // Sin productos: mostrar selector vacío
+                    currentView = 'selector';
+                    document.getElementById('categoryView').style.display = 'none';
+                    document.getElementById('menuContent').style.display = 'none';
+                    document.getElementById('categorySelector').style.display = 'block';
+                } else if (currentView === 'category') {
+                    // Estaba viendo una categoría: mantener posición
+                    openCategoryView(Math.min(activeCatIndex, categoryOrder.length - 1), false);
+                } else {
+                    // Default: selector
+                    currentView = 'selector';
+                    document.getElementById('categoryView').style.display = 'none';
+                    document.getElementById('menuContent').style.display = 'none';
+                    document.getElementById('categorySelector').style.display = 'block';
+                }
+            } catch (e) { console.error('Error products:', e); }
+        }
+
+        // ============================================
+        // PANTALLA 1: SELECTOR DE CATEGORÍAS
+        // ============================================
+        function renderCategorySelector(grouped) {
+            categoryOrder = Object.keys(grouped).sort();
+            const grid = document.getElementById('selectorGrid');
+
+            if (categoryOrder.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; padding: 32px 0; color: var(--text-muted);">Menú en preparación...</p>';
+            } else {
+                grid.innerHTML = categoryOrder.map((cat, i) => {
+                    const items = grouped[cat];
+                    const thumbItem = items.find(p => p.images && p.images[0]);
+                    const thumb = thumbItem ? thumbItem.images[0] : '';
+                    return `
+                    <div class="selector-card" data-index="${i}" style="animation-delay:${i * 60}ms">
+                        ${thumb
+                            ? `<img class="sel-thumb" src="${thumb}" alt="${cat}" loading="lazy">`
+                            : `<div class="sel-thumb" style="background:var(--border-color);"></div>`}
+                        <span class="sel-arrow">›</span>
+                        <div class="sel-body">
+                            <span class="sel-name">${cat}</span>
+                            <span class="sel-count">${items.length} ${items.length === 1 ? 'producto' : 'productos'}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                grid.querySelectorAll('.selector-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        openCategoryView(parseInt(card.dataset.index), true);
+                    });
+                });
+            }
+
+            // Dots de la barra de vista de categoría
+            const dots = document.getElementById('cvDots');
+            dots.innerHTML = categoryOrder.map((_, i) => `<span class="dot" data-index="${i}"></span>`).join('');
+            dots.querySelectorAll('.dot').forEach(d => {
+                d.addEventListener('click', () => goToSlide(parseInt(d.dataset.index), true));
+            });
+        }
+
+        // ============================================
+        // PANTALLA 2: VISTA DE CATEGORÍA (swipe)
+        // ============================================
+        function openCategoryView(index, smooth = false) {
+            if (categoryOrder.length === 0) return;
+            currentView = 'category';
+            document.getElementById('categorySelector').style.display = 'none';
+            document.getElementById('categoryView').style.display = 'block';
+            document.getElementById('menuContent').style.display = 'flex';
+            goToSlide(index, smooth);
+        }
+
+        function backToSelector() {
+            currentView = 'selector';
+            document.getElementById('categoryView').style.display = 'none';
+            document.getElementById('menuContent').style.display = 'none';
+            document.getElementById('categorySelector').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goToSlide(index, smooth = true) {
+            const slider = document.getElementById('menuContent');
+            const slide = slider.children[index];
+            if (!slide) return;
+            const left = slide.getBoundingClientRect().left - slider.getBoundingClientRect().left + slider.scrollLeft;
+            slider.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' });
+            setActiveCategory(index);
+        }
+
+        function setActiveCategory(index) {
+            activeCatIndex = index;
+            updateCategoryBar(index);
+        }
+
+        function updateCategoryBar(index) {
+            document.getElementById('cvTitle').textContent = categoryOrder[index] || '';
+            document.getElementById('cvCounter').textContent = `${index + 1} / ${categoryOrder.length}`;
+            document.querySelectorAll('#cvDots .dot').forEach((d, i) => {
+                d.classList.toggle('active', i === index);
+            });
+        }
+
+        // Detecta qué slide quedó activo tras el swipe del usuario
+        function detectActiveSlide() {
+            const slider = document.getElementById('menuContent');
+            if (!slider.children.length) return;
+            const sLeft = slider.getBoundingClientRect().left;
+            let best = 0, bestDist = Infinity;
+            [...slider.children].forEach((s, i) => {
+                const d = Math.abs(s.getBoundingClientRect().left - sLeft);
+                if (d < bestDist) { bestDist = d; best = i; }
+            });
+            if (best !== activeCatIndex) setActiveCategory(best);
+        }
+
+        document.getElementById('menuContent').addEventListener('scroll', () => {
+            clearTimeout(scrollDebounce);
+            scrollDebounce = setTimeout(detectActiveSlide, 90);
+        }, { passive: true });
+
+        document.getElementById('backToSelector').addEventListener('click', backToSelector);
+        document.getElementById('cvPrev').addEventListener('click', () => {
+            goToSlide(Math.max(0, activeCatIndex - 1), true);
+        });
+        document.getElementById('cvNext').addEventListener('click', () => {
+            goToSlide(Math.min(categoryOrder.length - 1, activeCatIndex + 1), true);
+        });
+
+        // ============================================
+        // RENDER SLIDES (una categoría por slide)
+        // ============================================
+        function renderPublicMenu(grouped) {
+            const content = document.getElementById('menuContent');
+            if (products.length === 0) {
+                content.innerHTML = '';
+                return;
+            }
 
             let html = '';
-            cats.forEach((cat, catIdx) => {
-                const isLast = catIdx === totalCats - 1;
+            categoryOrder.forEach((cat) => {
+                const items = grouped[cat];
                 html += `<section class="category-slide" data-cat="${cat}">`;
-                html += `<h2 class="category-title text-2xl sm:text-3xl font-bold px-2">`;
-                html += `<span>${cat}</span>`;
-                if (!isLast) {
-                    html += `<span class="slide-hint hidden sm:inline">· Desliza para ver más</span>`;
-                }
-                html += `</h2>`;
+                html += `<h2 class="category-title text-2xl sm:text-3xl font-bold px-2"><span>${cat}</span></h2>`;
                 html += `<div class="products-grid px-2">`;
-                grouped[cat].forEach(p => {
+                items.forEach(p => {
                     const thumbUrl = p.images && p.images.length > 0 ? p.images[0] : '';
                     const extraCount = p.images ? Math.max(0, p.images.length - 1) : 0;
-                    const badge = extraCount > 0 
-                        ? `<span class="thumb-badge">+${extraCount}</span>` 
-                        : '';
+                    const badge = extraCount > 0 ? `<span class="thumb-badge">+${extraCount}</span>` : '';
                     html += `
                         <article class="product-card" data-product-id="${p.id}">
                             <div class="thumb-wrap">
-                                ${thumbUrl 
+                                ${thumbUrl
                                     ? `<img src="${thumbUrl}" alt="${p.name}" loading="lazy">${badge}`
                                     : `<div style="width:100%;height:100%;background:var(--border-color);"></div>`
                                 }
@@ -1245,8 +1388,8 @@
                                     <h3 class="product-name text-lg font-semibold leading-tight">${p.name}</h3>
                                     <span class="price-tag text-xl font-bold whitespace-nowrap">$${p.price.toFixed(2)}</span>
                                 </div>
-                                ${p.description 
-                                    ? `<p class="product-description text-sm line-clamp-2">${p.description.split('\n')[0]}</p>` 
+                                ${p.description
+                                    ? `<p class="product-description text-sm">${p.description.split('\n')[0]}</p>`
                                     : ''}
                             </div>
                         </article>`;
@@ -1255,7 +1398,6 @@
             });
             content.innerHTML = html;
 
-            // Click en tarjeta abre modal
             content.querySelectorAll('.product-card').forEach(card => {
                 card.addEventListener('click', () => {
                     const id = card.dataset.productId;
@@ -1273,7 +1415,6 @@
         const modalBody = document.getElementById('modalBody');
 
         function openProductModal(p) {
-            // Galería
             if (p.images && p.images.length > 0) {
                 let gHtml = '';
                 p.images.forEach(url => {
@@ -1296,7 +1437,6 @@
                     </div>`;
             }
 
-            // Body
             let bHtml = `
                 <h2>${p.name}</h2>
                 <div class="modal-price">$${p.price.toFixed(2)}</div>`;
@@ -1315,7 +1455,6 @@
             }
             modalBody.innerHTML = bHtml;
 
-            // Observer para indicar de galería
             if (p.images && p.images.length > 1) {
                 const indicator = document.getElementById('galleryIndicator');
                 const dots = indicator.querySelectorAll('.dot');
@@ -1356,11 +1495,9 @@
         function openAdminPanel() {
             if (currentRole === 'superadmin') {
                 publicMenu.style.display = 'none';
-                document.getElementById('categoryTabs').style.display = 'none';
                 superAdminPanel.style.display = 'block';
             } else if (currentRole === 'localadmin') {
                 publicMenu.style.display = 'none';
-                document.getElementById('categoryTabs').style.display = 'none';
                 localAdminPanel.style.display = 'block';
             } else { alert('Sin permisos'); }
         }
@@ -1371,7 +1508,6 @@
             publicMenu.style.display = 'block';
             localAdminPanel.style.display = 'none';
             superAdminPanel.style.display = 'none';
-            document.getElementById('categoryTabs').style.display = products.length > 0 ? 'block' : 'none';
         }
 
         document.getElementById('whatsappSupportBtn').addEventListener('click', () => {
@@ -1403,7 +1539,6 @@
             }
         }
 
-        // Preview de imágenes seleccionadas (admin local)
         document.getElementById('productImages').addEventListener('change', async (e) => {
             await handleImageFiles(e.target.files, localProductImages, 'productImagesPreview');
         });
@@ -1467,14 +1602,14 @@
                 return;
             }
 
-            const ingredients = ingredientsRaw 
+            const ingredients = ingredientsRaw
                 ? ingredientsRaw.split(',').map(s => s.trim()).filter(Boolean)
                 : [];
 
             const data = {
                 name, category, price, description, ingredients,
                 images: stateArr,
-                imageUrl: stateArr.length > 0 ? stateArr[0] : '', // compat con esquema viejo
+                imageUrl: stateArr.length > 0 ? stateArr[0] : '',
                 isAvailable: true,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -1482,7 +1617,6 @@
             try {
                 const ref = db.collection('tenants').doc(TENANT_SLUG).collection('products');
                 if (editId) {
-                    if (!data.createdAt) delete data.createdAt;
                     await ref.doc(editId).update(data);
                 } else {
                     data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
@@ -1618,7 +1752,7 @@
                 const prev = { ...tenantData };
                 tenantData = { ...tenantData, ...updateData };
                 applyTenantStyles();
-                renderPublicMenu();
+                renderPublicMenu(groupProducts());
                 setTimeout(() => { tenantData = prev; }, 500);
             }
         }

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- ========================================= -->
+    <!-- CONFIGURACIÓN EDITABLE POR CADA LOCAL -->
+    <!-- ========================================= -->
+    <script>
+        const TENANT_SLUG = "planeta-marte"; // CAMBIA ESTO por el slug de este local
+        const SUPER_ADMIN_EMAIL = "cepedademian2005@gmail.com";
+        
+        const IMGBB_API_KEY = "e41d51a6d0217b9fa7382f54f3baa623";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkSxw0jp9cT8tlodlm1pjK-PlmI_Fcf7M",
+            authDomain: "agorlab-menus.firebaseapp.com",
+            projectId: "agorlab-menus",
+            storageBucket: "agorlab-menus.firebasestorage.app",
+            messagingSenderId: "375135961059",
+            appId: "1:375135961059:web:b644f565c52081a3f9ead6"
+        };
+    </script>
+    <!-- ========================================= -->
+
+    <!-- Header -->
+    <header id="header" class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <img id="logo" class="h-12 w-12 rounded-full object-cover" style="display:none;">
+                <h1 id="businessName" class="text-2xl font-bold text-gray-900">Cargando...</h1>
+            </div>
+            <div id="authButtons" class="flex items-center space-x-2">
+                <button id="loginBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    Iniciar Sesión
+                </button>
+                <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition" style="display:none;">
+                    Cerrar Sesión
+                </button>
+                <button id="adminPanelBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition" style="display:none;">
+                    Panel Admin
+                </button>
+                <button id="closePanelBtn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition" style="display:none;">
+                    Ver Menú
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menú Público -->
+    <main id="publicMenu" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="loadingMessage" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p class="mt-4 text-gray-600">Cargando menú...</p>
+        </div>
+        <div id="menuContent" style="display:none;"></div>
+    </main>
+
+    <!-- Panel Admin Local (solo productos) -->
+    <div id="localAdminPanel" class="fixed inset-0 bg-gray-100 overflow-y-auto" style="display:none;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-6">Panel de Administración - Menú</h2>
+                
+                <!-- Formulario para agregar/editar producto -->
+                <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                    <h3 id="formTitle" class="text-xl font-semibold mb-4">Agregar Producto</h3>
+                    <input type="hidden" id="editingProductId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                            <input type="text" id="productName" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                            <input type="text" id="productCategory" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ej: Entradas, Pizzas, Bebidas">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+                            <input type="number" id="productPrice" step="0.01" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Imagen (opcional)</label>
+                            <input type="file" id="productImage" accept="image/*" class="w-full px-3 py-2 border rounded-lg">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                        <textarea id="productDescription" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="mt-4 flex space-x-2">
+                        <button id="saveProductBtn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                            Guardar Producto
+                        </button>
+                        <button id="cancelEditBtn" class="bg-gray-400 text-white px-6 py-2 rounded-lg hover:bg-gray-500 transition" style="display:none;">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de productos -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Productos del Menú</h3>
+                    <div id="productsList" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Super Admin (configuración completa) -->
+    <div id="superAdminPanel" class="fixed inset-0 bg-gray-100 overflow-y-auto" style="display:none;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-6">Panel Super Admin - Configuración del Local</h2>
+                
+                <!-- Configuración del Local -->
+                <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-xl font-semibold mb-4">Configuración General</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Local</label>
+                            <input type="text" id="tenantName" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email del Admin Local</label>
+                            <input type="email" id="tenantAdminEmail" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="admin@local.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Logo del Local</label>
+                            <input type="file" id="tenantLogo" accept="image/*" class="w-full px-3 py-2 border rounded-lg">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button id="saveTenantBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                            Guardar Configuración
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sección de Productos (igual que admin local) -->
+                <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                    <h3 id="superFormTitle" class="text-xl font-semibold mb-4">Agregar Producto</h3>
+                    <input type="hidden" id="superEditingProductId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                            <input type="text" id="superProductName" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                            <input type="text" id="superProductCategory" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ej: Entradas, Pizzas, Bebidas">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+                            <input type="number" id="superProductPrice" step="0.01" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Imagen (opcional)</label>
+                            <input type="file" id="superProductImage" accept="image/*" class="w-full px-3 py-2 border rounded-lg">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                        <textarea id="superProductDescription" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="mt-4 flex space-x-2">
+                        <button id="superSaveProductBtn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                            Guardar Producto
+                        </button>
+                        <button id="superCancelEditBtn" class="bg-gray-400 text-white px-6 py-2 rounded-lg hover:bg-gray-500 transition" style="display:none;">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de productos (Super Admin) -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Productos del Menú</h3>
+                    <div id="superProductsList" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Login -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style="display:none;">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold mb-6 text-center">Iniciar Sesión</h2>
+            <button id="googleLoginBtn" class="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition flex items-center justify-center space-x-2">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032 s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2 C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
+                </svg>
+                <span>Continuar con Google</span>
+            </button>
+            <button id="closeLoginModal" class="w-full mt-4 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Estado de la aplicación
+        let currentUser = null;
+        let currentRole = null; // 'superadmin', 'localadmin', null
+        let tenantData = null;
+        let products = [];
+
+        // Referencias a elementos del DOM
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminPanelBtn = document.getElementById('adminPanelBtn');
+        const closePanelBtn = document.getElementById('closePanelBtn');
+        const publicMenu = document.getElementById('publicMenu');
+        const localAdminPanel = document.getElementById('localAdminPanel');
+        const superAdminPanel = document.getElementById('superAdminPanel');
+        const loginModal = document.getElementById('loginModal');
+
+        // ============================================
+        // AUTENTICACIÓN
+        // ============================================
+        
+        loginBtn.addEventListener('click', () => {
+            loginModal.style.display = 'flex';
+        });
+
+        document.getElementById('closeLoginModal').addEventListener('click', () => {
+            loginModal.style.display = 'none';
+        });
+
+        document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                await auth.signInWithPopup(provider);
+                loginModal.style.display = 'none';
+            } catch (error) {
+                alert('Error al iniciar sesión: ' + error.message);
+            }
+        });
+
+        logoutBtn.addEventListener('click', async () => {
+            await auth.signOut();
+        });
+
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            updateUI();
+            await loadTenantData();
+            await loadProducts();
+        });
+
+        function updateUI() {
+            if (currentUser) {
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                adminPanelBtn.style.display = 'block';
+                closePanelBtn.style.display = 'none';
+
+                // Determinar rol
+                if (currentUser.email === SUPER_ADMIN_EMAIL) {
+                    currentRole = 'superadmin';
+                } else if (tenantData && tenantData.adminEmail === currentUser.email) {
+                    currentRole = 'localadmin';
+                } else {
+                    currentRole = null;
+                }
+            } else {
+                loginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                adminPanelBtn.style.display = 'none';
+                closePanelBtn.style.display = 'none';
+                currentRole = null;
+            }
+        }
+
+        // ============================================
+        // CARGA DE DATOS
+        // ============================================
+
+        async function loadTenantData() {
+            try {
+                const tenantRef = db.collection('tenants').doc(TENANT_SLUG);
+                const doc = await tenantRef.get();
+
+                if (!doc.exists) {
+                    // Auto-creación si eres Super Admin
+                    if (currentUser && currentUser.email === SUPER_ADMIN_EMAIL) {
+                        const defaultTenant = {
+                            name: TENANT_SLUG,
+                            adminEmail: '',
+                            logoUrl: '',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            isActive: true
+                        };
+                        await tenantRef.set(defaultTenant);
+                        tenantData = defaultTenant;
+                    } else {
+                        tenantData = {
+                            name: 'Local en configuración',
+                            adminEmail: '',
+                            logoUrl: ''
+                        };
+                    }
+                } else {
+                    tenantData = doc.data();
+                }
+
+                // Actualizar UI con datos del tenant
+                document.getElementById('businessName').textContent = tenantData.name || TENANT_SLUG;
+                if (tenantData.logoUrl) {
+                    const logo = document.getElementById('logo');
+                    logo.src = tenantData.logoUrl;
+                    logo.style.display = 'block';
+                }
+
+                // Llenar formulario de configuración si eres Super Admin
+                if (currentRole === 'superadmin') {
+                    document.getElementById('tenantName').value = tenantData.name || '';
+                    document.getElementById('tenantAdminEmail').value = tenantData.adminEmail || '';
+                }
+
+                updateUI();
+            } catch (error) {
+                console.error('Error cargando datos del tenant:', error);
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const productsRef = db.collection('tenants').doc(TENANT_SLUG).collection('products');
+                const snapshot = await productsRef.orderBy('category').get();
+                
+                products = [];
+                snapshot.forEach(doc => {
+                    products.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderPublicMenu();
+                if (currentRole === 'localadmin') {
+                    renderLocalAdminProducts();
+                }
+                if (currentRole === 'superadmin') {
+                    renderSuperAdminProducts();
+                }
+
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('menuContent').style.display = 'block';
+            } catch (error) {
+                console.error('Error cargando productos:', error);
+            }
+        }
+
+        // ============================================
+        // RENDERIZADO DEL MENÚ PÚBLICO
+        // ============================================
+
+        function renderPublicMenu() {
+            const menuContent = document.getElementById('menuContent');
+            
+            if (products.length === 0) {
+                menuContent.innerHTML = '<p class="text-center text-gray-500 py-12">No hay productos disponibles</p>';
+                return;
+            }
+
+            // Agrupar por categoría
+            const grouped = {};
+            products.forEach(product => {
+                const category = product.category || 'Sin categoría';
+                if (!grouped[category]) grouped[category] = [];
+                grouped[category].push(product);
+            });
+
+            let html = '';
+            Object.keys(grouped).sort().forEach(category => {
+                html += `<h2 class="text-3xl font-bold mb-6 text-gray-800 border-b-2 pb-2">${category}</h2>`;
+                html += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">';
+                
+                grouped[category].forEach(product => {
+                    html += `
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                            ${product.imageUrl ? `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover">` : ''}
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="text-xl font-semibold text-gray-800">${product.name}</h3>
+                                    <span class="text-2xl font-bold text-blue-600">$${product.price.toFixed(2)}</span>
+                                </div>
+                                ${product.description ? `<p class="text-gray-600 text-sm mt-2">${product.description}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            });
+
+            menuContent.innerHTML = html;
+        }
+
+        // ============================================
+        // PANEL ADMIN LOCAL
+        // ============================================
+
+        adminPanelBtn.addEventListener('click', () => {
+            if (currentRole === 'superadmin') {
+                publicMenu.style.display = 'none';
+                superAdminPanel.style.display = 'block';
+                closePanelBtn.style.display = 'block';
+                adminPanelBtn.style.display = 'none';
+            } else if (currentRole === 'localadmin') {
+                publicMenu.style.display = 'none';
+                localAdminPanel.style.display = 'block';
+                closePanelBtn.style.display = 'block';
+                adminPanelBtn.style.display = 'none';
+            } else {
+                alert('No tienes permisos de administrador');
+            }
+        });
+
+        closePanelBtn.addEventListener('click', () => {
+            publicMenu.style.display = 'block';
+            localAdminPanel.style.display = 'none';
+            superAdminPanel.style.display = 'none';
+            closePanelBtn.style.display = 'none';
+            adminPanelBtn.style.display = 'block';
+        });
+
+        // ============================================
+        // SUBIDA A IMGBB
+        // ============================================
+
+        async function uploadToImgBB(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    return data.data.url;
+                } else {
+                    throw new Error(data.error.message);
+                }
+            } catch (error) {
+                alert('Error al subir imagen: ' + error.message);
+                return null;
+            }
+        }
+
+        // ============================================
+        // CRUD DE PRODUCTOS (ADMIN LOCAL)
+        // ============================================
+
+        document.getElementById('saveProductBtn').addEventListener('click', async () => {
+            await saveProduct(false);
+        });
+
+        document.getElementById('cancelEditBtn').addEventListener('click', () => {
+            resetProductForm(false);
+        });
+
+        async function saveProduct(isSuperAdmin) {
+            const prefix = isSuperAdmin ? 'super' : '';
+            const name = document.getElementById(`${prefix}ProductName`).value.trim();
+            const category = document.getElementById(`${prefix}ProductCategory`).value.trim();
+            const price = parseFloat(document.getElementById(`${prefix}ProductPrice`).value);
+            const description = document.getElementById(`${prefix}ProductDescription`).value.trim();
+            const imageFile = document.getElementById(`${prefix}ProductImage`).files[0];
+            const editingId = document.getElementById(`${prefix}EditingProductId`).value;
+
+            if (!name || !price || isNaN(price)) {
+                alert('Por favor completa nombre y precio');
+                return;
+            }
+
+            let imageUrl = '';
+            if (imageFile) {
+                imageUrl = await uploadToImgBB(imageFile);
+                if (!imageUrl) return;
+            }
+
+            const productData = {
+                name,
+                category,
+                price,
+                description,
+                imageUrl,
+                isAvailable: true,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                const productsRef = db.collection('tenants').doc(TENANT_SLUG).collection('products');
+                
+                if (editingId) {
+                    // Editar existente
+                    await productsRef.doc(editingId).update(productData);
+                } else {
+                    // Crear nuevo
+                    await productsRef.add(productData);
+                }
+
+                resetProductForm(isSuperAdmin);
+                await loadProducts();
+                alert('Producto guardado exitosamente');
+            } catch (error) {
+                alert('Error al guardar: ' + error.message);
+            }
+        }
+
+        function resetProductForm(isSuperAdmin) {
+            const prefix = isSuperAdmin ? 'super' : '';
+            document.getElementById(`${prefix}ProductName`).value = '';
+            document.getElementById(`${prefix}ProductCategory`).value = '';
+            document.getElementById(`${prefix}ProductPrice`).value = '';
+            document.getElementById(`${prefix}ProductDescription`).value = '';
+            document.getElementById(`${prefix}ProductImage`).value = '';
+            document.getElementById(`${prefix}EditingProductId`).value = '';
+            document.getElementById(`${prefix}FormTitle`).textContent = 'Agregar Producto';
+            document.getElementById(`${prefix}CancelEditBtn`).style.display = 'none';
+        }
+
+        function renderLocalAdminProducts() {
+            const list = document.getElementById('productsList');
+            
+            if (products.length === 0) {
+                list.innerHTML = '<p class="text-gray-500">No hay productos</p>';
+                return;
+            }
+
+            list.innerHTML = products.map(product => `
+                <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+                    <div>
+                        <h4 class="font-semibold">${product.name}</h4>
+                        <p class="text-sm text-gray-600">${product.category} - $${product.price.toFixed(2)}</p>
+                    </div>
+                    <div class="space-x-2">
+                        <button onclick="editProduct('${product.id}', false)" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                            Editar
+                        </button>
+                        <button onclick="deleteProduct('${product.id}', false)" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.editProduct = async (productId, isSuperAdmin) => {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const prefix = isSuperAdmin ? 'super' : '';
+            document.getElementById(`${prefix}EditingProductId`).value = productId;
+            document.getElementById(`${prefix}ProductName`).value = product.name;
+            document.getElementById(`${prefix}ProductCategory`).value = product.category;
+            document.getElementById(`${prefix}ProductPrice`).value = product.price;
+            document.getElementById(`${prefix}ProductDescription`).value = product.description;
+            document.getElementById(`${prefix}FormTitle`).textContent = 'Editar Producto';
+            document.getElementById(`${prefix}CancelEditBtn`).style.display = 'block';
+        };
+
+        window.deleteProduct = async (productId, isSuperAdmin) => {
+            if (!confirm('¿Estás seguro de eliminar este producto?')) return;
+
+            try {
+                await db.collection('tenants').doc(TENANT_SLUG).collection('products').doc(productId).delete();
+                await loadProducts();
+                alert('Producto eliminado');
+            } catch (error) {
+                alert('Error al eliminar: ' + error.message);
+            }
+        };
+
+        // ============================================
+        // PANEL SUPER ADMIN
+        // ============================================
+
+        document.getElementById('saveTenantBtn').addEventListener('click', async () => {
+            const name = document.getElementById('tenantName').value.trim();
+            const adminEmail = document.getElementById('tenantAdminEmail').value.trim();
+            const logoFile = document.getElementById('tenantLogo').files[0];
+
+            if (!name) {
+                alert('El nombre es obligatorio');
+                return;
+            }
+
+            let logoUrl = tenantData.logoUrl;
+            if (logoFile) {
+                logoUrl = await uploadToImgBB(logoFile);
+                if (!logoUrl) return;
+            }
+
+            try {
+                await db.collection('tenants').doc(TENANT_SLUG).update({
+                    name,
+                    adminEmail,
+                    logoUrl
+                });
+                await loadTenantData();
+                alert('Configuración guardada');
+            } catch (error) {
+                alert('Error al guardar: ' + error.message);
+            }
+        });
+
+        document.getElementById('superSaveProductBtn').addEventListener('click', async () => {
+            await saveProduct(true);
+        });
+
+        document.getElementById('superCancelEditBtn').addEventListener('click', () => {
+            resetProductForm(true);
+        });
+
+        function renderSuperAdminProducts() {
+            const list = document.getElementById('superProductsList');
+            
+            if (products.length === 0) {
+                list.innerHTML = '<p class="text-gray-500">No hay productos</p>';
+                return;
+            }
+
+            list.innerHTML = products.map(product => `
+                <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+                    <div>
+                        <h4 class="font-semibold">${product.name}</h4>
+                        <p class="text-sm text-gray-600">${product.category} - $${product.price.toFixed(2)}</p>
+                    </div>
+                    <div class="space-x-2">
+                        <button onclick="editProduct('${product.id}', true)" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                            Editar
+                        </button>
+                        <button onclick="deleteProduct('${product.id}', true)" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Carga inicial
+        loadTenantData().then(() => loadProducts());
+    </script>
+</body>
+</html>

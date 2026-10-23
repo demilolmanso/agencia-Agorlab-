@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -29,8 +28,7 @@
             --category-font-size: 2rem;
         }
 
-        * { -webkit-tap-highlight-color: transparent; }
-
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
 
         body {
@@ -40,11 +38,10 @@
             margin: 0;
             -webkit-font-smoothing: antialiased;
             transition: background-color 0.4s ease;
+            overflow-x: hidden;
         }
 
-        /* ============================================ */
-        /* HEADER & NAVEGACIÓN */
-        /* ============================================ */
+        /* HEADER */
         .menu-header {
             background: var(--header-bg);
             color: var(--text-color);
@@ -55,30 +52,17 @@
             backdrop-filter: blur(10px);
             transition: all 0.3s ease;
         }
-
-        .business-name {
-            cursor: pointer;
-            user-select: none;
-            transition: transform 0.15s;
-        }
+        .business-name { cursor: pointer; user-select: none; transition: transform 0.15s; }
         .business-name:active { transform: scale(0.97); }
 
         .auth-buttons-wrapper {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
+            max-height: 0; overflow: hidden; opacity: 0;
             transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .auth-buttons-wrapper.visible {
-            max-height: 60px;
-            opacity: 1;
-        }
-        .auth-buttons-wrapper.permanent {
-            max-height: 60px;
-            opacity: 1;
-        }
+        .auth-buttons-wrapper.visible,
+        .auth-buttons-wrapper.permanent { max-height: 60px; opacity: 1; }
 
-        /* Tabs de categorías tipo app */
+        /* TABS */
         .category-tabs {
             background: var(--tabs-bg);
             border-bottom: 1px solid var(--border-color);
@@ -89,51 +73,91 @@
             overflow-y: hidden;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
-            -ms-overflow-style: none;
             padding: 0 12px;
         }
         .category-tabs::-webkit-scrollbar { display: none; }
         .category-tabs-inner {
-            display: flex;
-            gap: 8px;
-            padding: 12px 0;
-            white-space: nowrap;
-            min-width: max-content;
+            display: flex; gap: 8px;
+            padding: 12px 0; white-space: nowrap; min-width: max-content;
         }
         .category-tab {
-            padding: 10px 20px;
-            border-radius: 999px;
-            font-size: 0.95rem;
-            font-weight: 500;
+            padding: 10px 20px; border-radius: 999px;
+            font-size: 0.95rem; font-weight: 500;
             color: var(--text-muted);
             background: transparent;
             border: 1.5px solid var(--border-color);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
+            cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;
         }
         .category-tab:hover { color: var(--accent-color); border-color: var(--accent-color); }
         .category-tab.active {
-            background: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-            transform: scale(1.05);
+            background: var(--accent-color); color: white;
+            border-color: var(--accent-color); transform: scale(1.05);
         }
 
         /* ============================================ */
-        /* PLANTILLAS TEMÁTICAS */
+        /* CARRUSEL DE CATEGORÍAS                       */
         /* ============================================ */
+        .categories-slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+            padding-bottom: 16px;
+        }
+        .categories-slider::-webkit-scrollbar { display: none; }
 
-        /* MODERNA (default) */
+        .category-slide {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            padding: 0 4px;
+            min-width: 0;
+        }
+        @media (min-width: 768px) {
+            .category-slide { flex: 0 0 90%; padding: 0 12px; }
+        }
+        @media (min-width: 1024px) {
+            .category-slide { flex: 0 0 80%; padding: 0 24px; }
+        }
+
+        .category-title {
+            color: var(--accent-color);
+            font-weight: 700;
+            padding-bottom: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .category-title .slide-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        @media (min-width: 640px) {
+            .products-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        }
+        @media (min-width: 1024px) {
+            .products-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        }
+
+        /* ============================================ */
+        /* PLANTILLAS TEMÁTICAS                         */
+        /* ============================================ */
         [data-template="moderna"] {
-            --bg-color: #f9fafb;
-            --header-bg: #ffffff;
-            --accent-color: #3b82f6;
-            --text-color: #1f2937;
-            --text-muted: #6b7280;
-            --card-bg: #ffffff;
-            --card-border-radius: 16px;
-            --border-color: #e5e7eb;
+            --bg-color: #f9fafb; --header-bg: #ffffff; --accent-color: #3b82f6;
+            --text-color: #1f2937; --text-muted: #6b7280; --card-bg: #ffffff;
+            --card-border-radius: 16px; --border-color: #e5e7eb;
         }
         [data-template="moderna"] .product-card {
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -144,24 +168,13 @@
             box-shadow: 0 12px 24px rgba(0,0,0,0.12);
         }
 
-        /* RÚSTICA */
         [data-template="rustica"] {
-            --bg-color: #fdf6e3;
-            --header-bg: #8b4513;
-            --accent-color: #d2691e;
-            --text-color: #3e2723;
-            --text-muted: #795548;
-            --card-bg: #fff8e7;
-            --card-border-radius: 4px;
-            --border-color: #8b4513;
-            --tabs-bg: #fff8e7;
+            --bg-color: #fdf6e3; --header-bg: #8b4513; --accent-color: #d2691e;
+            --text-color: #3e2723; --text-muted: #795548; --card-bg: #fff8e7;
+            --card-border-radius: 4px; --border-color: #8b4513; --tabs-bg: #fff8e7;
         }
         [data-template="rustica"] .menu-header { color: #fdf6e3; }
         [data-template="rustica"] .menu-header h1 { color: #fdf6e3 !important; }
-        [data-template="rustica"] .menu-header svg { color: #fdf6e3; }
-        [data-template="rustica"] body, [data-template="rustica"] {
-            background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-        }
         [data-template="rustica"] .product-card {
             border: 2px solid #8b4513;
             box-shadow: 4px 4px 0 #8b4513;
@@ -172,29 +185,17 @@
             transform: translate(-2px, -2px);
         }
         [data-template="rustica"] .category-title {
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-size: 1.5rem;
+            text-transform: uppercase; letter-spacing: 3px; font-size: 1.5rem;
         }
 
-        /* ELEGANTE */
         [data-template="elegante"] {
-            --bg-color: #0f0f0f;
-            --header-bg: #1a1a1a;
-            --accent-color: #d4af37;
-            --text-color: #f5f5f5;
-            --text-muted: #b8b8b8;
-            --card-bg: #2d2d2d;
-            --card-border-radius: 4px;
-            --border-color: #d4af37;
-            --tabs-bg: #1a1a1a;
+            --bg-color: #0f0f0f; --header-bg: #1a1a1a; --accent-color: #d4af37;
+            --text-color: #f5f5f5; --text-muted: #b8b8b8; --card-bg: #2d2d2d;
+            --card-border-radius: 4px; --border-color: #d4af37; --tabs-bg: #1a1a1a;
         }
-        [data-template="elegante"] .menu-header {
-            border-bottom: 1px solid #d4af37;
-        }
+        [data-template="elegante"] .menu-header { border-bottom: 1px solid #d4af37; }
         [data-template="elegante"] .product-card {
-            border: 1px solid #d4af37;
-            transition: all 0.3s;
+            border: 1px solid #d4af37; transition: all 0.3s;
         }
         [data-template="elegante"] .product-card:hover {
             border-color: #f0d060;
@@ -202,96 +203,59 @@
         }
         [data-template="elegante"] .category-title { font-style: italic; }
 
-        /* URBANA */
         [data-template="urbana"] {
-            --bg-color: #0f0f0f;
-            --header-bg: #ff006e;
-            --accent-color: #00f5d4;
-            --text-color: #ffffff;
-            --text-muted: #b8b8b8;
-            --card-bg: #1f1f1f;
-            --card-border-radius: 0;
-            --border-color: #ff006e;
-            --tabs-bg: #1a1a1a;
+            --bg-color: #0f0f0f; --header-bg: #ff006e; --accent-color: #00f5d4;
+            --text-color: #ffffff; --text-muted: #b8b8b8; --card-bg: #1f1f1f;
+            --card-border-radius: 0; --border-color: #ff006e; --tabs-bg: #1a1a1a;
         }
         [data-template="urbana"] .menu-header { color: white; }
         [data-template="urbana"] .menu-header h1 {
-            color: white !important;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            font-weight: 900;
+            color: white !important; text-transform: uppercase;
+            letter-spacing: 4px; font-weight: 900;
         }
         [data-template="urbana"] .product-card {
-            border-left: 6px solid var(--accent-color);
-            transition: all 0.25s;
+            border-left: 6px solid var(--accent-color); transition: all 0.25s;
         }
         [data-template="urbana"] .product-card:hover {
-            border-left-width: 12px;
-            transform: translateX(4px);
+            border-left-width: 12px; transform: translateX(4px);
         }
         [data-template="urbana"] .product-name {
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 900;
+            text-transform: uppercase; letter-spacing: 1px; font-weight: 900;
         }
         [data-template="urbana"] .category-title {
-            text-transform: uppercase;
-            letter-spacing: 6px;
-            font-size: 2.5rem;
-            color: var(--accent-color);
+            text-transform: uppercase; letter-spacing: 6px;
+            font-size: 2.5rem; color: var(--accent-color);
         }
         [data-template="urbana"] .category-tab.active {
-            background: var(--accent-color);
-            color: #000;
+            background: var(--accent-color); color: #000;
         }
 
-        /* TROPICAL */
         [data-template="tropical"] {
-            --bg-color: #fff8e1;
-            --header-bg: #00b894;
-            --accent-color: #ff6b9d;
-            --text-color: #2d3436;
-            --text-muted: #636e72;
-            --card-bg: #ffffff;
-            --card-border-radius: 24px;
-            --border-color: #00b894;
-            --tabs-bg: #ffffff;
+            --bg-color: #fff8e1; --header-bg: #00b894; --accent-color: #ff6b9d;
+            --text-color: #2d3436; --text-muted: #636e72; --card-bg: #ffffff;
+            --card-border-radius: 24px; --border-color: #00b894; --tabs-bg: #ffffff;
         }
         [data-template="tropical"] .menu-header { color: white; }
         [data-template="tropical"] .menu-header h1 { color: white !important; }
         [data-template="tropical"] .product-card {
             box-shadow: 0 4px 16px rgba(0, 184, 148, 0.15);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s; position: relative; overflow: hidden;
         }
         [data-template="tropical"] .product-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
+            content: ''; position: absolute; top: 0; left: 0;
             width: 100%; height: 4px;
             background: linear-gradient(90deg, #ff6b9d, #00b894, #ffd93d);
+            z-index: 1;
         }
         [data-template="tropical"] .product-card:hover {
             transform: scale(1.03) rotate(-1deg);
             box-shadow: 0 12px 32px rgba(255, 107, 157, 0.25);
         }
-        [data-template="tropical"] body, [data-template="tropical"] {
-            background-image: radial-gradient(circle at 20% 80%, rgba(255, 107, 157, 0.08) 0%, transparent 50%),
-                              radial-gradient(circle at 80% 20%, rgba(0, 184, 148, 0.08) 0%, transparent 50%);
-        }
 
-        /* ITALIANA */
         [data-template="italiana"] {
-            --bg-color: #faf3e0;
-            --header-bg: #c0392b;
-            --accent-color: #27ae60;
-            --text-color: #3e2723;
-            --text-muted: #795548;
-            --card-bg: #ffffff;
-            --card-border-radius: 8px;
-            --border-color: #c0392b;
-            --tabs-bg: #ffffff;
+            --bg-color: #faf3e0; --header-bg: #c0392b; --accent-color: #27ae60;
+            --text-color: #3e2723; --text-muted: #795548; --card-bg: #ffffff;
+            --card-border-radius: 8px; --border-color: #c0392b; --tabs-bg: #ffffff;
         }
         [data-template="italiana"] .menu-header { color: white; }
         [data-template="italiana"] .menu-header h1 { color: white !important; font-style: italic; }
@@ -305,177 +269,287 @@
             box-shadow: 0 8px 20px rgba(192, 57, 43, 0.2);
         }
         [data-template="italiana"] .category-title {
-            font-style: italic;
-            border-bottom: 2px solid #c0392b;
-            padding-bottom: 8px;
+            font-style: italic; border-bottom: 2px solid #c0392b; padding-bottom: 8px;
         }
 
-        /* ZEN / JAPONESA */
         [data-template="zen"] {
-            --bg-color: #f5f5f0;
-            --header-bg: #f5f5f0;
-            --accent-color: #c41e3a;
-            --text-color: #2c2c2c;
-            --text-muted: #666;
-            --card-bg: #ffffff;
-            --card-border-radius: 0;
-            --border-color: #ddd;
-            --tabs-bg: #f5f5f0;
+            --bg-color: #f5f5f0; --header-bg: #f5f5f0; --accent-color: #c41e3a;
+            --text-color: #2c2c2c; --text-muted: #666; --card-bg: #ffffff;
+            --card-border-radius: 0; --border-color: #ddd; --tabs-bg: #f5f5f0;
         }
-        [data-template="zen"] .menu-header {
-            border-bottom: 2px solid #c41e3a;
-        }
+        [data-template="zen"] .menu-header { border-bottom: 2px solid #c41e3a; }
         [data-template="zen"] .product-card {
-            border-top: 3px solid #c41e3a;
-            box-shadow: none;
-            transition: all 0.3s;
+            border-top: 3px solid #c41e3a; box-shadow: none; transition: all 0.3s;
         }
-        [data-template="zen"] .product-card:hover {
-            border-top-width: 6px;
-        }
+        [data-template="zen"] .product-card:hover { border-top-width: 6px; }
         [data-template="zen"] .category-title {
-            letter-spacing: 8px;
-            text-transform: uppercase;
-            font-size: 1.25rem;
-            color: #c41e3a;
+            letter-spacing: 8px; text-transform: uppercase;
+            font-size: 1.25rem; color: #c41e3a;
         }
-        [data-template="zen"] .product-name {
-            letter-spacing: 1px;
-        }
+        [data-template="zen"] .product-name { letter-spacing: 1px; }
 
-        /* CAFÉ */
         [data-template="cafe"] {
-            --bg-color: #3e2723;
-            --header-bg: #4e342e;
-            --accent-color: #ffab00;
-            --text-color: #efebe9;
-            --text-muted: #bcaaa4;
-            --card-bg: #5d4037;
-            --card-border-radius: 12px;
-            --border-color: #6d4c41;
-            --tabs-bg: #4e342e;
+            --bg-color: #3e2723; --header-bg: #4e342e; --accent-color: #ffab00;
+            --text-color: #efebe9; --text-muted: #bcaaa4; --card-bg: #5d4037;
+            --card-border-radius: 12px; --border-color: #6d4c41; --tabs-bg: #4e342e;
         }
         [data-template="cafe"] .menu-header { color: #ffab00; }
         [data-template="cafe"] .menu-header h1 { color: #ffab00 !important; }
         [data-template="cafe"] .product-card {
             border: 1px solid #6d4c41;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: all 0.3s;
         }
         [data-template="cafe"] .product-card:hover {
-            background: #6d4c41;
-            transform: translateY(-2px);
+            background: #6d4c41; transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
 
-        /* ============================================ */
         /* PRODUCT CARDS */
-        /* ============================================ */
         .product-card {
             background: var(--card-bg);
             border-radius: var(--card-border-radius);
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
             animation: fadeInUp 0.4s ease-out;
             animation-fill-mode: both;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
         }
+        .product-card:active { transform: scale(0.98); }
 
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .product-card img {
+        .product-card .thumb-wrap {
+            position: relative;
             width: 100%;
             aspect-ratio: 16 / 10;
-            object-fit: cover;
+            overflow: hidden;
             background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
         }
+        .product-card .thumb-wrap img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 0.4s;
+        }
+        .product-card:hover .thumb-wrap img { transform: scale(1.05); }
+        .product-card .thumb-badge {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(0,0,0,0.6); color: white;
+            padding: 4px 8px; border-radius: 999px;
+            font-size: 0.7rem; font-weight: 600;
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; gap: 4px;
+        }
 
-        .category-title {
-            color: var(--accent-color);
-            font-weight: 700;
-            padding-bottom: 12px;
-            margin-bottom: 24px;
-            border-bottom: 2px solid var(--border-color);
+        @media (min-width: 640px) {
+            .product-card { flex-direction: row; align-items: stretch; }
+            .product-card .thumb-wrap {
+                width: 140px; flex-shrink: 0;
+                aspect-ratio: 1;
+            }
         }
 
         .product-name { color: var(--text-color); }
         .product-description { color: var(--text-muted); }
-        .price-tag {
-            color: var(--accent-color);
-            font-weight: 700;
-        }
+        .price-tag { color: var(--accent-color); font-weight: 700; }
 
-        /* Scroll padding para tabs sticky */
-        .category-section { scroll-margin-top: 140px; }
-
-        /* Skeleton loader */
+        /* Skeleton */
         .skeleton {
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
             background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 8px;
+            animation: shimmer 1.5s infinite; border-radius: 8px;
         }
         @keyframes shimmer {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
 
-        /* Mobile first responsive */
-        @media (max-width: 640px) {
-            .category-title { font-size: 1.5rem; }
-            .menu-header h1 { font-size: 1.25rem !important; }
-            .product-card {
-                flex-direction: row;
-                align-items: stretch;
-            }
-            .product-card img {
-                width: 110px;
-                aspect-ratio: 1;
-                flex-shrink: 0;
-            }
-            .product-card-body {
-                flex: 1;
-                padding: 12px 16px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-        }
-
-        @media (min-width: 641px) and (max-width: 1024px) {
-            .product-card img { aspect-ratio: 16 / 9; }
-        }
-
-        /* Botón flotante de admin activo */
+        /* Botón flotante admin */
         .admin-badge {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--accent-color);
-            color: white;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--accent-color); color: white;
+            width: 56px; height: 56px; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
             box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-            z-index: 50;
-            cursor: pointer;
-            transition: transform 0.2s;
+            z-index: 45; cursor: pointer; transition: transform 0.2s;
         }
         .admin-badge:active { transform: scale(0.9); }
         .admin-badge.visible { display: flex; }
 
+        /* Botón flotante Maps */
+        .maps-badge {
+            position: fixed; bottom: 20px; left: 20px;
+            background: #ffffff; color: #1f2937;
+            width: 56px; height: 56px; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            z-index: 45; cursor: pointer; transition: transform 0.2s;
+            border: 2px solid #4285F4;
+        }
+        .maps-badge:active { transform: scale(0.9); }
+        .maps-badge.visible { display: flex; }
+
         /* ============================================ */
-        /* AÑADIDO: AISLAMIENTO DE PANELES Y MODAL */
-        /* Los paneles NO heredan el tema del local:   */
-        /* redefinen todas las variables CSS sobre su  */
-        /* propio contenedor (selector de ID pisa la   */
-        /* herencia del body y los inline del :root).  */
+        /* MODAL DETALLE PRODUCTO                       */
+        /* ============================================ */
+        #productModal {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 60;
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.2s ease;
+        }
+        #productModal.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal-close {
+            position: absolute; top: 16px; right: 16px;
+            background: rgba(0,0,0,0.6); color: white;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10; cursor: pointer; border: none;
+            backdrop-filter: blur(8px);
+        }
+        .modal-close:hover { background: rgba(0,0,0,0.8); }
+
+        .modal-gallery {
+            width: 100%;
+            height: 55vh;
+            max-height: 500px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            background: #000;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .modal-gallery::-webkit-scrollbar { display: none; }
+        .modal-gallery-slide {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            height: 100%;
+            position: relative;
+        }
+        .modal-gallery-slide img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .modal-gallery-empty {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #374151, #1f2937);
+            color: #9ca3af;
+        }
+
+        .gallery-indicator {
+            position: absolute; bottom: 16px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 6px;
+            background: rgba(0,0,0,0.5);
+            padding: 6px 10px; border-radius: 999px;
+            backdrop-filter: blur(8px);
+            z-index: 5;
+        }
+        .gallery-indicator .dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            transition: all 0.3s;
+        }
+        .gallery-indicator .dot.active {
+            background: white;
+            width: 18px; border-radius: 999px;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--card-bg, #ffffff);
+            color: var(--text-color, #1f2937);
+            padding: 24px 20px 40px;
+            border-radius: 24px 24px 0 0;
+            margin-top: -20px;
+            position: relative;
+        }
+        @media (min-width: 640px) {
+            .modal-body { padding: 32px; }
+        }
+
+        .modal-body h2 {
+            font-size: 1.75rem; font-weight: 700;
+            margin: 0 0 8px; color: var(--text-color, #1f2937);
+        }
+        .modal-body .modal-price {
+            font-size: 1.5rem; font-weight: 700;
+            color: var(--accent-color, #3b82f6);
+            margin-bottom: 20px;
+        }
+        .modal-body .modal-description {
+            font-size: 1rem; line-height: 1.6;
+            color: var(--text-muted, #6b7280);
+            margin-bottom: 24px;
+            white-space: pre-wrap;
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color, #e5e7eb);
+        }
+        .modal-section h4 {
+            font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted, #6b7280);
+            margin: 0 0 12px; font-weight: 600;
+        }
+
+        .ingredient-chip {
+            display: inline-block;
+            background: var(--bg-color, #f9fafb);
+            color: var(--text-color, #1f2937);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            margin: 0 6px 8px 0;
+            border: 1px solid var(--border-color, #e5e7eb);
+        }
+
+        /* ============================================ */
+        /* PREVIEW IMÁGENES EN FORMULARIOS              */
+        /* ============================================ */
+        .image-preview-list {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-top: 12px;
+        }
+        .image-preview-item {
+            position: relative;
+            width: 80px; height: 80px;
+            border-radius: 8px; overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .image-preview-item img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .image-preview-remove {
+            position: absolute; top: 2px; right: 2px;
+            background: rgba(239,68,68,0.95); color: white;
+            width: 20px; height: 20px; border-radius: 50%;
+            border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; line-height: 1;
+        }
+        .image-preview-empty {
+            color: #9ca3af; font-size: 0.8rem;
+            text-align: center; padding: 8px;
+        }
+
+        /* ============================================ */
+        /* AISLAMIENTO DE PANELES Y MODAL               */
         /* ============================================ */
         #localAdminPanel,
         #superAdminPanel,
@@ -487,7 +561,6 @@
             --text-muted: #6b7280;
             --card-bg: #ffffff;
             --card-border-radius: 12px;
-            --card-shadow: 0 2px 8px rgba(0,0,0,0.08);
             --custom-font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             --tabs-bg: #ffffff;
             --border-color: #e5e7eb;
@@ -497,34 +570,22 @@
             background-color: #f3f4f6;
             background-image: none;
         }
+        #loginModal { background-color: rgba(0, 0, 0, 0.6); }
 
-        /* El modal de login mantiene su overlay oscuro */
-        #loginModal {
-            background-color: rgba(0, 0, 0, 0.6);
-        }
-
-        /* Texto de inputs/selects/textareas siempre legible */
         #localAdminPanel :is(input, select, textarea),
         #superAdminPanel :is(input, select, textarea),
         #loginModal :is(input, select, textarea) {
             color: #111827 !important;
             font-family: inherit;
         }
-
-        /* Fondo blanco garantizado (excepto pickers de color y file) */
         #localAdminPanel :is(input:not([type="color"]):not([type="file"]), select, textarea),
         #superAdminPanel :is(input:not([type="color"]):not([type="file"]), select, textarea) {
             background-color: #ffffff !important;
         }
-
-        /* Pickers de color con marco limpio */
         #localAdminPanel input[type="color"],
         #superAdminPanel input[type="color"] {
-            background-color: #ffffff;
-            padding: 2px;
+            background-color: #ffffff; padding: 2px;
         }
-
-        /* Títulos sin clase de color heredan oscuro, no el del tema */
         #localAdminPanel :is(h1, h2, h3, h4):not([class*="text-"]),
         #superAdminPanel :is(h1, h2, h3, h4):not([class*="text-"]),
         #loginModal h2 {
@@ -533,9 +594,6 @@
     </style>
 </head>
 <body>
-    <!-- ========================================= -->
-    <!-- CONFIGURACIÓN EDITABLE POR CADA LOCAL -->
-    <!-- ========================================= -->
     <script>
         const TENANT_SLUG = "planeta-marte"; 
         const SUPER_ADMIN_EMAIL = "cepedademian2005@gmail.com";
@@ -551,9 +609,7 @@
             appId: "1:375135961059:web:b644f565c52081a3f9ead6"
         };
     </script>
-    <!-- ========================================= -->
 
-    <!-- Header -->
     <header class="menu-header">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center gap-3">
             <div class="flex items-center space-x-3 min-w-0">
@@ -562,33 +618,25 @@
             </div>
             <div id="authButtonsWrapper" class="auth-buttons-wrapper flex items-center space-x-2 flex-shrink-0">
                 <div id="authButtons" class="flex items-center space-x-2">
-                    <button id="loginBtn" class="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium">
-                        Iniciar
-                    </button>
-                    <button id="logoutBtn" class="bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-medium" style="display:none;">
-                        Salir
-                    </button>
-                    <button id="adminPanelBtn" class="bg-purple-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-purple-700 transition text-sm font-medium" style="display:none;">
-                        Panel
-                    </button>
+                    <button id="loginBtn" class="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium">Iniciar</button>
+                    <button id="logoutBtn" class="bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-medium" style="display:none;">Salir</button>
+                    <button id="adminPanelBtn" class="bg-purple-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-purple-700 transition text-sm font-medium" style="display:none;">Panel</button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Tabs de categorías (sticky) -->
     <nav id="categoryTabs" class="category-tabs" style="display:none;">
         <div class="category-tabs-inner max-w-7xl mx-auto" id="categoryTabsInner"></div>
     </nav>
 
-    <!-- Menú Público -->
-    <main id="publicMenu" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div id="loadingMessage" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <main id="publicMenu" class="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 py-6">
+        <div id="loadingMessage" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
             <div class="skeleton h-64"></div>
             <div class="skeleton h-64"></div>
             <div class="skeleton h-64"></div>
         </div>
-        <div id="menuContent" style="display:none;"></div>
+        <div id="menuContent" class="categories-slider" style="display:none;"></div>
     </main>
 
     <!-- Botón flotante admin -->
@@ -599,19 +647,39 @@
         </svg>
     </button>
 
+    <!-- Botón flotante Maps -->
+    <button id="mapsBtn" class="maps-badge" title="Ver en Google Maps">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z" fill="#4285F4"/>
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13" stroke="#1a73e8" stroke-width="0.5" fill="none"/>
+        </svg>
+    </button>
+
+    <!-- Modal detalle producto -->
+    <div id="productModal">
+        <button class="modal-close" id="modalCloseBtn">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+        <div class="modal-gallery" id="modalGallery">
+            <div class="modal-gallery-empty">
+                <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+
     <!-- Panel Admin Local -->
     <div id="localAdminPanel" class="fixed inset-0 bg-gray-100 overflow-y-auto z-50" style="display:none;">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="sticky top-0 bg-gray-100 pb-4 z-10">
                 <button id="closeLocalPanelBtn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition flex items-center space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     <span>Volver al Menú</span>
                 </button>
             </div>
 
-            <!-- WhatsApp Soporte -->
             <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-5 mb-6 flex items-center justify-between flex-wrap gap-4 shadow-lg">
                 <div class="text-white">
                     <h3 class="text-lg font-bold">🚀 Soporte & Cadetería</h3>
@@ -643,21 +711,23 @@
                             <input type="number" id="productPrice" step="0.01" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
-                            <input type="file" id="productImage" accept="image/*" class="w-full px-3 py-2 border rounded-lg">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ingredientes</label>
+                            <input type="text" id="productIngredients" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ej: Tomate, Mozzarella, Albahaca">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Imágenes (podés subir varias)</label>
+                            <input type="file" id="productImages" accept="image/*" multiple class="w-full px-3 py-2 border rounded-lg">
+                            <div id="productImagesPreview" class="image-preview-list"></div>
+                            <p class="text-xs text-gray-500 mt-1">La primera imagen se usa como miniatura. Las demás aparecen en el detalle al tocar el producto.</p>
                         </div>
                     </div>
                     <div class="mt-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                        <textarea id="productDescription" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        <textarea id="productDescription" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Contá los detalles, preparación, maridaje..."></textarea>
                     </div>
                     <div class="mt-4 flex flex-wrap gap-2">
-                        <button id="saveProductBtn" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition">
-                            Guardar
-                        </button>
-                        <button id="cancelEditBtn" class="bg-gray-400 text-white px-5 py-2 rounded-lg hover:bg-gray-500 transition" style="display:none;">
-                            Cancelar
-                        </button>
+                        <button id="saveProductBtn" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition">Guardar</button>
+                        <button id="cancelEditBtn" class="bg-gray-400 text-white px-5 py-2 rounded-lg hover:bg-gray-500 transition" style="display:none;">Cancelar</button>
                     </div>
                 </div>
 
@@ -672,9 +742,7 @@
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="sticky top-0 bg-gray-100 pb-4 z-10">
                 <button id="closeSuperPanelBtn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition flex items-center space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     <span>Volver al Menú</span>
                 </button>
             </div>
@@ -692,6 +760,16 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Email Admin Local</label>
                             <input type="email" id="tenantAdminEmail" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Link Google Maps (opcional)</label>
+                            <input type="url" id="tenantMapsUrl" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="https://maps.google.com/...">
+                        </div>
+                        <div class="flex items-center">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="tenantShowMapsBtn" class="w-5 h-5 rounded">
+                                <span class="text-sm font-medium text-gray-700">Mostrar botón de Maps en el menú</span>
+                            </label>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Logo del Local</label>
@@ -763,12 +841,8 @@
                         </div>
                     </div>
                     <div class="mt-4 flex flex-wrap gap-2">
-                        <button id="saveTenantBtn" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition">
-                            💾 Guardar Configuración
-                        </button>
-                        <button id="previewTenantBtn" class="bg-gray-500 text-white px-5 py-2 rounded-lg hover:bg-gray-600 transition">
-                            👁 Vista Previa
-                        </button>
+                        <button id="saveTenantBtn" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition">💾 Guardar Configuración</button>
+                        <button id="previewTenantBtn" class="bg-gray-500 text-white px-5 py-2 rounded-lg hover:bg-gray-600 transition">👁 Vista Previa</button>
                     </div>
                 </div>
 
@@ -789,8 +863,13 @@
                             <input type="number" id="superProductPrice" step="0.01" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
-                            <input type="file" id="superProductImage" accept="image/*" class="w-full px-3 py-2 border rounded-lg">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ingredientes</label>
+                            <input type="text" id="superProductIngredients" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Imágenes (múltiples)</label>
+                            <input type="file" id="superProductImages" accept="image/*" multiple class="w-full px-3 py-2 border rounded-lg">
+                            <div id="superProductImagesPreview" class="image-preview-list"></div>
                         </div>
                     </div>
                     <div class="mt-4">
@@ -798,12 +877,8 @@
                         <textarea id="superProductDescription" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
                     <div class="mt-4 flex flex-wrap gap-2">
-                        <button id="superSaveProductBtn" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition">
-                            Guardar
-                        </button>
-                        <button id="superCancelEditBtn" class="bg-gray-400 text-white px-5 py-2 rounded-lg hover:bg-gray-500 transition" style="display:none;">
-                            Cancelar
-                        </button>
+                        <button id="superSaveProductBtn" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition">Guardar</button>
+                        <button id="superCancelEditBtn" class="bg-gray-400 text-white px-5 py-2 rounded-lg hover:bg-gray-500 transition" style="display:none;">Cancelar</button>
                     </div>
                 </div>
 
@@ -826,19 +901,15 @@
                 </svg>
                 <span>Continuar con Google</span>
             </button>
-            <button id="closeLoginModal" class="w-full mt-3 bg-gray-100 text-gray-700 py-3 rounded-xl hover:bg-gray-200 transition">
-                Cancelar
-            </button>
+            <button id="closeLoginModal" class="w-full mt-3 bg-gray-100 text-gray-700 py-3 rounded-xl hover:bg-gray-200 transition">Cancelar</button>
         </div>
     </div>
 
     <script>
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Estado
         let currentUser = null;
         let currentRole = null;
         let tenantData = null;
@@ -847,8 +918,10 @@
         let hideAuthTimer = null;
         let tapCount = 0;
         let tapTimer = null;
+        // Estado local de imágenes (array de URLs ya subidas) para preview
+        let localProductImages = [];
+        let superProductImages = [];
 
-        // Elementos DOM
         const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const adminPanelBtn = document.getElementById('adminPanelBtn');
@@ -858,16 +931,16 @@
         const loginModal = document.getElementById('loginModal');
         const authButtonsWrapper = document.getElementById('authButtonsWrapper');
         const floatingAdminBtn = document.getElementById('floatingAdminBtn');
+        const mapsBtn = document.getElementById('mapsBtn');
         const businessName = document.getElementById('businessName');
 
         // ============================================
-        // TRIPLE-TAP PARA MOSTRAR BOTONES AUTH
+        // TRIPLE-TAP AUTH
         // ============================================
         businessName.addEventListener('click', () => {
             tapCount++;
             clearTimeout(tapTimer);
             tapTimer = setTimeout(() => { tapCount = 0; }, 800);
-            
             if (tapCount >= 3) {
                 tapCount = 0;
                 if (!authButtonsVisible) {
@@ -876,67 +949,51 @@
                 }
             }
         });
-
         function showAuthButtons() {
             authButtonsWrapper.classList.add('visible');
             authButtonsVisible = true;
         }
-
         function hideAuthButtons() {
-            if (currentUser) return; // No ocultar si está logueado
+            if (currentUser) return;
             authButtonsWrapper.classList.remove('visible');
             authButtonsVisible = false;
         }
-
         function scheduleHideAuthButtons() {
             clearTimeout(hideAuthTimer);
             if (currentUser) return;
             hideAuthTimer = setTimeout(hideAuthButtons, 5000);
         }
-
-        // Interacción con los botones resetea el timer
-        document.getElementById('authButtons').addEventListener('mouseenter', () => {
-            if (!currentUser) scheduleHideAuthButtons();
-        });
-        document.getElementById('authButtons').addEventListener('touchstart', () => {
-            if (!currentUser) scheduleHideAuthButtons();
-        });
-        document.getElementById('authButtons').addEventListener('click', () => {
-            if (!currentUser) scheduleHideAuthButtons();
-        });
+        document.getElementById('authButtons').addEventListener('mouseenter', () => { if (!currentUser) scheduleHideAuthButtons(); });
+        document.getElementById('authButtons').addEventListener('touchstart', () => { if (!currentUser) scheduleHideAuthButtons(); });
+        document.getElementById('authButtons').addEventListener('click', () => { if (!currentUser) scheduleHideAuthButtons(); });
 
         // ============================================
-        // AUTENTICACIÓN
+        // AUTH
         // ============================================
-        loginBtn.addEventListener('click', () => {
-            loginModal.style.display = 'flex';
-        });
-
+        loginBtn.addEventListener('click', () => { loginModal.style.display = 'flex'; });
         document.getElementById('closeLoginModal').addEventListener('click', () => {
             loginModal.style.display = 'none';
             scheduleHideAuthButtons();
         });
-
         document.getElementById('googleLoginBtn').addEventListener('click', async () => {
             const provider = new firebase.auth.GoogleAuthProvider();
             try {
                 await auth.signInWithPopup(provider);
                 loginModal.style.display = 'none';
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
+            } catch (error) { alert('Error: ' + error.message); }
         });
-
         logoutBtn.addEventListener('click', async () => {
             await auth.signOut();
             authButtonsWrapper.classList.remove('permanent');
         });
 
+        // FIX CLAVE: updateUI() debe ejecutarse ANTES de loadProducts()
+        // para que currentRole esté definido cuando se intenta renderizar
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
-            await loadTenantData();
-            await loadProducts();
-            updateUI();
+            await loadTenantData();   // 1) Cargar tenant (incluye adminEmail)
+            updateUI();                 // 2) Determinar rol usando tenantData
+            await loadProducts();       // 3) Ahora sí puede renderizar según el rol
         });
 
         function updateUI() {
@@ -951,7 +1008,7 @@
                 if (currentUser.email === SUPER_ADMIN_EMAIL) {
                     currentRole = 'superadmin';
                     floatingAdminBtn.classList.add('visible');
-                } else if (tenantData && tenantData.adminEmail === currentUser.email) {
+                } else if (tenantData && tenantData.adminEmail && tenantData.adminEmail === currentUser.email) {
                     currentRole = 'localadmin';
                     floatingAdminBtn.classList.add('visible');
                 } else {
@@ -970,13 +1027,12 @@
         }
 
         // ============================================
-        // APLICAR ESTILOS DINÁMICOS
+        // STYLES
         // ============================================
         function applyTenantStyles() {
             if (!tenantData) return;
             const template = tenantData.template || 'moderna';
             document.body.setAttribute('data-template', template);
-            
             const root = document.documentElement;
             if (tenantData.fontFamily) {
                 const existingFont = document.getElementById('dynamic-font');
@@ -988,35 +1044,35 @@
                 document.head.appendChild(link);
                 root.style.setProperty('--custom-font', `'${tenantData.fontFamily}', sans-serif`);
             }
-            
-            // Override colores de la plantilla con personalización del usuario
             if (tenantData.bgColor) root.style.setProperty('--bg-color', tenantData.bgColor);
             if (tenantData.accentColor) root.style.setProperty('--accent-color', tenantData.accentColor);
             if (tenantData.headerColor) root.style.setProperty('--header-bg', tenantData.headerColor);
             if (tenantData.textColor) root.style.setProperty('--text-color', tenantData.textColor);
+
+            // Botón Maps
+            if (tenantData.showMapsBtn && tenantData.mapsUrl) {
+                mapsBtn.classList.add('visible');
+            } else {
+                mapsBtn.classList.remove('visible');
+            }
         }
 
         // ============================================
-        // CARGA DE DATOS
+        // LOAD
         // ============================================
         async function loadTenantData() {
             try {
                 const tenantRef = db.collection('tenants').doc(TENANT_SLUG);
                 const doc = await tenantRef.get();
                 const defaults = {
-                    name: TENANT_SLUG,
-                    adminEmail: '',
-                    logoUrl: '',
-                    template: 'moderna',
-                    fontFamily: 'Inter',
-                    bgColor: '#f9fafb',
-                    accentColor: '#3b82f6',
-                    headerColor: '#ffffff',
-                    textColor: '#1f2937',
+                    name: TENANT_SLUG, adminEmail: '', logoUrl: '',
+                    mapsUrl: '', showMapsBtn: false,
+                    template: 'moderna', fontFamily: 'Inter',
+                    bgColor: '#f9fafb', accentColor: '#3b82f6',
+                    headerColor: '#ffffff', textColor: '#1f2937',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     isActive: true
                 };
-
                 if (!doc.exists) {
                     if (currentUser && currentUser.email === SUPER_ADMIN_EMAIL) {
                         await tenantRef.set(defaults);
@@ -1027,42 +1083,46 @@
                 } else {
                     tenantData = { ...defaults, ...doc.data() };
                 }
-
                 businessName.textContent = tenantData.name || TENANT_SLUG;
                 const logo = document.getElementById('logo');
-                if (tenantData.logoUrl) {
-                    logo.src = tenantData.logoUrl;
-                    logo.style.display = 'block';
-                } else {
-                    logo.style.display = 'none';
-                }
+                if (tenantData.logoUrl) { logo.src = tenantData.logoUrl; logo.style.display = 'block'; }
+                else { logo.style.display = 'none'; }
 
                 applyTenantStyles();
 
                 if (currentRole === 'superadmin') {
                     document.getElementById('tenantName').value = tenantData.name || '';
                     document.getElementById('tenantAdminEmail').value = tenantData.adminEmail || '';
+                    document.getElementById('tenantMapsUrl').value = tenantData.mapsUrl || '';
+                    document.getElementById('tenantShowMapsBtn').checked = !!tenantData.showMapsBtn;
                     document.getElementById('tenantTemplate').value = tenantData.template || 'moderna';
                     document.getElementById('tenantFont').value = tenantData.fontFamily || 'Inter';
-                    const setColor = (colorId, textId, val) => {
-                        document.getElementById(colorId).value = val;
-                        document.getElementById(textId).value = val;
+                    const setColor = (cId, tId, v) => {
+                        document.getElementById(cId).value = v;
+                        document.getElementById(tId).value = v;
                     };
-                    setColor('tenantBgColor', 'tenantBgColorText', tenantData.bgColor || '#f9fafb');
-                    setColor('tenantAccentColor', 'tenantAccentColorText', tenantData.accentColor || '#3b82f6');
-                    setColor('tenantHeaderColor', 'tenantHeaderColorText', tenantData.headerColor || '#ffffff');
-                    setColor('tenantTextColor', 'tenantTextColorText', tenantData.textColor || '#1f2937');
+                    setColor('tenantBgColor','tenantBgColorText', tenantData.bgColor || '#f9fafb');
+                    setColor('tenantAccentColor','tenantAccentColorText', tenantData.accentColor || '#3b82f6');
+                    setColor('tenantHeaderColor','tenantHeaderColorText', tenantData.headerColor || '#ffffff');
+                    setColor('tenantTextColor','tenantTextColorText', tenantData.textColor || '#1f2937');
                 }
-            } catch (error) {
-                console.error('Error tenant:', error);
+            } catch (e) { console.error('Error tenant:', e); }
+        }
+
+        // Migración suave: si el producto viejo tiene "imageUrl", convertirlo a images: [url]
+        function normalizeProduct(p) {
+            if (!p.images || !Array.isArray(p.images) || p.images.length === 0) {
+                p.images = p.imageUrl ? [p.imageUrl] : [];
             }
+            p.ingredients = p.ingredients || [];
+            return p;
         }
 
         async function loadProducts() {
             try {
                 const snap = await db.collection('tenants').doc(TENANT_SLUG).collection('products').orderBy('category').get();
                 products = [];
-                snap.forEach(d => products.push({ id: d.id, ...d.data() }));
+                snap.forEach(d => products.push(normalizeProduct({ id: d.id, ...d.data() })));
                 
                 renderCategoryTabs();
                 renderPublicMenu();
@@ -1071,77 +1131,79 @@
                 if (currentRole === 'superadmin') renderSuperAdminProducts();
                 
                 document.getElementById('loadingMessage').style.display = 'none';
-                document.getElementById('menuContent').style.display = 'block';
+                const mc = document.getElementById('menuContent');
+                mc.style.display = 'block';
                 document.getElementById('categoryTabs').style.display = products.length > 0 ? 'block' : 'none';
-            } catch (error) {
-                console.error('Error products:', error);
-            }
+                
+                setupScrollObserver();
+            } catch (e) { console.error('Error products:', e); }
         }
 
         // ============================================
-        // TABS DE CATEGORÍAS
+        // TABS + CARRUSEL
         // ============================================
+        let isScrollingProgrammatically = false;
+
         function renderCategoryTabs() {
             const tabsInner = document.getElementById('categoryTabsInner');
             const categories = [...new Set(products.map(p => p.category || 'Otros'))].sort();
-            
-            if (categories.length <= 1) {
+            if (categories.length === 0) {
                 document.getElementById('categoryTabs').style.display = 'none';
                 return;
             }
-            
-            let html = `<button class="category-tab active" data-cat="all">Todas</button>`;
-            categories.forEach(cat => {
-                html += `<button class="category-tab" data-cat="${cat}">${cat}</button>`;
+            let html = '';
+            categories.forEach((cat, i) => {
+                html += `<button class="category-tab ${i === 0 ? 'active' : ''}" data-cat="${cat}">${cat}</button>`;
             });
             tabsInner.innerHTML = html;
-            
             tabsInner.querySelectorAll('.category-tab').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    tabsInner.querySelectorAll('.category-tab').forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
                     const cat = e.target.dataset.cat;
-                    
-                    if (cat === 'all') {
-                        document.querySelectorAll('.category-section').forEach(s => s.style.display = '');
-                        document.getElementById('publicMenu').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    } else {
-                        document.querySelectorAll('.category-section').forEach(s => {
-                            s.style.display = s.dataset.cat === cat ? '' : 'none';
-                        });
-                        const target = document.querySelector(`.category-section[data-cat="${cat}"]`);
-                        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const slider = document.getElementById('menuContent');
+                    const slide = slider.querySelector(`.category-slide[data-cat="${cat}"]`);
+                    if (slide) {
+                        isScrollingProgrammatically = true;
+                        slide.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+                        setTimeout(() => { isScrollingProgrammatically = false; }, 800);
                     }
                 });
             });
         }
 
-        // Resaltar tab activa al hacer scroll
-        window.addEventListener('scroll', () => {
-            if (products.length === 0) return;
-            const sections = document.querySelectorAll('.category-section');
-            let active = null;
-            sections.forEach(s => {
-                const rect = s.getBoundingClientRect();
-                if (rect.top <= 160 && rect.bottom > 160) active = s.dataset.cat;
-            });
-            if (active) {
-                document.querySelectorAll('.category-tab').forEach(t => {
-                    t.classList.toggle('active', t.dataset.cat === active);
-                    if (t.dataset.cat === active) {
-                        t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        function setupScrollObserver() {
+            const slider = document.getElementById('menuContent');
+            if (!slider) return;
+            const slides = slider.querySelectorAll('.category-slide');
+            const tabs = document.querySelectorAll('.category-tab');
+
+            const observer = new IntersectionObserver((entries) => {
+                if (isScrollingProgrammatically) return;
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+                        const cat = entry.target.dataset.cat;
+                        tabs.forEach(t => {
+                            t.classList.toggle('active', t.dataset.cat === cat);
+                            if (t.dataset.cat === cat) {
+                                t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                            }
+                        });
                     }
                 });
-            }
-        }, { passive: true });
+            }, {
+                root: slider,
+                threshold: [0.6],
+                rootMargin: '0px'
+            });
+            slides.forEach(s => observer.observe(s));
+        }
 
         // ============================================
-        // RENDER MENÚ
+        // RENDER MENÚ (como carrusel)
         // ============================================
         function renderPublicMenu() {
             const content = document.getElementById('menuContent');
             if (products.length === 0) {
-                content.innerHTML = '<p class="text-center py-12" style="color: var(--text-muted);">Menú en preparación...</p>';
+                content.innerHTML = '<p class="text-center py-12 px-6" style="color: var(--text-muted);">Menú en preparación...</p>';
                 return;
             }
             const grouped = {};
@@ -1150,34 +1212,143 @@
                 if (!grouped[c]) grouped[c] = [];
                 grouped[c].push(p);
             });
+            const cats = Object.keys(grouped).sort();
+            const totalCats = cats.length;
 
             let html = '';
-            let delay = 0;
-            Object.keys(grouped).sort().forEach(cat => {
-                html += `<section class="category-section mb-10" data-cat="${cat}">`;
-                html += `<h2 class="category-title text-2xl sm:text-3xl font-bold">${cat}</h2>`;
-                html += `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">`;
+            cats.forEach((cat, catIdx) => {
+                const isLast = catIdx === totalCats - 1;
+                html += `<section class="category-slide" data-cat="${cat}">`;
+                html += `<h2 class="category-title text-2xl sm:text-3xl font-bold px-2">`;
+                html += `<span>${cat}</span>`;
+                if (!isLast) {
+                    html += `<span class="slide-hint hidden sm:inline">· Desliza para ver más</span>`;
+                }
+                html += `</h2>`;
+                html += `<div class="products-grid px-2">`;
                 grouped[cat].forEach(p => {
+                    const thumbUrl = p.images && p.images.length > 0 ? p.images[0] : '';
+                    const extraCount = p.images ? Math.max(0, p.images.length - 1) : 0;
+                    const badge = extraCount > 0 
+                        ? `<span class="thumb-badge">+${extraCount}</span>` 
+                        : '';
                     html += `
-                        <article class="product-card" style="animation-delay: ${delay}ms">
-                            ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" loading="lazy">` : `<div style="height:140px;background:var(--border-color);"></div>`}
-                            <div class="product-card-body p-4 sm:p-5 flex-1 flex flex-col">
+                        <article class="product-card" data-product-id="${p.id}">
+                            <div class="thumb-wrap">
+                                ${thumbUrl 
+                                    ? `<img src="${thumbUrl}" alt="${p.name}" loading="lazy">${badge}`
+                                    : `<div style="width:100%;height:100%;background:var(--border-color);"></div>`
+                                }
+                            </div>
+                            <div class="p-4 sm:p-5 flex-1 flex flex-col justify-center">
                                 <div class="flex justify-between items-start gap-3 mb-2">
                                     <h3 class="product-name text-lg font-semibold leading-tight">${p.name}</h3>
                                     <span class="price-tag text-xl font-bold whitespace-nowrap">$${p.price.toFixed(2)}</span>
                                 </div>
-                                ${p.description ? `<p class="product-description text-sm mt-auto pt-2">${p.description}</p>` : ''}
+                                ${p.description 
+                                    ? `<p class="product-description text-sm line-clamp-2">${p.description.split('\n')[0]}</p>` 
+                                    : ''}
                             </div>
                         </article>`;
-                    delay += 60;
                 });
                 html += '</div></section>';
             });
             content.innerHTML = html;
+
+            // Click en tarjeta abre modal
+            content.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = card.dataset.productId;
+                    const product = products.find(p => p.id === id);
+                    if (product) openProductModal(product);
+                });
+            });
         }
 
         // ============================================
-        // PANELES ADMIN
+        // MODAL DETALLE PRODUCTO
+        // ============================================
+        const productModal = document.getElementById('productModal');
+        const modalGallery = document.getElementById('modalGallery');
+        const modalBody = document.getElementById('modalBody');
+
+        function openProductModal(p) {
+            // Galería
+            if (p.images && p.images.length > 0) {
+                let gHtml = '';
+                p.images.forEach(url => {
+                    gHtml += `<div class="modal-gallery-slide"><img src="${url}" alt="${p.name}" loading="lazy"></div>`;
+                });
+                if (p.images.length > 1) {
+                    gHtml += `<div class="gallery-indicator" id="galleryIndicator">`;
+                    p.images.forEach((_, i) => {
+                        gHtml += `<div class="dot ${i === 0 ? 'active' : ''}"></div>`;
+                    });
+                    gHtml += `</div>`;
+                }
+                modalGallery.innerHTML = gHtml;
+            } else {
+                modalGallery.innerHTML = `
+                    <div class="modal-gallery-empty">
+                        <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>`;
+            }
+
+            // Body
+            let bHtml = `
+                <h2>${p.name}</h2>
+                <div class="modal-price">$${p.price.toFixed(2)}</div>`;
+            if (p.description) {
+                bHtml += `<div class="modal-description">${p.description}</div>`;
+            }
+            if (p.ingredients && p.ingredients.length > 0) {
+                bHtml += `<div class="modal-section"><h4>🍽 Ingredientes</h4><div>`;
+                p.ingredients.forEach(i => {
+                    bHtml += `<span class="ingredient-chip">${i}</span>`;
+                });
+                bHtml += `</div></div>`;
+            }
+            if (p.category) {
+                bHtml += `<div class="modal-section"><h4>Categoría</h4><p style="color:var(--text-color,#1f2937);">${p.category}</p></div>`;
+            }
+            modalBody.innerHTML = bHtml;
+
+            // Observer para indicar de galería
+            if (p.images && p.images.length > 1) {
+                const indicator = document.getElementById('galleryIndicator');
+                const dots = indicator.querySelectorAll('.dot');
+                const galleryObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const idx = [...modalGallery.querySelectorAll('.modal-gallery-slide')].indexOf(entry.target);
+                            dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+                        }
+                    });
+                }, { root: modalGallery, threshold: 0.6 });
+                modalGallery.querySelectorAll('.modal-gallery-slide').forEach(s => galleryObserver.observe(s));
+            }
+
+            productModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProductModal() {
+            productModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('modalCloseBtn').addEventListener('click', closeProductModal);
+        productModal.addEventListener('click', (e) => {
+            if (e.target === productModal) closeProductModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && productModal.classList.contains('active')) closeProductModal();
+        });
+
+        // ============================================
+        // PANELES
         // ============================================
         adminPanelBtn.addEventListener('click', openAdminPanel);
         floatingAdminBtn.addEventListener('click', openAdminPanel);
@@ -1191,14 +1362,11 @@
                 publicMenu.style.display = 'none';
                 document.getElementById('categoryTabs').style.display = 'none';
                 localAdminPanel.style.display = 'block';
-            } else {
-                alert('Sin permisos');
-            }
+            } else { alert('Sin permisos'); }
         }
 
         document.getElementById('closeLocalPanelBtn').addEventListener('click', closePanels);
         document.getElementById('closeSuperPanelBtn').addEventListener('click', closePanels);
-
         function closePanels() {
             publicMenu.style.display = 'block';
             localAdminPanel.style.display = 'none';
@@ -1206,11 +1374,16 @@
             document.getElementById('categoryTabs').style.display = products.length > 0 ? 'block' : 'none';
         }
 
-        // WhatsApp
         document.getElementById('whatsappSupportBtn').addEventListener('click', () => {
             const localName = tenantData?.name || TENANT_SLUG;
             const msg = encodeURIComponent(`Hola! Te escribo de parte de "${localName}". Me interesa conocer más sobre el soporte técnico y la cadetería con costo fijo mensual.`);
             window.open(`https://wa.me/549${WHATSAPP_SUPPORT}?text=${msg}`, '_blank');
+        });
+
+        mapsBtn.addEventListener('click', () => {
+            if (tenantData && tenantData.mapsUrl) {
+                window.open(tenantData.mapsUrl, '_blank');
+            }
         });
 
         // ============================================
@@ -1230,8 +1403,49 @@
             }
         }
 
+        // Preview de imágenes seleccionadas (admin local)
+        document.getElementById('productImages').addEventListener('change', async (e) => {
+            await handleImageFiles(e.target.files, localProductImages, 'productImagesPreview');
+        });
+        document.getElementById('superProductImages').addEventListener('change', async (e) => {
+            await handleImageFiles(e.target.files, superProductImages, 'superProductImagesPreview');
+        });
+
+        async function handleImageFiles(fileList, stateArr, previewId) {
+            const files = Array.from(fileList);
+            for (const file of files) {
+                const url = await uploadToImgBB(file);
+                if (url) stateArr.push(url);
+            }
+            renderImagePreview(stateArr, previewId);
+        }
+
+        function renderImagePreview(arr, previewId) {
+            const wrap = document.getElementById(previewId);
+            if (!arr || arr.length === 0) {
+                wrap.innerHTML = '<p class="image-preview-empty">No hay imágenes</p>';
+                return;
+            }
+            wrap.innerHTML = arr.map((url, i) => `
+                <div class="image-preview-item">
+                    <img src="${url}" alt="">
+                    <button class="image-preview-remove" data-index="${i}" data-preview="${previewId}">×</button>
+                </div>
+            `).join('');
+            wrap.querySelectorAll('.image-preview-remove').forEach(btn => {
+                btn.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    const idx = parseInt(btn.dataset.index);
+                    const targetId = btn.dataset.preview;
+                    const targetArr = targetId === 'productImagesPreview' ? localProductImages : superProductImages;
+                    targetArr.splice(idx, 1);
+                    renderImagePreview(targetArr, targetId);
+                });
+            });
+        }
+
         // ============================================
-        // CRUD PRODUCTOS
+        // CRUD
         // ============================================
         document.getElementById('saveProductBtn').addEventListener('click', () => saveProduct(false));
         document.getElementById('cancelEditBtn').addEventListener('click', () => resetProductForm(false));
@@ -1244,44 +1458,54 @@
             const category = document.getElementById(`${p}ProductCategory`).value.trim();
             const price = parseFloat(document.getElementById(`${p}ProductPrice`).value);
             const description = document.getElementById(`${p}ProductDescription`).value.trim();
-            const file = document.getElementById(`${p}ProductImage`).files[0];
+            const ingredientsRaw = document.getElementById(`${p}ProductIngredients`).value.trim();
             const editId = document.getElementById(`${p}EditingProductId`).value;
+            const stateArr = isSuper ? superProductImages : localProductImages;
 
             if (!name || !category || !price || isNaN(price)) {
                 alert('Nombre, categoría y precio son obligatorios');
                 return;
             }
 
-            let imageUrl = '';
-            if (file) {
-                imageUrl = await uploadToImgBB(file);
-                if (!imageUrl) return;
-            }
+            const ingredients = ingredientsRaw 
+                ? ingredientsRaw.split(',').map(s => s.trim()).filter(Boolean)
+                : [];
 
             const data = {
-                name, category, price, description, imageUrl,
+                name, category, price, description, ingredients,
+                images: stateArr,
+                imageUrl: stateArr.length > 0 ? stateArr[0] : '', // compat con esquema viejo
                 isAvailable: true,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
                 const ref = db.collection('tenants').doc(TENANT_SLUG).collection('products');
-                if (editId) await ref.doc(editId).update(data);
-                else await ref.add(data);
+                if (editId) {
+                    if (!data.createdAt) delete data.createdAt;
+                    await ref.doc(editId).update(data);
+                } else {
+                    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await ref.add(data);
+                }
                 resetProductForm(isSuper);
                 await loadProducts();
-            } catch (e) {
-                alert('Error: ' + e.message);
-            }
+            } catch (e) { alert('Error: ' + e.message); }
         }
 
         function resetProductForm(isSuper) {
             const p = isSuper ? 'super' : '';
-            ['ProductName','ProductCategory','ProductPrice','ProductDescription','ProductImage','EditingProductId'].forEach(f => {
-                document.getElementById(`${p}${f}`).value = '';
+            ['ProductName','ProductCategory','ProductPrice','ProductDescription','ProductIngredients','EditingProductId'].forEach(f => {
+                const el = document.getElementById(`${p}${f}`);
+                if (el) el.value = '';
             });
+            const fileInput = document.getElementById(`${p}ProductImages`);
+            if (fileInput) fileInput.value = '';
             document.getElementById(`${p}FormTitle`).textContent = 'Agregar Producto';
             document.getElementById(`${p}CancelEditBtn`).style.display = 'none';
+            const stateArr = isSuper ? superProductImages : localProductImages;
+            stateArr.length = 0;
+            renderImagePreview(stateArr, `${p}ProductImagesPreview`);
         }
 
         function renderLocalAdminProducts() {
@@ -1290,10 +1514,10 @@
             list.innerHTML = products.map(p => `
                 <div class="bg-white border rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                     <div class="flex items-center gap-3 min-w-0">
-                        ${p.imageUrl ? `<img src="${p.imageUrl}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">` : ''}
+                        ${p.images && p.images[0] ? `<img src="${p.images[0]}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">` : ''}
                         <div class="min-w-0">
                             <h4 class="font-semibold truncate">${p.name}</h4>
-                            <p class="text-sm text-gray-600">${p.category} - $${p.price.toFixed(2)}</p>
+                            <p class="text-sm text-gray-600">${p.category} · $${p.price.toFixed(2)}${p.images && p.images.length > 1 ? ` · ${p.images.length} imgs` : ''}</p>
                         </div>
                     </div>
                     <div class="flex gap-2 flex-shrink-0">
@@ -1310,10 +1534,10 @@
             list.innerHTML = products.map(p => `
                 <div class="bg-white border rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                     <div class="flex items-center gap-3 min-w-0">
-                        ${p.imageUrl ? `<img src="${p.imageUrl}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">` : ''}
+                        ${p.images && p.images[0] ? `<img src="${p.images[0]}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">` : ''}
                         <div class="min-w-0">
                             <h4 class="font-semibold truncate">${p.name}</h4>
-                            <p class="text-sm text-gray-600">${p.category} - $${p.price.toFixed(2)}</p>
+                            <p class="text-sm text-gray-600">${p.category} · $${p.price.toFixed(2)}${p.images && p.images.length > 1 ? ` · ${p.images.length} imgs` : ''}</p>
                         </div>
                     </div>
                     <div class="flex gap-2 flex-shrink-0">
@@ -1332,9 +1556,14 @@
             document.getElementById(`${p}ProductName`).value = prod.name;
             document.getElementById(`${p}ProductCategory`).value = prod.category;
             document.getElementById(`${p}ProductPrice`).value = prod.price;
-            document.getElementById(`${p}ProductDescription`).value = prod.description;
+            document.getElementById(`${p}ProductDescription`).value = prod.description || '';
+            document.getElementById(`${p}ProductIngredients`).value = (prod.ingredients || []).join(', ');
             document.getElementById(`${p}FormTitle`).textContent = 'Editar Producto';
             document.getElementById(`${p}CancelEditBtn`).style.display = 'block';
+            const stateArr = isSuper ? superProductImages : localProductImages;
+            stateArr.length = 0;
+            if (prod.images) prod.images.forEach(u => stateArr.push(u));
+            renderImagePreview(stateArr, `${p}ProductImagesPreview`);
             document.getElementById(`${p}ProductName`).scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
 
@@ -1347,7 +1576,7 @@
         };
 
         // ============================================
-        // GUARDAR TENANT
+        // SAVE TENANT
         // ============================================
         document.getElementById('saveTenantBtn').addEventListener('click', () => saveTenant(true));
         document.getElementById('previewTenantBtn').addEventListener('click', () => saveTenant(false));
@@ -1355,6 +1584,8 @@
         async function saveTenant(persist = true) {
             const name = document.getElementById('tenantName').value.trim();
             const adminEmail = document.getElementById('tenantAdminEmail').value.trim();
+            const mapsUrl = document.getElementById('tenantMapsUrl').value.trim();
+            const showMapsBtn = document.getElementById('tenantShowMapsBtn').checked;
             const logoFile = document.getElementById('tenantLogo').files[0];
             const template = document.getElementById('tenantTemplate').value;
             const fontFamily = document.getElementById('tenantFont').value;
@@ -1371,7 +1602,10 @@
                 if (!logoUrl) return;
             }
 
-            const updateData = { name, adminEmail, logoUrl, template, fontFamily, bgColor, accentColor, headerColor, textColor };
+            const updateData = {
+                name, adminEmail, logoUrl, mapsUrl, showMapsBtn,
+                template, fontFamily, bgColor, accentColor, headerColor, textColor
+            };
 
             if (persist) {
                 try {
@@ -1381,17 +1615,15 @@
                     alert('✅ Configuración guardada');
                 } catch (e) { alert('Error: ' + e.message); }
             } else {
-                // Preview sin guardar
-                const prevTenant = { ...tenantData };
+                const prev = { ...tenantData };
                 tenantData = { ...tenantData, ...updateData };
                 applyTenantStyles();
                 renderPublicMenu();
-                setTimeout(() => { tenantData = prevTenant; }, 500);
+                setTimeout(() => { tenantData = prev; }, 500);
             }
         }
 
-        // Sync color pickers con text inputs
-        ['BgColor', 'AccentColor', 'HeaderColor', 'TextColor'].forEach(key => {
+        ['BgColor','AccentColor','HeaderColor','TextColor'].forEach(key => {
             const picker = document.getElementById(`tenant${key}`);
             const text = document.getElementById(`tenant${key}Text`);
             picker.addEventListener('input', () => { text.value = picker.value; });
@@ -1401,8 +1633,10 @@
             });
         });
 
-        // Carga inicial
-        loadTenantData().then(() => loadProducts());
+        loadTenantData().then(() => {
+            updateUI();
+            loadProducts();
+        });
     </script>
 </body>
 </html>

@@ -469,6 +469,67 @@
         }
         .admin-badge:active { transform: scale(0.9); }
         .admin-badge.visible { display: flex; }
+
+        /* ============================================ */
+        /* AÑADIDO: AISLAMIENTO DE PANELES Y MODAL */
+        /* Los paneles NO heredan el tema del local:   */
+        /* redefinen todas las variables CSS sobre su  */
+        /* propio contenedor (selector de ID pisa la   */
+        /* herencia del body y los inline del :root).  */
+        /* ============================================ */
+        #localAdminPanel,
+        #superAdminPanel,
+        #loginModal {
+            --bg-color: #f3f4f6;
+            --header-bg: #ffffff;
+            --accent-color: #3b82f6;
+            --text-color: #111827;
+            --text-muted: #6b7280;
+            --card-bg: #ffffff;
+            --card-border-radius: 12px;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --custom-font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --tabs-bg: #ffffff;
+            --border-color: #e5e7eb;
+
+            color: #111827;
+            font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f3f4f6;
+            background-image: none;
+        }
+
+        /* El modal de login mantiene su overlay oscuro */
+        #loginModal {
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        /* Texto de inputs/selects/textareas siempre legible */
+        #localAdminPanel :is(input, select, textarea),
+        #superAdminPanel :is(input, select, textarea),
+        #loginModal :is(input, select, textarea) {
+            color: #111827 !important;
+            font-family: inherit;
+        }
+
+        /* Fondo blanco garantizado (excepto pickers de color y file) */
+        #localAdminPanel :is(input:not([type="color"]):not([type="file"]), select, textarea),
+        #superAdminPanel :is(input:not([type="color"]):not([type="file"]), select, textarea) {
+            background-color: #ffffff !important;
+        }
+
+        /* Pickers de color con marco limpio */
+        #localAdminPanel input[type="color"],
+        #superAdminPanel input[type="color"] {
+            background-color: #ffffff;
+            padding: 2px;
+        }
+
+        /* Títulos sin clase de color heredan oscuro, no el del tema */
+        #localAdminPanel :is(h1, h2, h3, h4):not([class*="text-"]),
+        #superAdminPanel :is(h1, h2, h3, h4):not([class*="text-"]),
+        #loginModal h2 {
+            color: #111827;
+        }
     </style>
 </head>
 <body>

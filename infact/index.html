@@ -2,7 +2,7 @@
 <html lang="es" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>InFact — De hecho, es una red social</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -18,6 +18,8 @@
         @keyframes slideIn { from { opacity:0; transform:translateY(-20px);} to { opacity:1; transform:translateY(0);} }
         .ring-pulse { animation: ringPulse 1.5s ease-in-out infinite; }
         @keyframes ringPulse { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.05);opacity:.8;} }
+        .wheel-pop { animation: wheelPop .18s cubic-bezier(.16,1,.3,1); }
+        @keyframes wheelPop { from { opacity:0; transform:translate(-50%,-50%) scale(.6);} to { opacity:1; transform:translate(-50%,-50%) scale(1);} }
         ::-webkit-scrollbar { width:8px; height:8px; }
         ::-webkit-scrollbar-track { background:#09090b; }
         ::-webkit-scrollbar-thumb { background:#27272a; border-radius:4px; }
@@ -25,6 +27,8 @@
         .message-bubble { max-width:75%; word-wrap:break-word; }
         video { background:#000; }
         .highlight-post { box-shadow: 0 0 0 2px #10b981, 0 0 30px rgba(16,185,129,.3); }
+        #fabPost { touch-action:none; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+        .radial-seg { transition: fill .12s ease, opacity .12s ease; cursor:pointer; }
     </style>
 </head>
 <body class="h-full bg-zinc-950 text-zinc-100 font-sans">
@@ -35,7 +39,7 @@
             <div class="text-center mb-8">
                 <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full mb-4">
                     <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                    <span class="text-xs font-mono text-emerald-400">v1.2 LIVE</span>
+                    <span class="text-xs font-mono text-emerald-400">v1.3 LIVE</span>
                 </div>
                 <h1 class="text-3xl font-bold text-white mb-2">InFact</h1>
                 <p class="text-zinc-400 text-sm italic">"De hecho, es una red social. En teoría."</p>
@@ -50,36 +54,39 @@
     <!-- APP -->
     <div id="mainApp" class="h-full hidden">
         <header class="fixed top-0 left-0 right-0 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800 z-40">
-            <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+            <div class="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-2 sm:gap-3">
                 <div class="flex items-center gap-2 shrink-0">
-                    <h1 class="text-xl font-bold text-white">InFact</h1>
-                    <span class="text-xs font-mono text-zinc-500 hidden sm:inline">v1.2</span>
+                    <h1 class="text-lg sm:text-xl font-bold text-white">InFact</h1>
+                    <span class="text-xs font-mono text-zinc-500 hidden md:inline">v1.3</span>
                 </div>
+                <button id="mobileSearchBtn" class="sm:hidden p-2 text-zinc-400 hover:text-white transition-colors" title="Buscar">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </button>
                 <div class="relative flex-1 max-w-xs hidden sm:block" id="searchWrapper">
-                    <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <input id="searchInput" type="text" placeholder="Buscar @usuario o facts..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-9 pr-3 py-1.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500">
                     <div id="searchResults" class="absolute top-full mt-2 w-full sm:w-96 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl max-h-96 overflow-y-auto hidden z-50"></div>
                 </div>
                 <nav class="flex items-center gap-1 shrink-0">
-                    <button class="nav-btn px-3 py-1.5 rounded-lg text-sm text-zinc-300 hover:bg-zinc-800 transition-colors bg-zinc-800 text-white" data-view="feed">Feed</button>
-                    <button class="nav-btn px-3 py-1.5 rounded-lg text-sm text-zinc-300 hover:bg-zinc-800 transition-colors" data-view="messages">Mensajes</button>
-                    <button id="adminPanelBtn" class="nav-btn hidden px-3 py-1.5 rounded-lg text-sm text-rose-400 hover:bg-rose-500/10 transition-colors" data-view="admin">Admin</button>
+                    <button class="nav-btn px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm text-zinc-300 hover:bg-zinc-800 transition-colors bg-zinc-800 text-white" data-view="feed">Feed</button>
+                    <button class="nav-btn px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm text-zinc-300 hover:bg-zinc-800 transition-colors" data-view="messages">Mensajes</button>
+                    <button id="adminPanelBtn" class="nav-btn hidden px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm text-rose-400 hover:bg-rose-500/10 transition-colors" data-view="admin">Admin</button>
                 </nav>
-                <div class="flex items-center gap-3 shrink-0">
+                <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                     <button id="headerAvatarBtn" title="Mi perfil"><img id="userAvatar" class="w-8 h-8 rounded-full border border-zinc-700" src="" alt="Avatar"></button>
-                    <button id="logoutBtn" class="text-xs text-zinc-400 hover:text-zinc-200 transition-colors">Salir</button>
+                    <button id="logoutBtn" class="text-xs text-zinc-400 hover:text-zinc-200 transition-colors hidden sm:inline">Salir</button>
                 </div>
             </div>
         </header>
 
         <main class="pt-16 h-full overflow-hidden">
-            <div class="max-w-6xl mx-auto px-4 h-full">
+            <div class="max-w-6xl mx-auto px-3 sm:px-4 h-full">
 
                 <!-- FEED -->
-                <div id="feedView" class="view-content h-full py-6 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-y-auto lg:overflow-hidden">
+                <div id="feedView" class="view-content h-full py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-y-auto lg:overflow-hidden">
                     <div class="lg:col-span-2 flex flex-col gap-4 lg:h-full lg:min-h-0">
-                        <div id="feedScroll" class="lg:flex-1 lg:overflow-y-auto lg:min-h-0 pr-1">
-                            <div id="feedContainer" class="space-y-4"></div>
+                        <div id="feedScroll" class="lg:flex-1 lg:overflow-y-auto lg:min-h-0 lg:pr-1">
+                            <div id="feedContainer" class="space-y-4 pb-24 lg:pb-0"></div>
                         </div>
                     </div>
                     <div class="hidden lg:block lg:h-full lg:overflow-y-auto">
@@ -111,17 +118,17 @@
                 </div>
 
                 <!-- PERFIL -->
-                <div id="profileView" class="view-content hidden h-full py-6 overflow-y-auto">
-                    <div class="max-w-2xl mx-auto space-y-4">
+                <div id="profileView" class="view-content hidden h-full py-4 sm:py-6 overflow-y-auto">
+                    <div class="max-w-2xl mx-auto space-y-4 pb-24 lg:pb-0">
                         <button id="profileBackBtn" class="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1">← Volver al feed</button>
-                        <div id="profileCard" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6"></div>
+                        <div id="profileCard" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6"></div>
                         <div id="profilePosts" class="space-y-4"></div>
                     </div>
                 </div>
 
                 <!-- MENSAJES -->
-                <div id="messagesView" class="view-content hidden h-full py-6 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-y-auto lg:overflow-hidden">
-                    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col overflow-hidden max-h-72 lg:max-h-full">
+                <div id="messagesView" class="view-content hidden h-full py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 overflow-y-auto lg:overflow-hidden">
+                    <div id="convColumn" class="bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col overflow-hidden max-h-72 lg:max-h-full">
                         <div class="p-4 border-b border-zinc-800 flex items-center justify-between gap-2">
                             <h2 class="font-semibold text-white text-sm">Conversaciones</h2>
                             <div class="flex gap-2">
@@ -131,35 +138,39 @@
                         </div>
                         <div id="conversationsList" class="flex-1 overflow-y-auto"></div>
                     </div>
-                    <div class="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col overflow-hidden min-h-[60vh] lg:min-h-0">
-                        <div class="p-4 border-b border-zinc-800 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div id="chatHeaderAvatar" class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-500 overflow-hidden">
+                    <div class="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col overflow-hidden min-h-[70vh] lg:min-h-0">
+                        <div class="p-3 sm:p-4 border-b border-zinc-800 flex items-center justify-between">
+                            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                                <button id="chatBackBtn" class="lg:hidden hidden p-1.5 -ml-1 text-zinc-400 hover:text-white transition-colors" title="Volver">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                </button>
+                                <div id="chatHeaderAvatar" class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-500 overflow-hidden shrink-0">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                                 </div>
-                                <div>
-                                    <p id="chatHeaderName" class="font-semibold text-white">Selecciona una conversación</p>
-                                    <p id="chatHeaderStatus" class="text-xs text-zinc-500"></p>
+                                <div class="min-w-0">
+                                    <p id="chatHeaderName" class="font-semibold text-white truncate">Selecciona una conversación</p>
+                                    <p id="chatHeaderStatus" class="text-xs text-zinc-500 truncate"></p>
                                 </div>
                             </div>
-                            <div id="chatActions" class="gap-2 hidden">
+                            <div id="chatActions" class="gap-2 hidden shrink-0">
                                 <button id="callAudioBtn" class="p-2 bg-zinc-800 hover:bg-emerald-500/20 hover:text-emerald-400 text-zinc-400 rounded-lg transition-colors" title="Llamar"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg></button>
                                 <button id="callVideoBtn" class="p-2 bg-zinc-800 hover:bg-emerald-500/20 hover:text-emerald-400 text-zinc-400 rounded-lg transition-colors" title="Videollamada"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button>
                             </div>
                         </div>
-                        <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
-                        <div id="emojiRow" class="px-4 pt-2 gap-1 hidden flex-wrap"></div>
-                        <div id="messageInputContainer" class="p-4 border-t border-zinc-800 hidden">
+                        <div id="messagesContainer" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3"></div>
+                        <div id="messageInputContainer" class="p-3 sm:p-4 border-t border-zinc-800 hidden relative">
+                            <div id="emojiPanel" class="hidden absolute bottom-full left-2 mb-2 bg-zinc-900 border border-zinc-800 rounded-xl p-2 grid grid-cols-8 gap-1 shadow-2xl z-20 w-72 max-w-[calc(100vw-2rem)]"></div>
                             <div class="flex gap-2">
-                                <input id="messageInput" type="text" placeholder="Escribe un mensaje..." class="flex-1 bg-zinc-800 text-zinc-100 placeholder-zinc-500 px-4 py-2 rounded-xl border border-zinc-700 focus:outline-none focus:border-emerald-500">
-                                <button id="sendMessageBtn" class="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 px-4 py-2 rounded-xl font-semibold transition-colors">Enviar</button>
+                                <button id="emojiToggleBtn" class="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-xl transition-colors shrink-0" title="Emojis">😊</button>
+                                <input id="messageInput" type="text" placeholder="Escribe un mensaje..." class="flex-1 min-w-0 bg-zinc-800 text-zinc-100 placeholder-zinc-500 px-4 py-2 rounded-xl border border-zinc-700 focus:outline-none focus:border-emerald-500">
+                                <button id="sendMessageBtn" class="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 px-3 sm:px-4 py-2 rounded-xl font-semibold transition-colors shrink-0">Enviar</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- ADMIN -->
-                <div id="adminView" class="view-content hidden h-full py-6 overflow-y-auto">
+                <div id="adminView" class="view-content hidden h-full py-4 sm:py-6 overflow-y-auto">
                     <div class="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-5">
                         <h2 class="text-xl font-bold text-rose-400 mb-2">Panel de Administración</h2>
                         <p class="text-sm text-zinc-400">Bienvenido, administrador.</p>
@@ -170,13 +181,28 @@
             </div>
         </main>
 
-        <!-- FAB para postear -->
-        <button id="fabPost" class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-400 hover:scale-110 transition-all shadow-2xl shadow-emerald-500/30 z-30 text-2xl flex items-center justify-center" title="Soltar un dato">🤓☝️</button>
+        <!-- FAB (tap = composer, hold = rueda radial) -->
+        <button id="fabPost" class="fixed bottom-6 right-5 sm:right-6 w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-400 sm:hover:scale-110 transition-all shadow-2xl shadow-emerald-500/30 z-30 text-2xl flex items-center justify-center select-none" title="Tap: postear · Mantené presionado: menú radial">🤓☝️</button>
+    </div>
+
+    <!-- MENÚ RADIAL GTA-STYLE -->
+    <div id="radialOverlay" class="fixed inset-0 z-[80] hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div id="radialWheel" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] wheel-pop">
+            <svg viewBox="0 0 300 300" class="w-full h-full drop-shadow-2xl">
+                <g id="radialSegments"></g>
+                <circle cx="150" cy="150" r="60" fill="#09090b" stroke="#27272a" stroke-width="2"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span id="radialCenterIcon" class="text-3xl">🤓</span>
+                <span id="radialCenterLabel" class="text-[10px] font-mono text-emerald-400 mt-1 uppercase tracking-wider text-center px-6">InFact</span>
+            </div>
+        </div>
     </div>
 
     <!-- Modal: Composer -->
     <div id="composerModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-lg w-full fade-in">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 max-w-lg w-full fade-in">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
@@ -206,9 +232,9 @@
         </div>
     </div>
 
-    <!-- Modal: Username obligatorio (onboarding) -->
+    <!-- Modal: Username obligatorio -->
     <div id="usernameModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 max-w-md w-full fade-in">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 max-w-md w-full fade-in">
             <div class="text-center mb-6">
                 <p class="text-3xl mb-2">🤓☝️</p>
                 <h3 class="text-xl font-bold text-white mb-1">Elegí tu nombre de usuario</h3>
@@ -225,7 +251,7 @@
 
     <!-- Modal: Editar perfil -->
     <div id="editProfileModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-md w-full fade-in">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-md w-full fade-in max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-white">Editar perfil</h3>
                 <button class="modal-close text-zinc-400 hover:text-white" data-modal="editProfileModal">✕</button>
@@ -303,7 +329,7 @@
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-6 right-6 bg-zinc-800 border border-zinc-700 text-white px-5 py-3 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-[100]"><p id="toastMessage" class="text-sm"></p></div>
+    <div id="toast" class="fixed bottom-24 sm:bottom-6 right-5 sm:right-6 bg-zinc-800 border border-zinc-700 text-white px-5 py-3 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-[100]"><p id="toastMessage" class="text-sm"></p></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -317,21 +343,21 @@
         const ADMIN_EMAIL = "cepedademian2005@gmail.com";
         const USERNAME_RE = /^[a-z0-9-]{3,20}$/;
 
-        let currentUser = null, currentUserData = null, selectedImageFile = null;
-        let activeChat = null, activeChatUnsubscribe = null, incomingCallUnsubscribe = null;
-        let loadedPosts = [], allUsersCache = [];
-        let openCommentsSet = new Set(), commentUnsubs = {};
-        let profileUid = null, profileUnsub = null;
-        let editPhotoUrl = null;
+        let currentUser=null, currentUserData=null, selectedImageFile=null;
+        let activeChat=null, activeChatUnsubscribe=null, incomingCallUnsubscribe=null;
+        let loadedPosts=[], allUsersCache=[];
+        let openCommentsSet=new Set(), commentUnsubs={};
+        let profileUid=null, profileUnsub=null;
+        let editPhotoUrl=null;
 
-        let localStream = null, peerConnection = null, activeCallId = null, activeCallUnsubscribe = null;
-        const rtcConfig = { iceServers: [{ urls:'stun:stun.l.google.com:19302' },{ urls:'stun:stun1.l.google.com:19302' }] };
+        let localStream=null, peerConnection=null, activeCallId=null, activeCallUnsubscribe=null;
+        const rtcConfig={ iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}] };
 
-        const placeholders = ["De hecho, nadie me preguntó pero...","De hecho, estuve pensando en que...","De hecho, lo que realmente pasó fue que...","De hecho, un dato clave que nadie pidió es que...","De hecho, la idea es..."];
-        const tagLabels = { random:{label:'[Dato Random]',color:'emerald'}, theory:{label:'[Teoría Absurda]',color:'purple'}, unnecessary:{label:'[Dato Innecesario]',color:'amber'}, thought:{label:'[Pensamiento del día]',color:'sky'} };
-        const EMOJIS = ['😀','😂','🤓','☝️','🔥','❤️','👀','','🧠','😴','🫠','✅'];
+        const placeholders=["De hecho, nadie me preguntó pero...","De hecho, estuve pensando en que...","De hecho, lo que realmente pasó fue que...","De hecho, un dato clave que nadie pidió es que...","De hecho, la idea es..."];
+        const tagLabels={ random:{label:'[Dato Random]',color:'emerald'}, theory:{label:'[Teoría Absurda]',color:'purple'}, unnecessary:{label:'[Dato Innecesario]',color:'amber'}, thought:{label:'[Pensamiento del día]',color:'sky'} };
+        const EMOJIS=['😀','😂','🤣','😅','','🥳','🤓','☝️','','👎','🔥','❤️','💀','🫠','','🧠','✅','❌','❓','❗','🎉','🎮','🎵','☕','🍕','','🌙','⭐','⚡','🐸','🤯','😴','🥶','','','💬','','','🤖',''];
 
-        const $ = id => document.getElementById(id);
+        const $=id=>document.getElementById(id);
         const loginScreen=$('loginScreen'), mainApp=$('mainApp'), googleLoginBtn=$('googleLoginBtn'), logoutBtn=$('logoutBtn'),
               userAvatar=$('userAvatar'), sidebarAvatar=$('sidebarAvatar'), sidebarName=$('sidebarName'), sidebarUsername=$('sidebarUsername'),
               sidebarBio=$('sidebarBio'), adminPanelBtn=$('adminPanelBtn'), factInput=$('factInput'), feedContainer=$('feedContainer'),
@@ -342,196 +368,304 @@
               chatHeaderAvatar=$('chatHeaderAvatar'), chatActions=$('chatActions'), messagesContainer=$('messagesContainer'),
               messageInputContainer=$('messageInputContainer'), messageInput=$('messageInput'), sendMessageBtn=$('sendMessageBtn'),
               callAudioBtn=$('callAudioBtn'), callVideoBtn=$('callVideoBtn'), searchInput=$('searchInput'), searchResults=$('searchResults'),
-              profilePosts=$('profilePosts'), emojiRow=$('emojiRow');
+              profilePosts=$('profilePosts'), emojiPanel=$('emojiPanel'), emojiToggleBtn=$('emojiToggleBtn'),
+              fabPost=$('fabPost'), radialOverlay=$('radialOverlay'), radialWheel=$('radialWheel');
 
-        function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s??''; return d.innerHTML; }
-        function fmtDate(ts){ return ts?.toDate ? new Date(ts.toDate()).toLocaleString('es',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'Ahora'; }
-        function fmtTime(ts){ return ts?.toDate ? new Date(ts.toDate()).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}) : ''; }
-        function avatarOf(u){ return u?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(u?.displayName||'U')}&background=10b981&color=fff`; }
+        function escapeHtml(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML;}
+        function fmtDate(ts){return ts?.toDate?new Date(ts.toDate()).toLocaleString('es',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'Ahora';}
+        function fmtTime(ts){return ts?.toDate?new Date(ts.toDate()).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}):'';}
+        function avatarOf(u){return u?.photoURL||`https://ui-avatars.com/api/?name=${encodeURIComponent(u?.displayName||'U')}&background=10b981&color=fff`;}
+        const buzz=ms=>{ if(navigator.vibrate) try{navigator.vibrate(ms);}catch(e){} };
         function showToast(message,type='info'){
             toastMessage.textContent=message;
-            toast.className='fixed bottom-6 right-6 bg-zinc-800 border text-white px-5 py-3 rounded-xl shadow-2xl transition-all duration-300 z-[100]';
+            toast.className='fixed bottom-24 sm:bottom-6 right-5 sm:right-6 bg-zinc-800 border text-white px-5 py-3 rounded-xl shadow-2xl transition-all duration-300 z-[100]';
             toast.classList.add(type==='error'?'border-rose-500/50':type==='success'?'border-emerald-500/50':'border-zinc-700');
             setTimeout(()=>{toast.classList.add('translate-y-0','opacity-100');toast.classList.remove('translate-y-20','opacity-0');},10);
             setTimeout(()=>{toast.classList.add('translate-y-20','opacity-0');toast.classList.remove('translate-y-0','opacity-100');},3000);
         }
-        function openModal(id){ const m=$(id); m.classList.remove('hidden'); m.classList.add('flex'); }
-        function closeModal(id){ const m=$(id); m.classList.add('hidden'); m.classList.remove('flex'); }
+        function openModal(id){const m=$(id);m.classList.remove('hidden');m.classList.add('flex');}
+        function closeModal(id){const m=$(id);m.classList.add('hidden');m.classList.remove('flex');}
         document.querySelectorAll('.modal-close').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.modal)));
 
-        let phIdx=0; setInterval(()=>{ phIdx=(phIdx+1)%placeholders.length; factInput.placeholder=placeholders[phIdx]; },3000);
+        let phIdx=0; setInterval(()=>{phIdx=(phIdx+1)%placeholders.length;factInput.placeholder=placeholders[phIdx];},3000);
 
         function switchView(name){
             document.querySelectorAll('.nav-btn').forEach(b=>{
                 b.classList.remove('bg-zinc-800','text-white','bg-rose-500/10','text-rose-400');
-                if(b.dataset.view===name){ name==='admin'?b.classList.add('bg-rose-500/10','text-rose-400'):b.classList.add('bg-zinc-800','text-white'); }
+                if(b.dataset.view===name){name==='admin'?b.classList.add('bg-rose-500/10','text-rose-400'):b.classList.add('bg-zinc-800','text-white');}
             });
             document.querySelectorAll('.view-content').forEach(v=>v.classList.add('hidden'));
             $(`${name}View`).classList.remove('hidden');
-            $('fabPost').classList.toggle('hidden', name!=='feed');
+            fabPost.classList.toggle('hidden', name!=='feed');
         }
         document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
         $('profileBackBtn').addEventListener('click',()=>switchView('feed'));
         $('headerAvatarBtn').addEventListener('click',()=>currentUser&&openProfile(currentUser.uid));
 
-        // ============ USERNAMES ============
-        function validUsername(name){ return USERNAME_RE.test(name); }
-        async function usernameTaken(name, ignoreUid=null){
-            const snap = await getDoc(doc(db,'usernames',name));
-            return snap.exists() && snap.data().uid !== ignoreUid;
-        }
-        async function claimUsername(uid, newName, oldName=null){
-            await runTransaction(db, async (t) => {
-                const ref = doc(db,'usernames',newName);
-                const snap = await t.get(ref);
-                if (snap.exists() && snap.data().uid !== uid) throw new Error('taken');
-                t.set(ref, { uid, updatedAt: Date.now() });
-                if (oldName && oldName !== newName) t.delete(doc(db,'usernames',oldName));
+        // ============ MENÚ RADIAL GTA-STYLE ============
+        const RADIAL_ACTIONS=[
+            {icon:'🤓☝️',label:'Postear',run:()=>openModal('composerModal')},
+            {icon:'📰',label:'Feed',run:()=>switchView('feed')},
+            {icon:'💬',label:'Mensajes',run:()=>switchView('messages')},
+            {icon:'🌍',label:'Ágora',run:()=>{switchView('messages');openGlobalChat();}},
+            {icon:'👤',label:'Mi perfil',run:()=>openProfile(currentUser.uid)},
+            {icon:'✏️',label:'Editar perfil',run:()=>openEditProfile()}
+        ];
+        let radialOpen=false, radialSelected=-1, holdTimer=null;
+        const segGroup=$('radialSegments');
+        const segPaths=[], segIcons=[];
+        (function buildWheel(){
+            const cx=150,cy=150,r0=66,r1=142;
+            const polar=(r,deg)=>{const rad=deg*Math.PI/180;return [cx+r*Math.cos(rad),cy+r*Math.sin(rad)];};
+            const wedge=(a0,a1)=>{
+                const [x0,y0]=polar(r1,a0),[x1,y1]=polar(r1,a1),[x2,y2]=polar(r0,a1),[x3,y3]=polar(r0,a0);
+                return `M${x0} ${y0} A${r1} ${r1} 0 0 1 ${x1} ${y1} L${x2} ${y2} A${r0} ${r0} 0 0 0 ${x3} ${y3} Z`;
+            };
+            RADIAL_ACTIONS.forEach((a,i)=>{
+                const center=-90+i*60;
+                const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+                path.setAttribute('d',wedge(center-27,center+27));
+                path.setAttribute('fill','#18181b');
+                path.setAttribute('stroke','#09090b');
+                path.setAttribute('stroke-width','3');
+                path.classList.add('radial-seg');
+                segGroup.appendChild(path);
+                segPaths.push(path);
+                const [ix,iy]=polar(104,center);
+                const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+                txt.setAttribute('x',ix); txt.setAttribute('y',iy);
+                txt.setAttribute('text-anchor','middle'); txt.setAttribute('dominant-baseline','central');
+                txt.setAttribute('font-size','26'); txt.style.pointerEvents='none';
+                txt.textContent=a.icon;
+                segGroup.appendChild(txt);
+                segIcons.push(txt);
             });
-            await updateDoc(doc(db,'users',uid), { username: newName });
+        })();
+        function setRadialHighlight(idx){
+            if(idx===radialSelected)return;
+            radialSelected=idx;
+            segPaths.forEach((p,i)=>{
+                p.setAttribute('fill', i===idx?'#10b981':'#18181b');
+                p.setAttribute('opacity', i===idx?'1':'.92');
+            });
+            const ci=$('radialCenterIcon'), cl=$('radialCenterLabel');
+            if(idx>=0){ ci.textContent=RADIAL_ACTIONS[idx].icon; cl.textContent=RADIAL_ACTIONS[idx].label; cl.className='text-[11px] font-mono text-white mt-1 uppercase tracking-wider text-center px-6'; }
+            else { ci.textContent='🤓'; cl.textContent='InFact'; cl.className='text-[10px] font-mono text-emerald-400 mt-1 uppercase tracking-wider text-center px-6'; }
         }
-
-        // Onboarding
-        const onboardInput=$('onboardUsernameInput'), onboardStatus=$('onboardUsernameStatus'), onboardSave=$('onboardSaveBtn');
-        onboardInput.addEventListener('input', async () => {
-            const name = onboardInput.value.trim().toLowerCase();
-            onboardInput.value = name;
-            if (!name) { onboardStatus.textContent=''; onboardSave.disabled=true; return; }
-            if (!validUsername(name)) { onboardStatus.textContent='✗ Solo minúsculas, números y guiones (3-20)'; onboardStatus.className='text-xs text-rose-400 mb-4 h-4'; onboardSave.disabled=true; return; }
-            if (await usernameTaken(name)) { onboardStatus.textContent=`✗ @${name} ya está en uso`; onboardStatus.className='text-xs text-rose-400 mb-4 h-4'; onboardSave.disabled=true; }
-            else { onboardStatus.textContent=`✓ @${name} disponible`; onboardStatus.className='text-xs text-emerald-400 mb-4 h-4'; onboardSave.disabled=false; }
+        function openRadial(){
+            radialOpen=true; radialSelected=-1;
+            radialOverlay.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            setRadialHighlight(-1); radialSelected=-1;
+            buzz(20);
+        }
+        function closeRadial(){
+            radialOpen=false;
+            radialOverlay.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+        function updateRadialSelection(x,y){
+            const r=radialWheel.getBoundingClientRect();
+            const cx=r.left+r.width/2, cy=r.top+r.height/2;
+            const dx=x-cx, dy=y-cy;
+            const dist=Math.hypot(dx,dy);
+            const scale=r.width/300;
+            if(dist<60*scale){ setRadialHighlight(-1); return; }
+            const deg=Math.atan2(dy,dx)*180/Math.PI;
+            const rel=((deg+90)%360+360)%360;
+            const idx=Math.round(rel/60)%6;
+            if(idx!==radialSelected) buzz(8);
+            setRadialHighlight(idx);
+        }
+        fabPost.addEventListener('contextmenu',e=>e.preventDefault());
+        fabPost.addEventListener('pointerdown',e=>{
+            e.preventDefault();
+            clearTimeout(holdTimer);
+            holdTimer=setTimeout(()=>{ openRadial(); },300);
         });
-        onboardSave.addEventListener('click', async () => {
-            const name = onboardInput.value.trim();
-            try {
-                await claimUsername(currentUser.uid, name, null);
+        fabPost.addEventListener('pointerup',e=>{
+            clearTimeout(holdTimer);
+            if(!radialOpen) openModal('composerModal'); // tap corto = composer
+        });
+        fabPost.addEventListener('pointercancel',()=>clearTimeout(holdTimer));
+        fabPost.addEventListener('pointerleave',()=>{ if(!radialOpen) clearTimeout(holdTimer); });
+        document.addEventListener('pointermove',e=>{ if(radialOpen) updateRadialSelection(e.clientX,e.clientY); });
+        document.addEventListener('pointerup',e=>{
+            if(!radialOpen)return;
+            const idx=radialSelected;
+            closeRadial();
+            if(idx>=0){ buzz(30); setTimeout(()=>RADIAL_ACTIONS[idx].run(),60); }
+        });
+        document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&radialOpen) closeRadial(); });
+
+        // ============ USERNAMES ============
+        function validUsername(name){return USERNAME_RE.test(name);}
+        async function usernameTaken(name,ignoreUid=null){
+            const snap=await getDoc(doc(db,'usernames',name));
+            return snap.exists()&&snap.data().uid!==ignoreUid;
+        }
+        async function claimUsername(uid,newName,oldName=null){
+            await runTransaction(db,async t=>{
+                const ref=doc(db,'usernames',newName);
+                const snap=await t.get(ref);
+                if(snap.exists()&&snap.data().uid!==uid)throw new Error('taken');
+                t.set(ref,{uid,updatedAt:Date.now()});
+                if(oldName&&oldName!==newName)t.delete(doc(db,'usernames',oldName));
+            });
+            await updateDoc(doc(db,'users',uid),{username:newName});
+        }
+        const onboardInput=$('onboardUsernameInput'), onboardStatus=$('onboardUsernameStatus'), onboardSave=$('onboardSaveBtn');
+        onboardInput.addEventListener('input',async()=>{
+            const name=onboardInput.value.trim().toLowerCase();
+            onboardInput.value=name;
+            if(!name){onboardStatus.textContent='';onboardSave.disabled=true;return;}
+            if(!validUsername(name)){onboardStatus.textContent='✗ Solo minúsculas, números y guiones (3-20)';onboardStatus.className='text-xs text-rose-400 mb-4 h-4';onboardSave.disabled=true;return;}
+            if(await usernameTaken(name)){onboardStatus.textContent=`✗ @${name} ya está en uso`;onboardStatus.className='text-xs text-rose-400 mb-4 h-4';onboardSave.disabled=true;}
+            else{onboardStatus.textContent=`✓ @${name} disponible`;onboardStatus.className='text-xs text-emerald-400 mb-4 h-4';onboardSave.disabled=false;}
+        });
+        onboardSave.addEventListener('click',async()=>{
+            const name=onboardInput.value.trim();
+            try{
+                await claimUsername(currentUser.uid,name,null);
                 closeModal('usernameModal');
                 showToast(`¡Bienvenido a InFact, @${name}!`,'success');
-                currentUserData.username = name;
+                currentUserData.username=name;
                 refreshSidebar();
-            } catch(e){ showToast(e.message==='taken'?'Ese username ya fue reclamado':'Error: '+e.message,'error'); }
+            }catch(e){showToast(e.message==='taken'?'Ese username ya fue reclamado':'Error: '+e.message,'error');}
         });
 
         // ============ EDITAR PERFIL ============
-        $('editProfileBtn').addEventListener('click', openEditProfile);
+        $('editProfileBtn').addEventListener('click',openEditProfile);
         function openEditProfile(){
-            editPhotoUrl = null;
-            $('editAvatarPreview').src = avatarOf(currentUserData);
-            $('editUsernameInput').value = currentUserData.username || '';
-            $('editBioInput').value = currentUserData.bio || '';
-            $('editUsernameStatus').textContent=''; $('editAvatarStatus').textContent='';
+            editPhotoUrl=null;
+            $('editAvatarPreview').src=avatarOf(currentUserData);
+            $('editUsernameInput').value=currentUserData.username||'';
+            $('editBioInput').value=currentUserData.bio||'';
+            $('editUsernameStatus').textContent='';$('editAvatarStatus').textContent='';
             openModal('editProfileModal');
         }
         $('editAvatarBtn').addEventListener('click',()=>$('editAvatarInput').click());
-        $('editAvatarInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0]; if(!file) return;
-            if (file.size > 5*1024*1024) { showToast('Máx 5MB','error'); return; }
+        $('editAvatarInput').addEventListener('change',async e=>{
+            const file=e.target.files[0];if(!file)return;
+            if(file.size>5*1024*1024){showToast('Máx 5MB','error');return;}
             $('editAvatarStatus').textContent='Subiendo a ImgBB...';
-            try {
-                editPhotoUrl = await uploadToImgBB(file);
-                $('editAvatarPreview').src = editPhotoUrl;
+            try{
+                editPhotoUrl=await uploadToImgBB(file);
+                $('editAvatarPreview').src=editPhotoUrl;
                 $('editAvatarStatus').textContent='✓ Foto lista para guardar';
-            } catch(err){ $('editAvatarStatus').textContent='✗ Error al subir'; }
+            }catch(err){$('editAvatarStatus').textContent='✗ Error al subir';}
         });
-        $('editUsernameInput').addEventListener('input', async () => {
-            const name = $('editUsernameInput').value.trim().toLowerCase();
-            $('editUsernameInput').value = name;
-            const st = $('editUsernameStatus');
-            if (name === (currentUserData.username||'')) { st.textContent=''; return; }
-            if (!validUsername(name)) { st.textContent='✗ Solo minúsculas, números y guiones (3-20)'; st.className='text-xs text-rose-400 mb-3 h-4'; return; }
-            if (await usernameTaken(name, currentUser.uid)) { st.textContent=`✗ @${name} ya está en uso`; st.className='text-xs text-rose-400 mb-3 h-4'; }
-            else { st.textContent=`✓ @${name} disponible (liberará @${currentUserData.username})`; st.className='text-xs text-emerald-400 mb-3 h-4'; }
+        $('editUsernameInput').addEventListener('input',async()=>{
+            const name=$('editUsernameInput').value.trim().toLowerCase();
+            $('editUsernameInput').value=name;
+            const st=$('editUsernameStatus');
+            if(name===(currentUserData.username||'')){st.textContent='';return;}
+            if(!validUsername(name)){st.textContent='✗ Solo minúsculas, números y guiones (3-20)';st.className='text-xs text-rose-400 mb-3 h-4';return;}
+            if(await usernameTaken(name,currentUser.uid)){st.textContent=`✗ @${name} ya está en uso`;st.className='text-xs text-rose-400 mb-3 h-4';}
+            else{st.textContent=`✓ @${name} disponible (liberará @${currentUserData.username})`;st.className='text-xs text-emerald-400 mb-3 h-4';}
         });
-        $('saveProfileBtn').addEventListener('click', async () => {
-            const name = $('editUsernameInput').value.trim();
-            const bio = $('editBioInput').value.trim();
-            if (!validUsername(name)) { showToast('Username inválido','error'); return; }
-            try {
-                if (name !== currentUserData.username) await claimUsername(currentUser.uid, name, currentUserData.username || null);
-                const updates = { username: name, bio };
-                if (editPhotoUrl) updates.photoURL = editPhotoUrl;
-                await updateDoc(doc(db,'users',currentUser.uid), updates);
-                Object.assign(currentUserData, updates);
+        $('saveProfileBtn').addEventListener('click',async()=>{
+            const name=$('editUsernameInput').value.trim();
+            const bio=$('editBioInput').value.trim();
+            if(!validUsername(name)){showToast('Username inválido','error');return;}
+            try{
+                if(name!==currentUserData.username)await claimUsername(currentUser.uid,name,currentUserData.username||null);
+                const updates={username:name,bio};
+                if(editPhotoUrl)updates.photoURL=editPhotoUrl;
+                await updateDoc(doc(db,'users',currentUser.uid),updates);
+                Object.assign(currentUserData,updates);
                 closeModal('editProfileModal');
                 refreshSidebar();
                 showToast('Perfil actualizado','success');
-            } catch(e){ showToast(e.message==='taken'?'Ese username ya fue reclamado':'Error: '+e.message,'error'); }
+            }catch(e){showToast(e.message==='taken'?'Ese username ya fue reclamado':'Error: '+e.message,'error');}
         });
         function refreshSidebar(){
-            if(!currentUserData) return;
-            sidebarAvatar.src = avatarOf(currentUserData);
-            sidebarName.textContent = currentUserData.displayName;
-            sidebarUsername.textContent = '@' + (currentUserData.username || 'sin-username');
-            if (currentUserData.bio) { sidebarBio.textContent = currentUserData.bio; sidebarBio.classList.remove('hidden'); }
+            if(!currentUserData)return;
+            sidebarAvatar.src=avatarOf(currentUserData);
+            sidebarName.textContent=currentUserData.displayName;
+            sidebarUsername.textContent='@'+(currentUserData.username||'sin-username');
+            if(currentUserData.bio){sidebarBio.textContent=currentUserData.bio;sidebarBio.classList.remove('hidden');}
             else sidebarBio.classList.add('hidden');
         }
 
         // ============ BUSCADOR ============
-        searchInput.addEventListener('input', () => {
-            const q = searchInput.value.trim().toLowerCase();
-            if (!q) { searchResults.classList.add('hidden'); return; }
-            const users = allUsersCache.filter(u => u.uid!==currentUser.uid &&
-                ((u.username||'').toLowerCase().includes(q) || (u.displayName||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q))).slice(0,5);
-            const posts = loadedPosts.filter(p => (p.content||'').toLowerCase().includes(q)).slice(0,5);
+        $('mobileSearchBtn').addEventListener('click',()=>{
+            const w=$('searchWrapper');
+            if(w.classList.contains('fixed')){
+                w.classList.remove('fixed','left-4','right-4','top-20','z-50','block','max-w-none');
+                w.classList.add('hidden');
+                searchResults.classList.add('hidden');
+            } else {
+                w.classList.add('fixed','left-4','right-4','top-20','z-50','block','max-w-none');
+                w.classList.remove('hidden');
+                searchInput.focus();
+            }
+        });
+        searchInput.addEventListener('input',()=>{
+            const q=searchInput.value.trim().toLowerCase();
+            if(!q){searchResults.classList.add('hidden');return;}
+            const users=allUsersCache.filter(u=>u.uid!==currentUser.uid&&
+                ((u.username||'').toLowerCase().includes(q)||(u.displayName||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q))).slice(0,5);
+            const posts=loadedPosts.filter(p=>(p.content||'').toLowerCase().includes(q)).slice(0,5);
             let html='';
-            if (users.length){
-                html += `<p class="px-4 pt-3 pb-1 text-[10px] font-mono uppercase tracking-wider text-emerald-400">Personas</p>`;
-                users.forEach(u=>{ html += `<button class="search-user w-full flex items-center gap-3 p-2.5 hover:bg-zinc-800 transition-colors text-left" data-uid="${u.uid}">
+            if(users.length){
+                html+=`<p class="px-4 pt-3 pb-1 text-[10px] font-mono uppercase tracking-wider text-emerald-400">Personas</p>`;
+                users.forEach(u=>{html+=`<button class="search-user w-full flex items-center gap-3 p-2.5 hover:bg-zinc-800 transition-colors text-left" data-uid="${u.uid}">
                     <img src="${avatarOf(u)}" class="w-8 h-8 rounded-full">
                     <div class="min-w-0"><p class="text-sm font-semibold text-white truncate">${escapeHtml(u.displayName)}</p>
                     <p class="text-xs text-emerald-400 font-mono truncate">@${escapeHtml(u.username||'???')}</p></div>
-                    ${u.status==='online'?'<span class="ml-auto w-2 h-2 bg-emerald-400 rounded-full shrink-0"></span>':''}</button>`; });
+                    ${u.status==='online'?'<span class="ml-auto w-2 h-2 bg-emerald-400 rounded-full shrink-0"></span>':''}</button>`;});
             }
-            if (posts.length){
-                html += `<p class="px-4 pt-3 pb-1 text-[10px] font-mono uppercase tracking-wider text-emerald-400">Facts</p>`;
-                posts.forEach(p=>{ html += `<button class="search-post w-full flex items-center gap-3 p-2.5 hover:bg-zinc-800 transition-colors text-left" data-post-id="${p.id}">
+            if(posts.length){
+                html+=`<p class="px-4 pt-3 pb-1 text-[10px] font-mono uppercase tracking-wider text-emerald-400">Facts</p>`;
+                posts.forEach(p=>{html+=`<button class="search-post w-full flex items-center gap-3 p-2.5 hover:bg-zinc-800 transition-colors text-left" data-post-id="${p.id}">
                     <img src="${avatarOf(p)}" class="w-8 h-8 rounded-full">
                     <div class="min-w-0"><p class="text-xs text-zinc-400 truncate">${escapeHtml(p.content)}</p>
-                    <p class="text-[10px] text-zinc-600">${escapeHtml(p.authorName)} · ${fmtDate(p.createdAt)}</p></div></button>`; });
+                    <p class="text-[10px] text-zinc-600">${escapeHtml(p.authorName)} · ${fmtDate(p.createdAt)}</p></div></button>`;});
             }
-            searchResults.innerHTML = html || `<p class="p-4 text-xs text-zinc-500 italic">Sin resultados para "${escapeHtml(q)}"... en teoría.</p>`;
+            searchResults.innerHTML=html||`<p class="p-4 text-xs text-zinc-500 italic">Sin resultados para "${escapeHtml(q)}"... en teoría.</p>`;
             searchResults.classList.remove('hidden');
         });
-        document.addEventListener('click', e => { if (!$('searchWrapper').contains(e.target)) searchResults.classList.add('hidden'); });
-        searchResults.addEventListener('click', e => {
-            const ub = e.target.closest('.search-user');
-            if (ub) { searchResults.classList.add('hidden'); searchInput.value=''; openProfile(ub.dataset.uid); return; }
-            const pb = e.target.closest('.search-post');
-            if (pb) {
-                searchResults.classList.add('hidden'); searchInput.value=''; switchView('feed');
-                const el = feedContainer.querySelector(`[data-post-id="${pb.dataset.postId}"]`);
-                if (el) { el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('highlight-post'); setTimeout(()=>el.classList.remove('highlight-post'),2500); }
+        document.addEventListener('click',e=>{ if(!$('searchWrapper').contains(e.target)) searchResults.classList.add('hidden'); });
+        searchResults.addEventListener('click',e=>{
+            const ub=e.target.closest('.search-user');
+            if(ub){searchResults.classList.add('hidden');searchInput.value='';openProfile(ub.dataset.uid);return;}
+            const pb=e.target.closest('.search-post');
+            if(pb){
+                searchResults.classList.add('hidden');searchInput.value='';switchView('feed');
+                const el=feedContainer.querySelector(`[data-post-id="${pb.dataset.postId}"]`);
+                if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('highlight-post');setTimeout(()=>el.classList.remove('highlight-post'),2500);}
                 else showToast('Ese Fact no está en el feed cargado','error');
             }
         });
 
         // ============ PERFIL ============
         async function openProfile(uid){
-            profileUid = uid;
+            profileUid=uid;
             switchView('profile');
-            const snap = await getDoc(doc(db,'users',uid));
-            if (!snap.exists()) { showToast('Usuario no encontrado','error'); return; }
-            renderProfileCard({ uid, ...snap.data() });
-            if (profileUnsub) profileUnsub();
-            profilePosts.innerHTML = '<p class="text-center text-zinc-500 text-sm py-8">Cargando facts...</p>';
-            profileUnsub = onSnapshot(query(collection(db,'posts'), where('authorId','==',uid)), snap2 => {
-                const posts = snap2.docs.map(d=>({id:d.id,...d.data()}));
+            const snap=await getDoc(doc(db,'users',uid));
+            if(!snap.exists()){showToast('Usuario no encontrado','error');return;}
+            renderProfileCard({uid,...snap.data()});
+            if(profileUnsub)profileUnsub();
+            profilePosts.innerHTML='<p class="text-center text-zinc-500 text-sm py-8">Cargando facts...</p>';
+            profileUnsub=onSnapshot(query(collection(db,'posts'),where('authorId','==',uid)),snap2=>{
+                const posts=snap2.docs.map(d=>({id:d.id,...d.data()}));
                 posts.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
                 profilePosts.innerHTML='';
-                if (!posts.length) profilePosts.innerHTML = '<p class="text-center text-zinc-500 text-sm italic py-8">Este usuario aún no ha soltado ningún dato.</p>';
-                posts.forEach(p => profilePosts.appendChild(createPostCard(p)));
+                if(!posts.length)profilePosts.innerHTML='<p class="text-center text-zinc-500 text-sm italic py-8">Este usuario aún no ha soltado ningún dato.</p>';
+                posts.forEach(p=>profilePosts.appendChild(createPostCard(p)));
             });
         }
         function renderProfileCard(u){
-            const isOwn = u.uid === currentUser.uid;
-            const isFriend = currentUserData?.friends?.includes(u.uid);
-            $('profileCard').innerHTML = `
+            const isOwn=u.uid===currentUser.uid;
+            const isFriend=currentUserData?.friends?.includes(u.uid);
+            $('profileCard').innerHTML=`
                 <div class="flex flex-col sm:flex-row items-start gap-5">
-                    <img src="${avatarOf(u)}" class="w-24 h-24 rounded-full border-4 border-emerald-500/30">
+                    <img src="${avatarOf(u)}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-emerald-500/30">
                     <div class="flex-1 min-w-0">
-                        <h2 class="text-2xl font-bold text-white">${escapeHtml(u.displayName)}</h2>
+                        <h2 class="text-xl sm:text-2xl font-bold text-white">${escapeHtml(u.displayName)}</h2>
                         <p class="text-emerald-400 font-mono text-sm">@${escapeHtml(u.username||'sin-username')}</p>
-                        <p class="text-zinc-400 text-sm mt-2 italic">${escapeHtml(u.bio || 'Sin descripción... de hecho.')}</p>
+                        <p class="text-zinc-400 text-sm mt-2 italic">${escapeHtml(u.bio||'Sin descripción... de hecho.')}</p>
                         <div class="flex gap-4 mt-3 text-xs text-zinc-500">
                             <span><b class="text-white">${(u.friends||[]).length}</b> amigos</span>
                             <span>${u.status==='online'?'<span class="text-emerald-400">● En línea</span>':'● Desconectado'}</span>
@@ -539,54 +673,53 @@
                     </div>
                     <div class="flex sm:flex-col gap-2 w-full sm:w-auto">
                         ${isOwn
-                            ? `<button id="profileEditBtn" class="flex-1 sm:flex-none text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-4 py-2 rounded-xl transition-colors">✏️ Editar perfil</button>`
-                            : `<button id="profileFriendBtn" class="flex-1 sm:flex-none text-sm px-4 py-2 rounded-xl transition-colors ${isFriend?'bg-zinc-800 text-emerald-400 hover:bg-rose-500/10 hover:text-rose-400':'bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold'}">${isFriend?'✓ Amigos (quitar)':'+ Agregar amigo'}</button>
+                            ?`<button id="profileEditBtn" class="flex-1 sm:flex-none text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-4 py-2 rounded-xl transition-colors">✏️ Editar perfil</button>`
+                            :`<button id="profileFriendBtn" class="flex-1 sm:flex-none text-sm px-4 py-2 rounded-xl transition-colors ${isFriend?'bg-zinc-800 text-emerald-400 hover:bg-rose-500/10 hover:text-rose-400':'bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold'}">${isFriend?'✓ Amigos (quitar)':'+ Agregar amigo'}</button>
                                <button id="profileMsgBtn" class="flex-1 sm:flex-none text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-4 py-2 rounded-xl transition-colors">💬 Mensaje</button>`}
                     </div>
                 </div>`;
-            if (isOwn) $('profileEditBtn').addEventListener('click', openEditProfile);
-            else {
-                $('profileFriendBtn').addEventListener('click', async () => {
-                    const me = doc(db,'users',currentUser.uid), them = doc(db,'users',u.uid);
-                    if (isFriend) { await updateDoc(me,{friends:arrayRemove(u.uid)}); await updateDoc(them,{friends:arrayRemove(currentUser.uid)}); showToast('Amistad eliminada'); }
-                    else { await updateDoc(me,{friends:arrayUnion(u.uid)}); await updateDoc(them,{friends:arrayUnion(currentUser.uid)}); showToast(`Ahora sos amigo de @${u.username}`,'success'); }
+            if(isOwn)$('profileEditBtn').addEventListener('click',openEditProfile);
+            else{
+                $('profileFriendBtn').addEventListener('click',async()=>{
+                    const me=doc(db,'users',currentUser.uid),them=doc(db,'users',u.uid);
+                    if(isFriend){await updateDoc(me,{friends:arrayRemove(u.uid)});await updateDoc(them,{friends:arrayRemove(currentUser.uid)});showToast('Amistad eliminada');}
+                    else{await updateDoc(me,{friends:arrayUnion(u.uid)});await updateDoc(them,{friends:arrayUnion(currentUser.uid)});showToast(`Ahora sos amigo de @${u.username}`,'success');}
                     openProfile(u.uid);
                 });
-                $('profileMsgBtn').addEventListener('click', () => startDMWith(u));
+                $('profileMsgBtn').addEventListener('click',()=>startDMWith(u));
             }
         }
 
         // ============ FEED + POSTS ============
         async function uploadToImgBB(file){
-            const fd = new FormData(); fd.append('image', file);
-            const r = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:'POST',body:fd});
-            const d = await r.json();
-            if (d.success) return d.data.url;
+            const fd=new FormData();fd.append('image',file);
+            const r=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:'POST',body:fd});
+            const d=await r.json();
+            if(d.success)return d.data.url;
             throw new Error(d.error?.message||'Error al subir');
         }
-        $('fabPost').addEventListener('click',()=>openModal('composerModal'));
         uploadImageBtn.addEventListener('click',()=>imageInput.click());
         imageInput.addEventListener('change',e=>{
-            const f=e.target.files[0]; if(!f) return;
+            const f=e.target.files[0];if(!f)return;
             if(f.size>5*1024*1024){showToast('Máx 5MB','error');return;}
             selectedImageFile=f;
-            const r=new FileReader(); r.onload=ev=>{imagePreview.src=ev.target.result;imagePreviewContainer.classList.remove('hidden');}; r.readAsDataURL(f);
+            const r=new FileReader();r.onload=ev=>{imagePreview.src=ev.target.result;imagePreviewContainer.classList.remove('hidden');};r.readAsDataURL(f);
         });
         removeImageBtn.addEventListener('click',()=>{selectedImageFile=null;imagePreviewContainer.classList.add('hidden');imagePreview.src='';imageInput.value='';});
 
-        postFactBtn.addEventListener('click', async () => {
+        postFactBtn.addEventListener('click',async()=>{
             const content=factInput.value.trim();
             if(!content&&!selectedImageFile){showToast('Escribe algo, de hecho...','error');return;}
-            postFactBtn.disabled=true; postBtnText.textContent='Publicando...'; postBtnLoader.classList.remove('hidden');
+            postFactBtn.disabled=true;postBtnText.textContent='Publicando...';postBtnLoader.classList.remove('hidden');
             try{
                 let imageUrl=null;
-                if(selectedImageFile) imageUrl=await uploadToImgBB(selectedImageFile);
+                if(selectedImageFile)imageUrl=await uploadToImgBB(selectedImageFile);
                 await addDoc(collection(db,'posts'),{
-                    authorId:currentUser.uid, authorName:currentUser.displayName, authorPhoto:currentUser.photoURL||avatarOf(currentUser),
-                    authorUsername:currentUserData?.username||'', content, imageUrl, tag:tagSelect.value,
-                    likes:[], likesCount:0, commentsCount:0, createdAt:serverTimestamp()
+                    authorId:currentUser.uid,authorName:currentUser.displayName,authorPhoto:currentUser.photoURL||avatarOf(currentUser),
+                    authorUsername:currentUserData?.username||'',content,imageUrl,tag:tagSelect.value,
+                    likes:[],likesCount:0,commentsCount:0,createdAt:serverTimestamp()
                 });
-                factInput.value=''; selectedImageFile=null; imagePreviewContainer.classList.add('hidden'); imageInput.value='';
+                factInput.value='';selectedImageFile=null;imagePreviewContainer.classList.add('hidden');imageInput.value='';
                 closeModal('composerModal');
                 showToast('¡Fact publicado!','success');
             }catch(e){showToast('Error: '+e.message,'error');}
@@ -594,13 +727,13 @@
         });
 
         function startFeedListener(){
-            onSnapshot(query(collection(db,'posts'),orderBy('createdAt','desc'),limit(50)), snap => {
+            onSnapshot(query(collection(db,'posts'),orderBy('createdAt','desc'),limit(50)),snap=>{
                 Object.keys(commentUnsubs).forEach(id=>{commentUnsubs[id]();delete commentUnsubs[id];});
-                loadedPosts = snap.docs.map(d=>({id:d.id,...d.data()}));
+                loadedPosts=snap.docs.map(d=>({id:d.id,...d.data()}));
                 feedContainer.innerHTML='';
-                if(!loadedPosts.length) feedContainer.innerHTML=`<div class="text-center py-12 text-zinc-500"><p class="text-sm italic">"Nadie ha dicho nada... todavía. Sé el primero en interrumpir el silencio."</p></div>`;
+                if(!loadedPosts.length)feedContainer.innerHTML=`<div class="text-center py-12 text-zinc-500"><p class="text-sm italic">"Nadie ha dicho nada... todavía. Sé el primero en interrumpir el silencio."</p></div>`;
                 else loadedPosts.forEach(p=>feedContainer.appendChild(createPostCard(p)));
-                const t=$('totalFactsCount'); if(t)t.textContent=snap.size;
+                const t=$('totalFactsCount');if(t)t.textContent=snap.size;
                 openCommentsSet.forEach(pid=>openComments(pid));
             });
         }
@@ -610,7 +743,7 @@
             const isLiked=post.likes?.includes(currentUser.uid);
             const canDelete=post.authorId===currentUser.uid||currentUser.email===ADMIN_EMAIL;
             const el=document.createElement('div');
-            el.className='bg-zinc-900 border border-zinc-800 rounded-2xl p-5 slide-in';
+            el.className='bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-5 slide-in';
             el.dataset.postId=post.id;
             el.innerHTML=`
                 <div class="flex items-start justify-between mb-3">
@@ -622,7 +755,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-mono px-2 py-1 bg-${tagInfo.color}-500/10 text-${tagInfo.color}-400 border border-${tagInfo.color}-500/20 rounded-full">${tagInfo.label}</span>
+                        <span class="text-[10px] sm:text-xs font-mono px-2 py-1 bg-${tagInfo.color}-500/10 text-${tagInfo.color}-400 border border-${tagInfo.color}-500/20 rounded-full">${tagInfo.label}</span>
                         ${canDelete?`<button class="delete-btn text-zinc-500 hover:text-rose-400 p-1" data-id="${post.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>`:''}
                     </div>
                 </div>
@@ -641,7 +774,7 @@
                 <div class="comments-section hidden mt-3 pt-3 border-t border-zinc-800" data-post-id="${post.id}">
                     <div class="comments-list space-y-1" data-post-id="${post.id}"></div>
                     <div class="flex gap-2 mt-3">
-                        <input class="comment-input flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500" placeholder="De hecho, sobre esto..." data-post-id="${post.id}">
+                        <input class="comment-input flex-1 min-w-0 bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500" placeholder="De hecho, sobre esto..." data-post-id="${post.id}">
                         <button class="comment-send bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-sm font-semibold px-4 py-2 rounded-xl" data-post-id="${post.id}">Enviar</button>
                     </div>
                 </div>`;
@@ -651,12 +784,12 @@
         // ============ COMENTARIOS ============
         function openComments(postId){
             const sections=document.querySelectorAll(`.comments-section[data-post-id="${postId}"]`);
-            if(!sections.length) return;
+            if(!sections.length)return;
             sections.forEach(s=>s.classList.remove('hidden'));
             openCommentsSet.add(postId);
-            if(commentUnsubs[postId]) commentUnsubs[postId]();
-            commentUnsubs[postId]=onSnapshot(query(collection(db,'posts',postId,'comments'),orderBy('createdAt','asc')), snap=>{
-                renderComments(postId, snap.docs.map(d=>({id:d.id,...d.data()})));
+            if(commentUnsubs[postId])commentUnsubs[postId]();
+            commentUnsubs[postId]=onSnapshot(query(collection(db,'posts',postId,'comments'),orderBy('createdAt','asc')),snap=>{
+                renderComments(postId,snap.docs.map(d=>({id:d.id,...d.data()})));
             });
         }
         function closeComments(postId){
@@ -664,15 +797,15 @@
             openCommentsSet.delete(postId);
             if(commentUnsubs[postId]){commentUnsubs[postId]();delete commentUnsubs[postId];}
         }
-        function renderComments(postId, comments){
+        function renderComments(postId,comments){
             document.querySelectorAll(`.comments-list[data-post-id="${postId}"]`).forEach(list=>{
                 list.innerHTML='';
-                if(!comments.length){ list.innerHTML='<p class="text-xs text-zinc-500 italic py-1">Sé el primero en comentar... de hecho.</p>'; return; }
+                if(!comments.length){list.innerHTML='<p class="text-xs text-zinc-500 italic py-1">Sé el primero en comentar... de hecho.</p>';return;}
                 const byParent={};
                 comments.forEach(c=>{const k=c.parentCommentId||'root';(byParent[k]=byParent[k]||[]).push(c);});
                 const renderNode=(c,depth)=>{
                     const node=document.createElement('div');
-                    node.style.marginLeft=Math.min(depth,4)*24+'px';
+                    node.style.marginLeft=Math.min(depth,4)*20+'px';
                     node.className='fade-in';
                     node.innerHTML=`
                         <div class="flex gap-2 mt-2">
@@ -685,7 +818,7 @@
                                 <p class="text-sm text-zinc-200 mt-1 whitespace-pre-wrap">${escapeHtml(c.text)}</p>
                                 <button class="reply-toggle text-[11px] text-emerald-400 hover:text-emerald-300 mt-1" data-comment-id="${c.id}">Responder</button>
                                 <div class="reply-form hidden mt-2"><div class="flex gap-2">
-                                    <input class="reply-input flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500" placeholder="De hecho, respecto a eso...">
+                                    <input class="reply-input flex-1 min-w-0 bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500" placeholder="De hecho, respecto a eso...">
                                     <button class="reply-send bg-emerald-500 text-zinc-950 text-xs font-semibold px-3 py-1 rounded-lg" data-comment-id="${c.id}">↵</button>
                                 </div></div>
                             </div>
@@ -698,40 +831,39 @@
         }
         async function addComment(postId,text,parentId=null){
             await addDoc(collection(db,'posts',postId,'comments'),{
-                authorId:currentUser.uid, authorName:currentUser.displayName, authorPhoto:currentUser.photoURL||avatarOf(currentUser),
-                text, parentCommentId:parentId, createdAt:serverTimestamp()
+                authorId:currentUser.uid,authorName:currentUser.displayName,authorPhoto:currentUser.photoURL||avatarOf(currentUser),
+                text,parentCommentId:parentId,createdAt:serverTimestamp()
             });
             await updateDoc(doc(db,'posts',postId),{commentsCount:increment(1)});
         }
-
         function handlePostActions(e){
-            (async ()=>{
+            (async()=>{
                 const author=e.target.closest('.author-click');
-                if(author){ openProfile(author.dataset.uid); return; }
+                if(author){openProfile(author.dataset.uid);return;}
                 const likeBtn=e.target.closest('.like-btn');
                 if(likeBtn){
                     const ref=doc(db,'posts',likeBtn.dataset.id);
                     const n=parseInt(likeBtn.querySelector('span').textContent)||0;
-                    if(likeBtn.dataset.liked==='true') await updateDoc(ref,{likes:arrayRemove(currentUser.uid),likesCount:Math.max(n-1,0)});
+                    if(likeBtn.dataset.liked==='true')await updateDoc(ref,{likes:arrayRemove(currentUser.uid),likesCount:Math.max(n-1,0)});
                     else await updateDoc(ref,{likes:arrayUnion(currentUser.uid),likesCount:n+1});
                     return;
                 }
                 const del=e.target.closest('.delete-btn');
-                if(del){ if(confirm('¿Eliminar este Fact?')){ await deleteDoc(doc(db,'posts',del.dataset.id)); showToast('Fact eliminado','success'); } return; }
+                if(del){if(confirm('¿Eliminar este Fact?')){await deleteDoc(doc(db,'posts',del.dataset.id));showToast('Fact eliminado','success');}return;}
                 const ct=e.target.closest('.comments-toggle');
-                if(ct){ openCommentsSet.has(ct.dataset.id)?closeComments(ct.dataset.id):openComments(ct.dataset.id); return; }
+                if(ct){openCommentsSet.has(ct.dataset.id)?closeComments(ct.dataset.id):openComments(ct.dataset.id);return;}
                 const rt=e.target.closest('.reply-toggle');
-                if(rt){ const f=rt.parentElement.querySelector('.reply-form'); f.classList.toggle('hidden'); if(!f.classList.contains('hidden'))f.querySelector('.reply-input').focus(); return; }
+                if(rt){const f=rt.parentElement.querySelector('.reply-form');f.classList.toggle('hidden');if(!f.classList.contains('hidden'))f.querySelector('.reply-input').focus();return;}
                 const rs=e.target.closest('.reply-send');
                 if(rs){
-                    const sec=rs.closest('.comments-section'); const inp=rs.parentElement.querySelector('.reply-input');
-                    const t=inp.value.trim(); if(!t)return; inp.value='';
-                    await addComment(sec.dataset.postId,t,rs.dataset.commentId); return;
+                    const sec=rs.closest('.comments-section');const inp=rs.parentElement.querySelector('.reply-input');
+                    const t=inp.value.trim();if(!t)return;inp.value='';
+                    await addComment(sec.dataset.postId,t,rs.dataset.commentId);return;
                 }
                 const cs=e.target.closest('.comment-send');
                 if(cs){
-                    const sec=cs.closest('.comments-section'); const inp=sec.querySelector('.comment-input');
-                    const t=inp.value.trim(); if(!t)return; inp.value='';
+                    const sec=cs.closest('.comments-section');const inp=sec.querySelector('.comment-input');
+                    const t=inp.value.trim();if(!t)return;inp.value='';
                     await addComment(sec.dataset.postId,t,null);
                 }
             })().catch(err=>showToast('Error: '+err.message,'error'));
@@ -741,22 +873,27 @@
         [feedContainer,profilePosts].forEach(c=>c.addEventListener('keydown',async e=>{
             if(e.key!=='Enter')return;
             if(e.target.classList.contains('comment-input')){
-                const sec=e.target.closest('.comments-section'); const t=e.target.value.trim(); if(!t)return; e.target.value='';
+                const sec=e.target.closest('.comments-section');const t=e.target.value.trim();if(!t)return;e.target.value='';
                 await addComment(sec.dataset.postId,t,null);
-            } else if(e.target.classList.contains('reply-input')){
+            }else if(e.target.classList.contains('reply-input')){
                 const sec=e.target.closest('.comments-section');
                 const cid=e.target.closest('.reply-form').querySelector('.reply-send').dataset.commentId;
-                const t=e.target.value.trim(); if(!t)return; e.target.value='';
+                const t=e.target.value.trim();if(!t)return;e.target.value='';
                 await addComment(sec.dataset.postId,t,cid);
             }
         }));
 
         // ============ MENSAJERÍA ============
         function getConversationId(a,b){return [a,b].sort().join('_');}
+        function setMobileChat(open){
+            const list=$('convColumn');
+            if(open){list.classList.add('max-lg:hidden');$('chatBackBtn').classList.remove('hidden');}
+            else{list.classList.remove('max-lg:hidden');$('chatBackBtn').classList.add('hidden');}
+        }
+        $('chatBackBtn').addEventListener('click',()=>setMobileChat(false));
         function startConversationsListener(){
-            onSnapshot(query(collection(db,'conversations'),where('members','array-contains',currentUser.uid)), snap=>{
+            onSnapshot(query(collection(db,'conversations'),where('members','array-contains',currentUser.uid)),snap=>{
                 conversationsList.innerHTML='';
-                // Chat global fijo
                 const g=document.createElement('div');
                 g.className=`p-3 border-b border-zinc-800 cursor-pointer hover:bg-zinc-800/50 transition-colors ${activeChat?.id==='global'?'bg-zinc-800':''}`;
                 g.innerHTML=`<div class="flex items-center gap-3">
@@ -764,7 +901,7 @@
                     <div class="flex-1 min-w-0"><p class="font-semibold text-white text-sm"># ágora</p><p class="text-xs text-zinc-400">Chat global · texto y emojis</p></div></div>`;
                 g.addEventListener('click',()=>openGlobalChat());
                 conversationsList.appendChild(g);
-                if(snap.empty) return;
+                if(snap.empty)return;
                 const convs=snap.docs.map(d=>({id:d.id,...d.data()}));
                 convs.sort((a,b)=>(b.lastMessageTime?.seconds||0)-(a.lastMessageTime?.seconds||0));
                 convs.forEach(renderConversation);
@@ -781,7 +918,7 @@
                 name=other.displayName||'Usuario';
                 avatarHTML=`<img src="${avatarOf(other)}" class="w-10 h-10 rounded-full">`;
                 statusHTML=other.status==='online'?'<span class="w-2 h-2 bg-emerald-400 rounded-full"></span>':'<span class="w-2 h-2 bg-zinc-600 rounded-full"></span>';
-            } else {
+            }else{
                 name=conv.name;
                 avatarHTML=`<div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-semibold text-sm">${conv.members.length}</div>`;
                 statusHTML=`<span class="text-[10px] text-zinc-500">${conv.members.length} miemb.</span>`;
@@ -796,6 +933,7 @@
         function openGlobalChat(){
             activeChat={id:'global',type:'global',name:'# ágora'};
             if(activeChatUnsubscribe)activeChatUnsubscribe();
+            setMobileChat(true);
             chatHeaderName.textContent='# ágora';
             chatHeaderStatus.textContent='Chat global · solo texto y emojis';
             chatHeaderStatus.className='text-xs text-emerald-400';
@@ -803,8 +941,7 @@
             chatActions.classList.add('hidden');chatActions.classList.remove('flex');
             messageInputContainer.classList.remove('hidden');
             messageInput.placeholder='De hecho, en el ágora...';
-            emojiRow.classList.remove('hidden');emojiRow.classList.add('flex');
-            document.querySelectorAll('#conversationsList > div').forEach(el=>el.classList.toggle('bg-zinc-800',false));
+            document.querySelectorAll('#conversationsList > div').forEach(el=>el.classList.remove('bg-zinc-800'));
             conversationsList.firstElementChild?.classList.add('bg-zinc-800');
             activeChatUnsubscribe=onSnapshot(query(collection(db,'globalChat'),orderBy('createdAt','asc'),limit(200)),snap=>{
                 messagesContainer.innerHTML='';
@@ -815,7 +952,7 @@
         async function openConversation(conv){
             activeChat=conv;
             if(activeChatUnsubscribe)activeChatUnsubscribe();
-            emojiRow.classList.add('hidden');emojiRow.classList.remove('flex');
+            setMobileChat(true);
             messageInput.placeholder='Escribe un mensaje...';
             if(conv.type==='dm'){
                 const otherUid=conv.members.find(m=>m!==currentUser.uid);
@@ -825,7 +962,7 @@
                 chatHeaderStatus.className=other.status==='online'?'text-xs text-emerald-400':'text-xs text-zinc-500';
                 chatHeaderAvatar.innerHTML=`<img src="${avatarOf(other)}" class="w-full h-full rounded-full">`;
                 chatActions.classList.remove('hidden');chatActions.classList.add('flex');
-            } else {
+            }else{
                 chatHeaderName.textContent=conv.name;
                 chatHeaderStatus.textContent=`${conv.members.length} miembros`;
                 chatHeaderStatus.className='text-xs text-zinc-500';
@@ -845,7 +982,7 @@
             const el=document.createElement('div');
             el.className=`flex ${isOwn?'justify-end':'justify-start'}`;
             el.innerHTML=`<div class="message-bubble ${isOwn?'bg-emerald-500 text-zinc-950':'bg-zinc-800 text-zinc-100'} px-4 py-2 rounded-2xl ${isOwn?'rounded-br-sm':'rounded-bl-sm'}">
-                ${!isOwn?`<p class="text-[10px] font-semibold ${activeChat?.type==='global'?'text-emerald-400':'text-emerald-400'} mb-0.5">${escapeHtml(msg.senderName)}${msg.senderUsername?' <span class="font-mono opacity-70">@'+escapeHtml(msg.senderUsername)+'</span>':''}</p>`:''}
+                ${!isOwn?`<p class="text-[10px] font-semibold text-emerald-400 mb-0.5">${escapeHtml(msg.senderName)}${msg.senderUsername?' <span class="font-mono opacity-70">@'+escapeHtml(msg.senderUsername)+'</span>':''}</p>`:''}
                 <p class="text-sm whitespace-pre-wrap">${escapeHtml(msg.text)}</p>
                 <p class="text-[10px] ${isOwn?'text-zinc-700':'text-zinc-500'} mt-1 text-right">${fmtTime(msg.createdAt)}</p></div>`;
             messagesContainer.appendChild(el);
@@ -856,19 +993,29 @@
             messageInput.value='';
             if(activeChat.type==='global'){
                 await addDoc(collection(db,'globalChat'),{senderId:currentUser.uid,senderName:currentUser.displayName,senderUsername:currentUserData?.username||'',text,createdAt:serverTimestamp()});
-            } else {
+            }else{
                 await addDoc(collection(db,'conversations',activeChat.id,'messages'),{senderId:currentUser.uid,senderName:currentUser.displayName,text,createdAt:serverTimestamp()});
                 await updateDoc(doc(db,'conversations',activeChat.id),{lastMessage:text,lastMessageTime:serverTimestamp()});
             }
         }
         sendMessageBtn.addEventListener('click',sendMessage);
         messageInput.addEventListener('keypress',e=>{if(e.key==='Enter')sendMessage();});
+
+        // Panel de emojis (manual)
         EMOJIS.forEach(em=>{
             const b=document.createElement('button');
-            b.className='text-xl hover:scale-125 transition-transform p-1';
+            b.className='text-xl hover:scale-125 transition-transform p-1 leading-none';
             b.textContent=em;
             b.addEventListener('click',()=>{messageInput.value+=em;messageInput.focus();});
-            emojiRow.appendChild(b);
+            emojiPanel.appendChild(b);
+        });
+        emojiToggleBtn.addEventListener('click',e=>{
+            e.stopPropagation();
+            emojiPanel.classList.toggle('hidden');
+        });
+        document.addEventListener('click',e=>{
+            if(!emojiPanel.classList.contains('hidden')&&!emojiPanel.contains(e.target)&&e.target!==emojiToggleBtn)
+                emojiPanel.classList.add('hidden');
         });
 
         $('newChatBtn').addEventListener('click',()=>{loadUsersList('newChatModal');openModal('newChatModal');});
@@ -926,7 +1073,7 @@
             const otherUid=activeChat.members.find(m=>m!==currentUser.uid);
             try{
                 localStream=await navigator.mediaDevices.getUserMedia({video:videoEnabled,audio:true});
-                const lv=$('localVideo'); lv.srcObject=localStream; lv.style.display=videoEnabled?'block':'none';
+                const lv=$('localVideo');lv.srcObject=localStream;lv.style.display=videoEnabled?'block':'none';
                 $('toggleCamBtn').classList.toggle('hidden',!videoEnabled);
                 const callRef=await addDoc(collection(db,'calls'),{callerId:currentUser.uid,callerName:currentUser.displayName,callerPhoto:currentUser.photoURL,receiverId:otherUid,videoEnabled,status:'ringing',createdAt:serverTimestamp()});
                 activeCallId=callRef.id;
@@ -938,7 +1085,7 @@
                 await updateDoc(callRef,{offer:{type:offer.type,sdp:offer.sdp}});
                 openActiveCallModal('Llamando...');
                 activeCallUnsubscribe=onSnapshot(callRef,async snap=>{
-                    const d=snap.data(); if(!d)return;
+                    const d=snap.data();if(!d)return;
                     if(d.status==='rejected'||d.status==='ended'){showToast(d.status==='rejected'?'Llamada rechazada':'Llamada finalizada');endCall();return;}
                     if(d.answer&&peerConnection&&peerConnection.signalingState!=='stable')await peerConnection.setRemoteDescription(new RTCSessionDescription(d.answer));
                 });
@@ -971,7 +1118,7 @@
             });
         }
         function openActiveCallModal(t){
-            const m=$('activeCallModal'); m.classList.remove('hidden');m.classList.add('flex');
+            const m=$('activeCallModal');m.classList.remove('hidden');m.classList.add('flex');
             $('callStatus').textContent=t;
             $('callStatus').className='absolute top-6 left-1/2 -translate-x-1/2 bg-zinc-900/80 backdrop-blur px-4 py-2 rounded-full text-sm font-mono text-zinc-300';
         }
@@ -1080,19 +1227,17 @@
                 if(!snap.exists()){
                     await setDoc(userRef,{uid:user.uid,displayName:user.displayName,email:user.email,photoURL:user.photoURL,status:'online',lastSeen:serverTimestamp(),isAdmin:user.email===ADMIN_EMAIL,friends:[],bio:'',createdAt:serverTimestamp()});
                     currentUserData={uid:user.uid,displayName:user.displayName,email:user.email,photoURL:user.photoURL,friends:[],bio:''};
-                } else {
+                }else{
                     if(snap.data().banned){alert('Tu cuenta ha sido baneada.');await signOut(auth);return;}
                     currentUserData={uid:user.uid,...snap.data()};
                     await setDoc(userRef,{status:'online',lastSeen:serverTimestamp()},{merge:true});
                 }
                 refreshSidebar();
-                // Si no tiene username → onboarding obligatorio
-                if(!currentUserData.username) openModal('usernameModal');
-                // Listener en vivo de mi propio doc (para reflejar edits)
-                onSnapshot(userRef,s=>{ if(s.exists()) currentUserData={uid:user.uid,...s.data()}; });
+                if(!currentUserData.username)openModal('usernameModal');
+                onSnapshot(userRef,s=>{if(s.exists())currentUserData={uid:user.uid,...s.data()};});
                 onSnapshot(collection(db,'users'),s=>{
                     allUsersCache=s.docs.map(d=>d.data());
-                    const oc=$('onlineCount'); if(oc)oc.textContent=allUsersCache.filter(u=>u.status==='online').length;
+                    const oc=$('onlineCount');if(oc)oc.textContent=allUsersCache.filter(u=>u.status==='online').length;
                 });
                 startFeedListener();
                 startConversationsListener();
@@ -1100,14 +1245,14 @@
                 if(user.email===ADMIN_EMAIL)loadAdminPanel();
                 onSnapshot(query(collection(db,'posts'),where('authorId','==',user.uid)),s=>{const c=$('userFactsCount');if(c)c.textContent=s.size;});
                 window.addEventListener('beforeunload',()=>setDoc(userRef,{status:'offline',lastSeen:serverTimestamp()},{merge:true}));
-            } else {
+            }else{
                 currentUser=null;currentUserData=null;
                 loginScreen.classList.remove('hidden');mainApp.classList.add('hidden');
                 feedContainer.innerHTML='';
             }
         });
 
-        console.log('InFact v1.2 — usernames, perfiles, chat global y FAB 🤓☝️');
+        console.log('InFact v1.3 — menú radial GTA 🤓☝️, emojis manuales y modo mobile');
     </script>
 </body>
 </html>

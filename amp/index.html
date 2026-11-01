@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arena Mar del Plata - Tickets</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { 
+                extend: { 
+                    colors: { 
+                        ampBlack: '#000000', 
+                        ampDark: '#0A0E27',
+                        ampCyan: '#00D9FF',
+                        ampBlue: '#0099FF',
+                        ampDeep: '#0066CC'
+                    },
+                    fontFamily: {
+                        display: ['"Bebas Neue"', 'sans-serif'],
+                        body: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                } 
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <style>
+        body { 
+            background-color: #000000; 
+            color: white; 
+            font-family: 'Inter', system-ui, sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .app-container { 
+            max-width: 480px; 
+            margin: 0 auto; 
+            min-height: 100vh; 
+            background: linear-gradient(180deg, #000000 0%, #0A0E27 100%);
+            position: relative; 
+            box-shadow: 0 0 40px rgba(0, 217, 255, 0.1); 
+            display: flex; 
+            flex-direction: column; 
+            border-left: 1px solid rgba(0, 217, 255, 0.15);
+            border-right: 1px solid rgba(0, 217, 255, 0.15);
+        }
+        .content-area { flex: 1; overflow-y: auto; padding-bottom: 100px; }
+        .glass-panel { 
+            background: rgba(10, 14, 39, 0.6); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.05);
+        }
+        .gradient-text { 
+            background: linear-gradient(90deg, #00D9FF 0%, #0099FF 50%, #0066CC 100%);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text;
+        }
+        .gradient-border {
+            position: relative;
+            background: #000000;
+        }
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            padding: 2px;
+            background: linear-gradient(90deg, #00D9FF, #0099FF, #0066CC);
+            border-radius: inherit;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+        .neon-cyan {
+            color: #00D9FF;
+            text-shadow: 0 0 8px rgba(0, 217, 255, 0.6);
+        }
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.5), inset 0 0 15px rgba(0, 217, 255, 0.1);
+        }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 217, 255, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(0, 217, 255, 0.8); }
+        }
+        .pulse-glow { animation: pulseGlow 2s infinite; }
+        #reader button { 
+            background-color: #00D9FF !important; 
+            color: #000 !important; 
+            border: none !important; 
+            padding: 8px 16px !important; 
+            border-radius: 8px !important; 
+            font-weight: bold; 
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1px;
+        }
+        .btn-amp {
+            background: linear-gradient(90deg, #00D9FF, #0099FF, #0066CC);
+            color: #000;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+        }
+        .btn-amp:hover { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(0, 153, 255, 0.4); }
+        .btn-cyan {
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.4);
+            color: #00D9FF;
+            transition: all 0.3s;
+        }
+        .btn-cyan:hover { background: rgba(0, 217, 255, 0.2); box-shadow: 0 0 15px rgba(0, 217, 255, 0.3); }
+        input, select, textarea {
+            font-family: 'Inter', sans-serif;
+        }
+        .title-display {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Pantalla de carga inicial -->
+<div id="global-loader" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="relative mb-6">
+        <div class="w-20 h-20 rounded-full gradient-border flex items-center justify-center pulse-glow">
+            <span class="font-display text-3xl gradient-text">AMP</span>
+        </div>
+    </div>
+    <p class="text-ampCyan font-bold tracking-[0.3em] text-sm animate-pulse title-display">VERIFICANDO ACCESO...</p>
+    <p class="text-gray-500 text-xs mt-2 tracking-widest">ARENA MAR DEL PLATA</p>
+</div>
+
+<div class="app-container">
+    
+    <!-- Header -->
+    <header class="p-4 border-b border-ampCyan/20 flex justify-between items-center sticky top-0 z-10 glass-panel">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full gradient-border flex items-center justify-center flex-shrink-0">
+                <span class="font-display text-lg gradient-text">AMP</span>
+            </div>
+            <div>
+                <h1 class="text-sm font-bold tracking-wider title-display text-white leading-none">ARENA</h1>
+                <p class="text-[10px] text-ampCyan tracking-[0.2em] title-display">MAR DEL PLATA</p>
+            </div>
+        </div>
+        <div id="user-info" class="hidden items-center gap-2">
+            <button onclick="logout()" class="text-gray-400 hover:text-ampCyan transition" title="Cerrar Sesión">
+                <i class="fa-solid fa-right-from-bracket text-sm"></i>
+            </button>
+            <img id="user-avatar" src="" class="w-8 h-8 rounded-full border-2 border-ampCyan/30" alt="Avatar">
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="content-area p-4" id="main-content">
+        
+        <!-- VIEW: LOGIN -->
+        <div id="view-login" class="view-section hidden fade-in flex flex-col items-center justify-center h-full text-center pt-16">
+            <div class="relative mb-6">
+                <div class="w-24 h-24 rounded-full gradient-border flex items-center justify-center pulse-glow">
+                    <i class="fa-solid fa-user-astronaut text-3xl gradient-text"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-display title-display tracking-widest mb-2">BIENVENIDO</h2>
+            <p class="text-gray-400 text-sm mb-8 max-w-xs">Inicia sesión para comprar tus entradas y acceder al Arena.</p>
+            <button onclick="loginWithGoogle()" class="bg-white text-black font-bold py-3 px-6 rounded-xl shadow-lg flex items-center gap-3 hover:bg-gray-100 transition">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" class="w-5 h-5">
+                Continuar con Google
+            </button>
+        </div>
+
+        <!-- VIEW: SHOP (EVENTOS) -->
+        <div id="view-shop" class="view-section hidden fade-in">
+            <div class="mb-5 pb-3 border-b border-ampCyan/20">
+                <h2 class="text-2xl font-display title-display tracking-widest text-white">PRÓXIMOS SHOWS</h2>
+                <p class="text-xs text-ampCyan/70 tracking-widest title-display">CARTELERA OFICIAL</p>
+            </div>
+            <div id="events-container" class="space-y-3">
+                <p class="text-gray-500 text-center text-sm py-4">Cargando eventos...</p>
+            </div>
+        </div>
+
+        <!-- VIEW: WALLET (MIS ENTRADAS) -->
+        <div id="view-wallet" class="view-section hidden fade-in">
+            <div class="mb-5 pb-3 border-b border-ampCyan/20">
+                <h2 class="text-2xl font-display title-display tracking-widest gradient-text">MIS ENTRADAS</h2>
+                <p class="text-xs text-ampCyan/70 tracking-widest title-display">WALLET DIGITAL</p>
+            </div>
+            <div id="tickets-container" class="space-y-3">
+                <div class="text-center py-10 text-gray-400" id="empty-wallet">
+                    <i class="fa-solid fa-ticket-simple text-4xl mb-3 opacity-20"></i>
+                    <p>Aún no tienes entradas.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: ADMIN MANAGE (GESTIÓN DE EVENTOS) -->
+        <div id="view-manage" class="view-section hidden fade-in">
+            <div class="mb-5 pb-3 border-b border-ampCyan/20">
+                <h2 class="text-2xl font-display title-display tracking-widest gradient-text">PANEL ADMIN</h2>
+                <p class="text-xs text-ampCyan/70 tracking-widest title-display">GESTIÓN DE EVENTOS</p>
+            </div>
+            
+            <div class="glass-panel p-4 rounded-xl mb-5">
+                <h3 class="font-display title-display tracking-wider text-ampCyan mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle"></i> NUEVO EVENTO
+                </h3>
+                <form id="create-event-form" class="space-y-3 text-sm">
+                    <input type="text" id="ev-title" required class="w-full bg-black border border-ampCyan/30 rounded-lg p-3 text-white focus:border-ampCyan focus:outline-none transition" placeholder="Nombre del Evento">
+                    <input type="text" id="ev-date" required class="w-full bg-black border border-ampCyan/30 rounded-lg p-3 text-white focus:border-ampCyan focus:outline-none transition" placeholder="Fecha y Hora (Ej: Sáb 24 Nov, 23:00)">
+                    <input type="text" id="ev-location" required class="w-full bg-black border border-ampCyan/30 rounded-lg p-3 text-white focus:border-ampCyan focus:outline-none transition" placeholder="Lugar">
+                    <div class="flex gap-2">
+                        <input type="number" id="ev-price" required class="w-1/2 bg-black border border-ampCyan/30 rounded-lg p-3 text-white focus:border-ampCyan focus:outline-none transition" placeholder="Precio ($)">
+                        <input type="number" id="ev-stock" required class="w-1/2 bg-black border border-ampCyan/30 rounded-lg p-3 text-white focus:border-ampCyan focus:outline-none transition" placeholder="Stock Total">
+                    </div>
+                    <button type="submit" class="w-full btn-amp py-3 rounded-lg font-bold tracking-wider">CREAR EVENTO</button>
+                </form>
+            </div>
+            
+            <div class="glass-panel p-3 rounded-xl text-xs text-ampCyan/80 flex items-start gap-2">
+                <i class="fa-solid fa-circle-info mt-0.5"></i>
+                <span>La API de Mercado Pago generará los links de pago automáticamente.</span>
+            </div>
+        </div>
+
+        <!-- VIEW: ADMIN PENDING PAYMENTS -->
+        <div id="view-pending" class="view-section hidden fade-in">
+            <div class="mb-5 pb-3 border-b border-ampCyan/20">
+                <h2 class="text-2xl font-display title-display tracking-widest gradient-text">PAGOS PENDIENTES</h2>
+                <p class="text-xs text-ampCyan/70 tracking-widest title-display">VALIDACIÓN MANUAL</p>
+            </div>
+            <div id="pending-container" class="space-y-3">
+                <p class="text-gray-500 text-center text-sm py-4">Cargando pagos pendientes...</p>
+            </div>
+        </div>
+
+        <!-- VIEW: ADMIN SETTINGS -->
+        <div id="view-settings" class="view-section hidden fade-in">
+            <div class="mb-5 pb-3 border-b border-ampCyan/20">
+                <h2 class="text-2xl font-display title-display tracking-widest gradient-text">CONFIGURACIÓN</h2>
+                <p class="text-xs text-ampCyan/70 tracking-widest title-display">AJUSTES DEL SISTEMA</p>
+            </div>
+            
+            <div class="glass-panel p-4 rounded-xl mb-5">
+                <h3 class="font-display title-display tracking-wider text-ampCyan mb-3 flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp"></i> WHATSAPP DE SOPORTE
+                </h3>
+                <p class="text-xs text-gray-400 mb-3">Los usuarios enviarán sus comprobantes a este número cuando el pago automático falle.</p>
+                <div class="flex gap-2">
+                    <input type="text" id="wa-number" class="flex-1 bg-black border border-ampCyan/30 rounded-lg p-3 text-white focus:border-ampCyan focus:outline-none transition font-mono" placeholder="5492235551234">
+                    <button onclick="saveWhatsApp()" class="btn-amp px-5 rounded-lg font-bold">GUARDAR</button>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-2">Formato: código de país + área + número (sin + ni espacios)</p>
+            </div>
+
+            <div class="glass-panel p-4 rounded-xl">
+                <h3 class="font-display title-display tracking-wider text-ampCyan mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info"></i> MENSAJE WHATSAPP
+                </h3>
+                <p class="text-xs text-gray-400 mb-3">Texto predefinido que se enviará junto al comprobante.</p>
+                <textarea id="wa-message" rows="3" class="w-full bg-black border border-ampCyan/30 rounded-lg p-3 text-white focus:border-ampCyan focus:outline-none transition text-sm" placeholder="Hola, envío comprobante de pago para el evento..."></textarea>
+                <button onclick="saveWAMessage()" class="w-full btn-cyan py-2 rounded-lg font-bold mt-2">ACTUALIZAR MENSAJE</button>
+            </div>
+        </div>
+
+        <!-- VIEW: ADMIN SCANNER -->
+        <div id="view-scanner" class="view-section hidden fade-in">
+            <div class="mb-5 pb-3 border-b border-ampCyan/20 flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-display title-display tracking-widest neon-cyan">ESCANEAR</h2>
+                    <p class="text-xs text-ampCyan/70 tracking-widest title-display">CONTROL DE ACCESO</p>
+                </div>
+                <button onclick="startScanner()" class="text-xs btn-cyan px-3 py-1.5 rounded-lg">
+                    <i class="fa-solid fa-camera mr-1"></i> Activar
+                </button>
+            </div>
+            <div class="glass-panel p-2 rounded-2xl mb-4 neon-glow">
+                <div id="reader" class="w-full rounded-xl overflow-hidden bg-black min-h-[250px]"></div>
+            </div>
+            <div id="scan-result" class="glass-panel p-5 rounded-2xl hidden flex flex-col items-center text-center transition-all neon-glow"></div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav id="bottom-nav" class="absolute bottom-0 left-0 right-0 glass-panel border-t border-ampCyan/20 flex justify-around p-3 pb-safe z-20 hidden">
+        <button onclick="switchView('shop')" id="nav-shop" class="nav-btn flex flex-col items-center text-ampCyan transition-colors w-1/5">
+            <i class="fa-solid fa-ticket text-lg mb-1"></i><span class="text-[9px] font-bold tracking-wider title-display">SHOWS</span>
+        </button>
+        <button onclick="switchView('wallet')" id="nav-wallet" class="nav-btn flex flex-col items-center text-gray-500 transition-colors w-1/5">
+            <i class="fa-solid fa-wallet text-lg mb-1"></i><span class="text-[9px] font-bold tracking-wider title-display">ENTRADAS</span>
+        </button>
+        <button onclick="switchView('manage')" id="nav-manage" class="nav-btn flex flex-col items-center text-gray-500 transition-colors hidden w-1/5">
+            <i class="fa-solid fa-plus-circle text-lg mb-1"></i><span class="text-[9px] font-bold tracking-wider title-display">EVENTOS</span>
+        </button>
+        <button onclick="switchView('pending')" id="nav-pending" class="nav-btn flex flex-col items-center text-gray-500 transition-colors hidden w-1/5 relative">
+            <i class="fa-solid fa-clock-rotate-left text-lg mb-1"></i><span class="text-[9px] font-bold tracking-wider title-display">PAGOS</span>
+            <span id="pending-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center hidden">0</span>
+        </button>
+        <button onclick="switchView('scanner')" id="nav-scanner" class="nav-btn flex flex-col items-center text-gray-500 transition-colors hidden w-1/5">
+            <i class="fa-solid fa-qrcode text-lg mb-1"></i><span class="text-[9px] font-bold tracking-wider title-display">SCAN</span>
+        </button>
+        <button onclick="switchView('settings')" id="nav-settings" class="nav-btn flex flex-col items-center text-gray-500 transition-colors hidden w-1/5">
+            <i class="fa-solid fa-gear text-lg mb-1"></i><span class="text-[9px] font-bold tracking-wider title-display">CONFIG</span>
+        </button>
+    </nav>
+
+    <!-- Modal Formulario de Compra -->
+    <div id="checkout-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col items-center justify-end p-0 backdrop-blur-md">
+        <div class="bg-gradient-to-b from-ampDark to-black w-full max-w-md p-6 rounded-t-3xl border-t border-ampCyan/30">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-display title-display text-lg tracking-wider" id="modal-ev-title">COMPRAR ENTRADA</h3>
+                <button onclick="closeCheckout()" class="text-gray-400 text-xl hover:text-ampCyan transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="gradient-text font-display text-3xl title-display tracking-widest mb-4" id="modal-ev-price">$0</p>
+            <form id="buy-form" class="space-y-3">
+                <input type="hidden" id="buy-ev-id">
+                <input type="hidden" id="buy-ev-price-val">
+                <div>
+                    <label class="block text-xs text-ampCyan mb-1 tracking-wider title-display">NOMBRE COMPLETO</label>
+                    <input type="text" id="buyer-name" required class="w-full bg-black border border-ampCyan/30 rounded-lg p-3 text-white focus:border-ampCyan focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs text-ampCyan mb-1 tracking-wider title-display">DNI / DOCUMENTO</label>
+                    <input type="number" id="buyer-dni" required class="w-full bg-black border border-ampCyan/30 rounded-lg p-3 text-white focus:border-ampCyan focus:outline-none font-mono">
+                </div>
+                <button type="submit" class="w-full bg-[#009ee3] hover:bg-[#008bd0] text-white font-bold py-3 rounded-xl shadow-lg mt-2 flex justify-center items-center gap-2 transition">
+                    <i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal QR Ampliado -->
+    <div id="qr-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col items-center justify-center p-4 backdrop-blur-md">
+        <button onclick="closeQrModal()" class="absolute top-6 right-6 text-white text-3xl hover:text-ampCyan transition"><i class="fa-solid fa-xmark"></i></button>
+        <div class="bg-white p-6 rounded-2xl flex flex-col items-center shadow-[0_0_40px_rgba(0,217,255,0.4)] max-w-sm w-full" id="qr-card">
+            <div class="mb-4 text-center">
+                <p class="text-[10px] text-gray-500 tracking-[0.3em] title-display">ARENA MAR DEL PLATA</p>
+                <h3 class="text-black font-display text-2xl title-display tracking-widest leading-tight mt-1" id="modal-ticket-event">Evento</h3>
+                <p class="text-gray-500 text-xs mt-1 font-mono" id="modal-ticket-id">...</p>
+            </div>
+            <canvas id="large-qr-canvas" class="w-64 h-64"></canvas>
+            <div class="mt-6 text-center text-black w-full">
+                <p class="font-bold text-lg" id="modal-buyer-name-qr">...</p>
+                <p class="text-sm text-gray-600">DNI: <span id="modal-buyer-dni-qr"></span></p>
+                <div id="modal-status-badge" class="mt-3 font-display title-display tracking-wider px-4 py-1.5 rounded-full text-sm"></div>
+                
+                <!-- Botón WhatsApp para pagos pendientes -->
+                <div id="whatsapp-pending-actions" class="hidden mt-4 space-y-2">
+                    <p class="text-xs text-gray-600">¿Pagaste pero sigue pendiente?</p>
+                    <div class="flex gap-2">
+                        <input type="number" id="wa-dni-input" placeholder="Tu DNI" class="flex-1 bg-gray-100 border border-gray-300 rounded-lg p-2 text-black text-sm focus:outline-none focus:border-ampCyan">
+                        <button onclick="sendProofWhatsApp()" class="btn-amp px-4 py-2 rounded-lg text-sm flex items-center gap-1">
+                            <i class="fa-brands fa-whatsapp"></i> Enviar
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-gray-500">Envía la captura de tu comprobante al WhatsApp del Arena</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 glass-panel neon-glow text-white px-4 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-0 pointer-events-none flex items-center gap-2 max-w-xs">
+        <i id="toast-icon" class="fa-solid fa-circle-info text-ampCyan"></i><span id="toast-message" class="text-sm">Mensaje</span>
+    </div>
+
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBc4DJiHoFp1gC9our2SGBek_AprkwdZ48",
+        authDomain: "entradas-ac28c.firebaseapp.com",
+        projectId: "entradas-ac28c",
+        storageBucket: "entradas-ac28c.firebasestorage.app",
+        messagingSenderId: "380401445493",
+        appId: "1:380401445493:web:9058abc2adc1a18157e63c"
+    };    
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const ADMIN_EMAIL = "cepedademian2005@gmail.com"; 
+    const MP_ACCESS_TOKEN = "APP_USR-2955434807999492-091915-855e6dc48a84e7b02a51fb8a9425c966-323912180";
+    
+    let currentUser = null;
+    let isAdmin = false;
+    let html5QrCode = null;
+    let waConfig = { number: '', message: 'Hola, envío mi comprobante de pago para el evento:' };
+
+    window.loginWithGoogle = async function() {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (error) {
+            console.error(error);
+            if (error.code === 'auth/unauthorized-domain') {
+                alert("⚠️ ERROR DE CONFIGURACIÓN: El dominio actual no está autorizado en Firebase.");
+            } else if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+                showToast("Error al iniciar sesión.", "error");
+            }
+        }
+    }
+
+    window.logout = function() {
+        signOut(auth).then(() => window.location.reload());
+    }
+
+    async function loadWhatsAppConfig() {
+        try {
+            const docSnap = await getDoc(doc(db, "config", "whatsapp"));
+            if (docSnap.exists()) {
+                waConfig = { ...waConfig, ...docSnap.data() };
+                if (isAdmin) {
+                    document.getElementById('wa-number').value = waConfig.number || '';
+                    document.getElementById('wa-message').value = waConfig.message || '';
+                }
+            }
+        } catch (e) {
+            console.error("Error cargando config WhatsApp:", e);
+        }
+    }
+
+    window.saveWhatsApp = async function() {
+        if (!isAdmin) return;
+        const number = document.getElementById('wa-number').value.trim();
+        if (!number) { showToast("Ingresa un número válido", "error"); return; }
+        try {
+            const ref = doc(db, "config", "whatsapp");
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                await updateDoc(ref, { number });
+            } else {
+                const { setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                await setDoc(ref, { number, message: waConfig.message || '' });
+            }
+            waConfig.number = number;
+            showToast("Número de WhatsApp guardado", "success");
+        } catch (e) {
+            console.error(e);
+            showToast("Error al guardar. Revisa permisos.", "error");
+        }
+    }
+
+    window.saveWAMessage = async function() {
+        if (!isAdmin) return;
+        const message = document.getElementById('wa-message').value.trim();
+        try {
+            const ref = doc(db, "config", "whatsapp");
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                await updateDoc(ref, { message });
+            } else {
+                const { setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                await setDoc(ref, { number: waConfig.number || '', message });
+            }
+            waConfig.message = message;
+            showToast("Mensaje actualizado", "success");
+        } catch (e) {
+            console.error(e);
+            showToast("Error al guardar", "error");
+        }
+    }
+
+    let isInitialLoad = true;
+
+    onAuthStateChanged(auth, async (user) => {
+        if (isInitialLoad) {
+            const loader = document.getElementById('global-loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 500);
+            isInitialLoad = false;
+        }
+
+        currentUser = user;
+        if (user) {
+            isAdmin = (user.email === ADMIN_EMAIL);
+            document.getElementById('user-info').classList.remove('hidden');
+            document.getElementById('user-info').classList.add('flex');
+            document.getElementById('user-avatar').src = user.photoURL;
+            document.getElementById('bottom-nav').classList.remove('hidden');
+            
+            if(isAdmin) {
+                document.getElementById('nav-manage').classList.remove('hidden');
+                document.getElementById('nav-pending').classList.remove('hidden');
+                document.getElementById('nav-scanner').classList.remove('hidden');
+                document.getElementById('nav-settings').classList.remove('hidden');
+                loadPendingPayments();
+                loadWhatsAppConfig();
+            }
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const mpStatus = urlParams.get('status'); 
+            const ticketIdRef = urlParams.get('external_reference'); 
+
+            if (mpStatus === 'approved' && ticketIdRef) {
+                try {
+                    await updateDoc(doc(db, "tickets", ticketIdRef), { status: 'paid', paidAt: serverTimestamp() });
+                    showToast("¡Pago aprobado! Entrada generada.", "success");
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (e) {
+                    console.error("Error validando el ticket retornado", e);
+                }
+            }
+
+            switchView('shop');
+            loadEvents();
+            loadMyTickets();
+        } else {
+            document.getElementById('bottom-nav').classList.add('hidden');
+            document.getElementById('user-info').classList.add('hidden');
+            switchView('login');
+        }
+    });
+
+    window.switchView = function(viewName) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('text-ampCyan'); btn.classList.add('text-gray-500');
+        });
+        document.getElementById(`view-${viewName}`).classList.remove('hidden');
+        const navBtn = document.getElementById(`nav-${viewName}`);
+        if(navBtn) {
+            navBtn.classList.add('text-ampCyan');
+            navBtn.classList.remove('text-gray-500');
+        }
+        if (viewName !== 'scanner' && html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop();
+        }
+    };
+
+    function showToast(message, type = 'info') {
+        const toast = document.getElementById('toast');
+        const icon = document.getElementById('toast-icon');
+        document.getElementById('toast-message').textContent = message;
+        
+        if (type === 'success') {
+            icon.className = 'fa-solid fa-circle-check text-green-400';
+        } else if (type === 'error') {
+            icon.className = 'fa-solid fa-circle-exclamation text-red-400';
+        } else {
+            icon.className = 'fa-solid fa-circle-info text-ampCyan';
+        }
+        
+        toast.style.opacity = '1';
+        setTimeout(() => toast.style.opacity = '0', 3000);
+    }
+
+    document.getElementById('create-event-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if(!isAdmin) return;
+        
+        try {
+            await addDoc(collection(db, "events"), {
+                title: document.getElementById('ev-title').value,
+                date: document.getElementById('ev-date').value,
+                location: document.getElementById('ev-location').value,
+                price: Number(document.getElementById('ev-price').value),
+                stock: Number(document.getElementById('ev-stock').value),
+                createdAt: serverTimestamp()
+            });
+            showToast("Evento creado con éxito", "success");
+            e.target.reset();
+        } catch (error) {
+            console.error(error);
+            showToast("Error de permisos en Firebase.", "error");
+        }
+    });
+
+    window.deleteEvent = async function(id) {
+        if(confirm("¿Borrar este evento permanentemente?")) {
+            try {
+                await deleteDoc(doc(db, "events", id));
+                showToast("Evento eliminado", "success");
+            } catch(error) {
+                console.error(error);
+                showToast("Error al borrar evento.", "error");
+            }
+        }
+    }
+
+    function loadEvents() {
+        onSnapshot(collection(db, "events"), (snapshot) => {
+            const container = document.getElementById('events-container');
+            container.innerHTML = '';
+            snapshot.forEach(docSnap => {
+                const ev = docSnap.data();
+                container.innerHTML += `
+                    <div class="glass-panel p-4 rounded-xl flex justify-between items-center cursor-pointer hover:border-ampCyan/50 transition-all group" onclick="openCheckout('${docSnap.id}', '${ev.title.replace(/'/g, "\\'")}', ${ev.price})">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-display title-display text-xl tracking-wider text-ampCyan leading-tight">${ev.title}</h3>
+                            <p class="text-xs text-gray-400 mt-1"><i class="fa-regular fa-calendar mr-1"></i> ${ev.date}</p>
+                            <p class="text-xs text-gray-500"><i class="fa-solid fa-location-dot mr-1"></i> ${ev.location}</p>
+                            ${isAdmin ? `<button onclick="event.stopPropagation(); deleteEvent('${docSnap.id}')" class="text-red-400 text-xs mt-2 underline">Borrar</button>` : ''}
+                        </div>
+                        <div class="text-right ml-3">
+                            <p class="font-display title-display text-2xl tracking-wider text-white leading-none">$${ev.price.toLocaleString('es-AR')}</p>
+                            <button class="mt-2 btn-cyan text-xs px-3 py-1 rounded-lg font-bold tracking-wider">COMPRAR</button>
+                        </div>
+                    </div>
+                `;
+            });
+            if(snapshot.empty) {
+                container.innerHTML = '<p class="text-gray-500 text-center text-sm py-8">No hay eventos disponibles por el momento.</p>';
+            }
+        });
+    }
+
+    window.openCheckout = function(id, title, price) {
+        document.getElementById('buy-ev-id').value = id;
+        document.getElementById('buy-ev-price-val').value = price;
+        document.getElementById('modal-ev-title').textContent = title.toUpperCase();
+        document.getElementById('modal-ev-price').textContent = `$${price.toLocaleString('es-AR')}`;
+        document.getElementById('checkout-modal').classList.remove('hidden');
+    }
+    window.closeCheckout = () => document.getElementById('checkout-modal').classList.add('hidden');
+
+    document.getElementById('buy-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando con Mercado Pago...';
+
+        const title = document.getElementById('modal-ev-title').textContent;
+        const price = Number(document.getElementById('buy-ev-price-val').value);
+
+        try {
+            const docRef = await addDoc(collection(db, "tickets"), {
+                userId: currentUser.uid,
+                userEmail: currentUser.email,
+                eventId: document.getElementById('buy-ev-id').value,
+                eventName: title,
+                buyerName: document.getElementById('buyer-name').value,
+                buyerDNI: document.getElementById('buyer-dni').value,
+                status: 'pending', 
+                createdAt: serverTimestamp(),
+                usedAt: null
+            });
+
+            const currentUrl = window.location.href.split('?')[0]; 
+            
+            const preferenceData = {
+                items: [{
+                    title: "Entrada - " + title,
+                    quantity: 1,
+                    unit_price: price,
+                    currency_id: "ARS"
+                }],
+                back_urls: {
+                    success: currentUrl,
+                    failure: currentUrl,
+                    pending: currentUrl
+                },
+                auto_return: "approved",
+                external_reference: docRef.id 
+            };
+
+            const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${MP_ACCESS_TOKEN}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(preferenceData)
+            });
+
+            const mpResult = await mpResponse.json();
+
+            if (mpResult.init_point) {
+                window.location.href = mpResult.init_point;
+            } else {
+                throw new Error("No se pudo generar el link de pago");
+            }
+
+        } catch (error) {
+            showToast("Error al procesar el pago", "error");
+            console.error(error);
+            btn.disabled = false; 
+            btn.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago';
+        }
+    });
+
+    function loadMyTickets() {
+        onSnapshot(collection(db, "tickets"), (snapshot) => {
+            const container = document.getElementById('tickets-container');
+            container.innerHTML = '';
+            let hasTickets = false;
+
+            snapshot.forEach(docSnap => {
+                const tk = docSnap.data();
+                if(tk.userId === currentUser.uid) {
+                    hasTickets = true;
+                    const isUsed = tk.status === 'used';
+                    const isPending = tk.status === 'pending';
+                    const isRejected = tk.status === 'rejected';
+                    
+                    let statusHtml = '';
+                    if(isPending) statusHtml = `<span class="text-yellow-400 text-[10px] font-display title-display tracking-wider border border-yellow-500/30 bg-yellow-500/10 px-2 py-1 rounded inline-flex items-center gap-1"><i class="fa-solid fa-clock"></i> PAGO PENDIENTE</span>`;
+                    else if(isRejected) statusHtml = `<span class="text-red-400 text-[10px] font-display title-display tracking-wider border border-red-500/30 bg-red-500/10 px-2 py-1 rounded inline-flex items-center gap-1"><i class="fa-solid fa-xmark"></i> RECHAZADO</span>`;
+                    else if(isUsed) statusHtml = `<span class="text-red-400 text-[10px] font-display title-display tracking-wider border border-red-500/30 bg-red-500/10 px-2 py-1 rounded inline-flex items-center gap-1"><i class="fa-solid fa-ban"></i> USADA</span>`;
+                    else statusHtml = `<span class="text-green-400 text-[10px] font-display title-display tracking-wider border border-green-500/30 bg-green-500/10 px-2 py-1 rounded inline-flex items-center gap-1"><i class="fa-solid fa-check"></i> VÁLIDA</span>`;
+
+                    container.innerHTML += `
+                        <div class="glass-panel rounded-2xl p-4 flex justify-between items-center ${isUsed || isRejected ? 'opacity-50' : 'cursor-pointer hover:border-ampCyan/50'}" onclick="${!isUsed && !isRejected ? `openQrModal('${docSnap.id}', '${tk.eventName.replace(/'/g, "\\'")}', '${tk.buyerName}', '${tk.buyerDNI}', '${tk.status}')` : ''}">
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-display title-display text-lg tracking-wider text-white leading-tight mb-1">${tk.eventName}</h4>
+                                <p class="text-xs text-gray-400 mb-2">${tk.buyerName} • DNI ${tk.buyerDNI}</p>
+                                ${statusHtml}
+                            </div>
+                            <div class="ml-3 bg-white p-1 rounded-lg ${isPending || isUsed || isRejected ? 'hidden' : ''}">
+                                <canvas id="qr-mini-${docSnap.id}" width="50" height="50"></canvas>
+                            </div>
+                            ${isPending ? '<i class="fa-brands fa-whatsapp text-2xl text-green-500 ml-2"></i>' : ''}
+                        </div>
+                    `;
+
+                    setTimeout(() => {
+                        if(!isPending && !isUsed && !isRejected && document.getElementById(`qr-mini-${docSnap.id}`)) {
+                            new QRious({ element: document.getElementById(`qr-mini-${docSnap.id}`), value: docSnap.id, size: 50 });
+                        }
+                    }, 50);
+                }
+            });
+
+            document.getElementById('empty-wallet').style.display = hasTickets ? 'none' : 'block';
+        });
+    }
+
+    window.openQrModal = function(id, eventName, name, dni, status) {
+        document.getElementById('modal-ticket-event').textContent = eventName.toUpperCase();
+        document.getElementById('modal-ticket-id').textContent = `ID: ${id.substring(0,8).toUpperCase()}`;
+        document.getElementById('modal-buyer-name-qr').textContent = name;
+        document.getElementById('modal-buyer-dni-qr').textContent = dni;
+
+        const badge = document.getElementById('modal-status-badge');
+        const waActions = document.getElementById('whatsapp-pending-actions');
+        
+        if(status === 'pending') {
+            badge.className = "mt-3 text-yellow-700 font-display title-display tracking-wider bg-yellow-100 border-2 border-yellow-400 px-4 py-1.5 rounded-full text-sm";
+            badge.innerHTML = '<i class="fa-solid fa-clock"></i> PAGO PENDIENTE';
+            document.getElementById('large-qr-canvas').style.display = 'none';
+            waActions.classList.remove('hidden');
+        } else if (status === 'rejected') {
+            badge.className = "mt-3 text-red-700 font-display title-display tracking-wider bg-red-100 border-2 border-red-400 px-4 py-1.5 rounded-full text-sm";
+            badge.innerHTML = '<i class="fa-solid fa-xmark"></i> PAGO RECHAZADO';
+            document.getElementById('large-qr-canvas').style.display = 'none';
+            waActions.classList.remove('hidden');
+        } else if (status === 'used') {
+            badge.className = "mt-3 text-red-700 font-display title-display tracking-wider bg-red-100 border-2 border-red-400 px-4 py-1.5 rounded-full text-sm";
+            badge.innerHTML = '<i class="fa-solid fa-ban"></i> ENTRADA USADA';
+            document.getElementById('large-qr-canvas').style.display = 'none';
+            waActions.classList.add('hidden');
+        } else {
+            badge.className = "mt-3 text-green-700 font-display title-display tracking-wider bg-green-100 border-2 border-green-500 px-4 py-1.5 rounded-full text-sm";
+            badge.innerHTML = '<i class="fa-solid fa-check-circle"></i> ENTRADA VÁLIDA';
+            document.getElementById('large-qr-canvas').style.display = 'block';
+            new QRious({ element: document.getElementById('large-qr-canvas'), value: id, size: 250 });
+            waActions.classList.add('hidden');
+        }
+        document.getElementById('qr-modal').classList.remove('hidden');
+    }
+    window.closeQrModal = () => document.getElementById('qr-modal').classList.add('hidden');
+
+    window.sendProofWhatsApp = async function() {
+        if (!waConfig.number) {
+            showToast("WhatsApp no configurado aún. Contacta al Arena.", "error");
+            return;
+        }
+        
+        const dni = document.getElementById('wa-dni-input').value.trim();
+        if (!dni) {
+            showToast("Ingresa tu número de DNI", "error");
+            return;
+        }
+        
+        const eventName = document.getElementById('modal-ticket-event').textContent;
+        const name = document.getElementById('modal-buyer-name-qr').textContent;
+        const ticketId = document.getElementById('modal-ticket-id').textContent;
+        
+        const fullMessage = `${waConfig.message}\n\n` +
+                          `🎫 *Evento:* ${eventName}\n` +
+                          `👤 *Nombre:* ${name}\n` +
+                          `🆔 *DNI:* ${dni}\n` +
+                          `${ticketId}\n\n` +
+                          `Adjunto mi comprobante de pago para validación manual.`;
+        
+        const encoded = encodeURIComponent(fullMessage);
+        const url = `https://wa.me/${waConfig.number}?text=${encoded}`;
+        
+        window.open(url, '_blank');
+        showToast("Abriendo WhatsApp... Envía la captura", "success");
+    }
+
+    function loadPendingPayments() {
+        if (!isAdmin) return;
+        onSnapshot(collection(db, "tickets"), (snapshot) => {
+            const container = document.getElementById('pending-container');
+            container.innerHTML = '';
+            let pendingCount = 0;
+
+            snapshot.forEach(docSnap => {
+                const tk = docSnap.data();
+                if (tk.status === 'pending') {
+                    pendingCount++;
+                    const date = tk.createdAt?.toDate ? tk.createdAt.toDate().toLocaleString('es-AR') : 'Fecha no disponible';
+                    container.innerHTML += `
+                        <div class="glass-panel rounded-xl p-4 border-l-4 border-yellow-500">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-display title-display tracking-wider text-white text-base leading-tight">${tk.eventName}</h4>
+                                    <p class="text-xs text-gray-400 mt-1">${tk.buyerName}</p>
+                                    <p class="text-xs text-ampCyan font-mono">DNI: ${tk.buyerDNI}</p>
+                                    <p class="text-[10px] text-gray-500 mt-1"><i class="fa-regular fa-clock mr-1"></i> ${date}</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 mt-3">
+                                <button onclick="approvePayment('${docSnap.id}')" class="flex-1 bg-green-600 hover:bg-green-500 text-white text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-1 transition">
+                                    <i class="fa-solid fa-check"></i> APROBAR
+                                </button>
+                                <button onclick="rejectPayment('${docSnap.id}')" class="flex-1 bg-red-500 hover:bg-red-400 text-white text-xs font-bold py-2 rounded-lg flex items-center justify-center gap-1 transition">
+                                    <i class="fa-solid fa-xmark"></i> RECHAZAR
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            if (pendingCount === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 text-gray-500">
+                        <i class="fa-solid fa-circle-check text-4xl mb-3 opacity-30"></i>
+                        <p>No hay pagos pendientes.</p>
+                    </div>
+                `;
+            }
+
+            const badge = document.getElementById('pending-badge');
+            if (pendingCount > 0) {
+                badge.textContent = pendingCount > 9 ? '9+' : pendingCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        });
+    }
+
+    window.approvePayment = async function(ticketId) {
+        if (!isAdmin) return;
+        if (!confirm("¿Aprobar este pago manualmente? La entrada quedará válida.")) return;
+        try {
+            await updateDoc(doc(db, "tickets", ticketId), { 
+                status: 'paid', 
+                manuallyApproved: true,
+                approvedAt: serverTimestamp(),
+                approvedBy: currentUser.email
+            });
+            showToast("Pago aprobado manualmente", "success");
+        } catch (e) {
+            console.error(e);
+            showToast("Error al aprobar", "error");
+        }
+    }
+
+    window.rejectPayment = async function(ticketId) {
+        if (!isAdmin) return;
+        if (!confirm("¿Rechazar este pago? La entrada quedará invalidada.")) return;
+        try {
+            await updateDoc(doc(db, "tickets", ticketId), { 
+                status: 'rejected',
+                rejectedAt: serverTimestamp(),
+                rejectedBy: currentUser.email
+            });
+            showToast("Pago rechazado", "success");
+        } catch (e) {
+            console.error(e);
+            showToast("Error al rechazar", "error");
+        }
+    }
+
+    let isProcessingScan = false;
+    window.startScanner = function() {
+        if(!isAdmin) return;
+        if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess)
+        .catch(() => showToast("Error de cámara", "error"));
+    }
+
+    async function onScanSuccess(decodedText) {
+        if(isProcessingScan) return;
+        isProcessingScan = true;
+        document.getElementById('reader').classList.add('opacity-50');
+        
+        const resultDiv = document.getElementById('scan-result');
+        resultDiv.classList.remove('hidden');
+        resultDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-3xl text-ampCyan mb-2"></i><p class="text-ampCyan">Validando...</p>';
+
+        try {
+            const ticketRef = doc(db, "tickets", decodedText);
+            const ticketSnap = await getDoc(ticketRef);
+
+            if (!ticketSnap.exists()) {
+                resultDiv.innerHTML = `<i class="fa-solid fa-xmark text-5xl text-red-400 mb-2"></i><h3 class="text-red-400 font-display title-display tracking-wider text-xl">INVÁLIDO</h3>`;
+            } else {
+                const tk = ticketSnap.data();
+                if (tk.status === 'used') {
+                    resultDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-5xl text-red-400 mb-2"></i><h3 class="text-red-400 font-display title-display tracking-wider text-xl">YA USADA</h3><p class="text-xs mt-1 text-gray-300">Esta entrada ya ingresó</p>`;
+                } else if (tk.status === 'paid') {
+                    await updateDoc(ticketRef, { status: 'used', usedAt: serverTimestamp() });
+                    resultDiv.innerHTML = `<i class="fa-solid fa-check-circle text-5xl text-green-400 mb-2"></i><h3 class="text-green-400 font-display title-display tracking-wider text-xl">ACCESO PERMITIDO</h3><p class="text-sm mt-1">${tk.buyerName}</p>`;
+                } else if (tk.status === 'pending') {
+                    resultDiv.innerHTML = `<i class="fa-solid fa-clock text-5xl text-yellow-400 mb-2"></i><h3 class="text-yellow-400 font-display title-display tracking-wider text-xl">PAGO PENDIENTE</h3>`;
+                } else {
+                    resultDiv.innerHTML = `<i class="fa-solid fa-xmark text-5xl text-red-400 mb-2"></i><h3 class="text-red-400 font-display title-display tracking-wider text-xl">RECHAZADA</h3>`;
+                }
+            }
+        } catch (error) {
+            resultDiv.innerHTML = `<p class="text-red-400">Error de red</p>`;
+        }
+
+        setTimeout(() => {
+            isProcessingScan = false;
+            document.getElementById('reader').classList.remove('opacity-50');
+            resultDiv.classList.add('hidden');
+        }, 3000);
+    }
+
+</script>
+</body>
+</html>

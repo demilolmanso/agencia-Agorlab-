@@ -383,7 +383,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, getDocs, collection, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBc4DJiHoFp1gC9our2SGBek_AprkwdZ48",
@@ -586,15 +586,26 @@
         }
     });
 
+    // FUNCIÓN ACTUALIZADA PARA ELIMINAR EVENTO Y TODAS SUS ENTRADAS
     window.deleteEvent = async function(id) {
-        if(confirm("¿Borrar este evento permanentemente?")) {
-            try {
-                await deleteDoc(doc(db, "events", id));
-                showToast("Evento eliminado", "success");
-            } catch(error) {
-                console.error(error);
-                showToast("Error al borrar evento.", "error");
-            }
+        if(!confirm("¿Borrar este evento permanentemente?\n\n⚠️ Esto también eliminará TODAS las entradas vendidas (pendientes, aprobadas y usadas) de este evento.\n\nEsta acción no se puede deshacer.")) return;
+        
+        try {
+            // 1. Buscar todas las entradas asociadas a este evento
+            const q = query(collection(db, "tickets"), where("eventId", "==", id));
+            const ticketsSnap = await getDocs(q);
+            
+            // 2. Eliminar todas las entradas encontradas (pendientes, pagadas, usadas, rechazadas)
+            const deletePromises = ticketsSnap.docs.map(docSnap => deleteDoc(docSnap.ref));
+            await Promise.all(deletePromises);
+            
+            // 3. Eliminar el evento
+            await deleteDoc(doc(db, "events", id));
+            
+            showToast(`Evento y ${ticketsSnap.size} entrada(s) eliminados`, "success");
+        } catch(error) {
+            console.error(error);
+            showToast("Error al borrar evento.", "error");
         }
     }
 

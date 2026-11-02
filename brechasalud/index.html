@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full">
+<html lang="es" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La brecha socioeconómica de la salud</title>
+    <title>La brecha socioeconómica de la salud | Encuesta y Estadísticas en Vivo</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Alpine.js for reactive wizard and validation -->
+    <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             theme: {
@@ -26,8 +29,6 @@
                             500: '#10b981',
                             600: '#059669',
                             700: '#047857',
-                            800: '#065f46',
-                            900: '#064e3b',
                         },
                         health: {
                             50: '#f0f9ff',
@@ -35,7 +36,6 @@
                             500: '#0ea5e9',
                             600: '#0284c7',
                             700: '#0369a1',
-                            900: '#0c4a6e',
                         }
                     }
                 }
@@ -46,11 +46,11 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-health-50 via-brand-50 to-slate-100 min-h-full font-sans text-slate-800 antialiased flex flex-col justify-between" x-data="surveyApp()">
+<body class="min-h-full flex flex-col justify-between font-sans text-slate-800 antialiased" x-data="surveyApp()">
 
-    <!-- Header / Banner -->
-    <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+    <!-- Header y Navegación Principal -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center space-x-3">
                 <div class="bg-health-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -58,316 +58,424 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-slate-900 tracking-tight leading-tight">La brecha socioeconómica de la salud</h1>
+                    <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-tight">La brecha socioeconómica de la salud</h1>
                     <p class="text-xs text-slate-500 font-medium">Plan FinEs · Mar del Plata (Comisión 11202)</p>
                 </div>
             </div>
-            <!-- Progress indicator -->
-            <template x-if="step > 0 && step <= 3">
-                <div class="flex items-center space-x-2 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
-                    <span>Paso <span x-text="step"></span> de 3</span>
-                    <div class="w-16 bg-slate-200 h-2 rounded-full overflow-hidden">
-                        <div class="bg-health-600 h-full transition-all duration-300" :style="`width: ${(step / 3) * 100}%`"></div>
-                    </div>
-                </div>
-            </template>
+
+            <!-- Selector de Pestañas (Encuesta / Resultados) -->
+            <div class="flex bg-slate-100 p-1 rounded-xl text-xs font-semibold w-full sm:w-auto justify-center">
+                <button @click="currentTab = 'survey'" 
+                        :class="currentTab === 'survey' ? 'bg-white text-health-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                        class="px-4 py-2 rounded-lg transition-all flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Responder Encuesta</span>
+                </button>
+                <button @click="currentTab = 'stats'" 
+                        :class="currentTab === 'stats' ? 'bg-white text-health-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                        class="px-4 py-2 rounded-lg transition-all flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span>Estadísticas en Vivo</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-red-100 text-red-700 animate-pulse">EN VIVO</span>
+                </button>
+            </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="max-w-2xl w-full mx-auto px-4 py-8 flex-grow flex items-center justify-center">
-        <div class="bg-white shadow-xl shadow-slate-200/60 rounded-2xl border border-slate-100 w-full overflow-hidden transition-all duration-300">
-            
-            <!-- Toast notification for validation -->
-            <div x-show="showError" x-transition class="bg-red-50 border-l-4 border-red-500 p-4 m-6 mb-0 rounded-r-lg text-sm text-red-700 flex justify-between items-center" x-cloak>
-                <div class="flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
-                    <span x-text="errorMessage"></span>
+    <!-- Contenido Principal -->
+    <main class="max-w-4xl w-full mx-auto px-4 py-8 flex-grow">
+        
+        <!-- ================= TAB 1: FORMULARIO ENCUESTA ================= -->
+        <div x-show="currentTab === 'survey'" x-transition:enter="transition ease-out duration-300">
+            <div class="max-w-2xl mx-auto bg-white shadow-xl shadow-slate-200/60 rounded-2xl border border-slate-100 overflow-hidden">
+                
+                <!-- Barra de Progreso del Formulario -->
+                <template x-if="step > 0 && step <= 3">
+                    <div class="bg-slate-50 border-b border-slate-100 px-6 py-3 flex justify-between items-center text-xs text-slate-500 font-semibold">
+                        <span>Paso <span x-text="step"></span> de 3</span>
+                        <div class="w-32 bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div class="bg-health-600 h-full transition-all duration-300" :style="`width: ${(step / 3) * 100}%`"></div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Mensaje de Error / Validación -->
+                <div x-show="showError" x-transition class="bg-red-50 border-l-4 border-red-500 p-4 m-6 mb-0 rounded-r-lg text-sm text-red-700 flex justify-between items-center" x-cloak>
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <span x-text="errorMessage"></span>
+                    </div>
+                    <button @click="showError = false" class="text-red-400 hover:text-red-600 font-bold">&times;</button>
                 </div>
-                <button @click="showError = false" class="text-red-400 hover:text-red-600 font-bold">&times;</button>
+
+                <form @submit.prevent="submitForm">
+
+                    <!-- STEP 0: Consentimiento -->
+                    <div x-show="step === 0" class="p-6 sm:p-8">
+                        <div class="text-center mb-6">
+                            <span class="inline-block bg-health-100 text-health-700 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-2">Consentimiento Informado</span>
+                            <h2 class="text-2xl font-bold text-slate-900">¿Acepta responder esta encuesta anónima?</h2>
+                            <p class="text-sm text-slate-600 mt-2 max-w-md mx-auto">
+                                Su participación es anónima y los datos se registran en tiempo real para análisis estadístico académico sobre salud pública.
+                            </p>
+                        </div>
+
+                        <div class="space-y-3 max-w-md mx-auto my-6">
+                            <label class="flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.consent === 'si' ? 'border-health-600 bg-health-50/50 shadow-sm' : 'border-slate-200'">
+                                <input type="radio" name="consentimiento" value="si" x-model="formData.consent" class="text-health-600 focus:ring-health-500 h-4 w-4">
+                                <span class="ml-3 font-medium text-slate-800">Sí, acepto participar</span>
+                            </label>
+                            <label class="flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.consent === 'no' ? 'border-red-500 bg-red-50/50 shadow-sm' : 'border-slate-200'">
+                                <input type="radio" name="consentimiento" value="no" x-model="formData.consent" class="text-red-600 focus:ring-red-500 h-4 w-4">
+                                <span class="ml-3 font-medium text-slate-800">No acepto</span>
+                            </label>
+                        </div>
+
+                        <div x-show="formData.consent === 'no'" x-transition class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center text-amber-800 text-sm my-4" x-cloak>
+                            Respetamos su decisión. Puede explorar los resultados globales en la pestaña superior "Estadísticas en Vivo".
+                        </div>
+
+                        <div class="mt-8 flex justify-end">
+                            <button type="button" @click="nextStep" :disabled="!formData.consent" class="w-full sm:w-auto px-6 py-3 bg-health-600 hover:bg-health-700 disabled:bg-slate-300 text-white font-medium rounded-xl shadow-md transition-all flex items-center justify-center space-x-2">
+                                <span>Continuar</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 1: Datos Generales -->
+                    <div x-show="step === 1" class="p-6 sm:p-8 space-y-6" x-cloak>
+                        <div>
+                            <span class="text-xs font-bold text-health-600 uppercase tracking-widest">Sección 1 de 3</span>
+                            <h2 class="text-2xl font-bold text-slate-900 mt-1">Datos Generales</h2>
+                        </div>
+
+                        <!-- a) Edad -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700">a) Edad <span class="text-red-500">*</span></label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <template x-for="opt in ['18 a 29', '30 a 44', '45 a 59', '60 o más']">
+                                    <label class="flex items-center p-3.5 border rounded-xl cursor-pointer hover:bg-slate-50 transition-all" :class="formData.edad === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
+                                        <input type="radio" name="edad" :value="opt" x-model="formData.edad" class="text-health-600 focus:ring-health-500 h-4 w-4">
+                                        <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- b) Género -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700">b) Género <span class="text-red-500">*</span></label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <template x-for="opt in ['Mujer', 'Varón', 'No binarie / Género fluido', 'Otro / Prefiero no decirlo']">
+                                    <label class="flex items-center p-3.5 border rounded-xl cursor-pointer hover:bg-slate-50 transition-all" :class="formData.genero === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
+                                        <input type="radio" name="genero" :value="opt" x-model="formData.genero" class="text-health-600 focus:ring-health-500 h-4 w-4">
+                                        <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- c) Zona de residencia -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700">c) Zona de residencia <span class="text-red-500">*</span></label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <template x-for="opt in ['Centro o microcentro', 'Barrio cercano al centro', 'Barrio alejado del centro', 'Zonas periurbanas o rurales']">
+                                    <label class="flex items-center p-3.5 border rounded-xl cursor-pointer hover:bg-slate-50 transition-all" :class="formData.zona === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
+                                        <input type="radio" name="zona" :value="opt" x-model="formData.zona" class="text-health-600 focus:ring-health-500 h-4 w-4">
+                                        <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- d) Vive en GPD -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700">d) ¿Vive en el partido de General Pueyrredon? <span class="text-red-500">*</span></label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <template x-for="opt in ['Sí', 'No']">
+                                    <label class="flex items-center justify-center p-3.5 border rounded-xl cursor-pointer hover:bg-slate-50 transition-all" :class="formData.generalPueyrredon === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
+                                        <input type="radio" name="generalPueyrredon" :value="opt" x-model="formData.generalPueyrredon" class="text-health-600 focus:ring-health-500 h-4 w-4">
+                                        <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 flex justify-between border-t border-slate-100">
+                            <button type="button" @click="prevStep" class="px-5 py-2.5 border border-slate-300 text-slate-700 font-medium rounded-xl hover:bg-slate-50">Anterior</button>
+                            <button type="button" @click="nextStep" class="px-6 py-2.5 bg-health-600 hover:bg-health-700 text-white font-medium rounded-xl shadow-md flex items-center space-x-2">
+                                <span>Siguiente</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: Socioeconómico -->
+                    <div x-show="step === 2" class="p-6 sm:p-8 space-y-6" x-cloak>
+                        <div>
+                            <span class="text-xs font-bold text-health-600 uppercase tracking-widest">Sección 2 de 3</span>
+                            <h2 class="text-2xl font-bold text-slate-900 mt-1">Aspecto Socioeconómico</h2>
+                        </div>
+
+                        <!-- a) Educación -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700">a) Máximo nivel educativo alcanzado <span class="text-red-500">*</span></label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <template x-for="opt in ['Primario incompleto', 'Primario completo', 'Secundario incompleto', 'Secundario completo', 'Terciario incompleto', 'Terciario completo']">
+                                    <label class="flex items-center p-3.5 border rounded-xl cursor-pointer hover:bg-slate-50 transition-all" :class="formData.educacion === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
+                                        <input type="radio" name="educacion" :value="opt" x-model="formData.educacion" class="text-health-600 focus:ring-health-500 h-4 w-4">
+                                        <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- b) Situación Laboral -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700">b) Situación laboral <span class="text-red-500">*</span></label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <template x-for="opt in ['Trabajo registrado', 'Trabajo no registrado', 'Monotributista', 'Trabajo de temporada', 'Desempleado/a en búsqueda laboral', 'Jubilado y/o pensionado', 'No trabajo']">
+                                    <label class="flex items-center p-3.5 border rounded-xl cursor-pointer hover:bg-slate-50 transition-all" :class="formData.laboral === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
+                                        <input type="radio" name="laboral" :value="opt" x-model="formData.laboral" class="text-health-600 focus:ring-health-500 h-4 w-4">
+                                        <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- c) Personas en el hogar -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700">c) Personas que viven en el hogar (incluyéndole) <span class="text-red-500">*</span></label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <template x-for="opt in ['1', '2', '3 o 4', '5 o más']">
+                                    <label class="flex items-center justify-center p-3.5 border rounded-xl cursor-pointer hover:bg-slate-50 transition-all" :class="formData.personasHogar === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
+                                        <input type="radio" name="personasHogar" :value="opt" x-model="formData.personasHogar" class="text-health-600 focus:ring-health-500 h-4 w-4">
+                                        <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 flex justify-between border-t border-slate-100">
+                            <button type="button" @click="prevStep" class="px-5 py-2.5 border border-slate-300 text-slate-700 font-medium rounded-xl hover:bg-slate-50">Anterior</button>
+                            <button type="button" @click="nextStep" class="px-6 py-2.5 bg-health-600 hover:bg-health-700 text-white font-medium rounded-xl shadow-md flex items-center space-x-2">
+                                <span>Siguiente</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Cobertura de Salud -->
+                    <div x-show="step === 3" class="p-6 sm:p-8 space-y-6" x-cloak>
+                        <div>
+                            <span class="text-xs font-bold text-health-600 uppercase tracking-widest">Sección 3 de 3</span>
+                            <h2 class="text-2xl font-bold text-slate-900 mt-1">Cobertura y Atención de Salud</h2>
+                        </div>
+
+                        <!-- a) Cobertura -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700">a) Cobertura de salud <span class="text-red-500">*</span></label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <template x-for="opt in ['Obra social', 'Prepaga', 'Programa estatal', 'No tengo cobertura']">
+                                    <label class="flex items-center p-3.5 border rounded-xl cursor-pointer hover:bg-slate-50 transition-all" :class="formData.cobertura === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
+                                        <input type="radio" name="cobertura" :value="opt" x-model="formData.cobertura" class="text-health-600 focus:ring-health-500 h-4 w-4">
+                                        <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- b) Dónde se atiende -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700">b) ¿Dónde se atiende habitualmente? <span class="text-red-500">*</span></label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <template x-for="opt in ['CAPS', 'Hospital', 'Clínica o sanatorio', 'Consultorio particular', 'Sólo la guardia', 'No me atiendo habitualmente']">
+                                    <label class="flex items-center p-3.5 border rounded-xl cursor-pointer hover:bg-slate-50 transition-all" :class="formData.dondeSeAtiende === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
+                                        <input type="radio" name="dondeSeAtiende" :value="opt" x-model="formData.dondeSeAtiende" class="text-health-600 focus:ring-health-500 h-4 w-4">
+                                        <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 flex justify-between border-t border-slate-100">
+                            <button type="button" @click="prevStep" class="px-5 py-2.5 border border-slate-300 text-slate-700 font-medium rounded-xl hover:bg-slate-50">Anterior</button>
+                            <button type="submit" :disabled="isSubmitting" class="px-8 py-3 bg-brand-600 hover:bg-brand-700 disabled:bg-slate-300 text-white font-semibold rounded-xl shadow-lg flex items-center space-x-2">
+                                <span x-show="!isSubmitting">Enviar Respuestas</span>
+                                <span x-show="isSubmitting">Guardando...</span>
+                                <svg x-show="!isSubmitting" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: Agradecimiento -->
+                    <div x-show="step === 4" class="p-8 text-center space-y-6" x-cloak>
+                        <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+
+                        <div class="space-y-2">
+                            <h2 class="text-2xl font-bold text-slate-900">¡Muchas gracias por su respuesta!</h2>
+                            <p class="text-slate-600 max-w-md mx-auto text-sm leading-relaxed">
+                                Sus datos han sido guardados exitosamente y ya forman parte de nuestras estadísticas públicas en tiempo real.
+                            </p>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-health-50 to-brand-50 border border-health-100 rounded-2xl p-6 text-left space-y-3">
+                            <div class="flex items-center space-x-2 text-health-800 font-semibold text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-health-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                                <span>Reconocimiento Institucional</span>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Formulario diseñado por los alumnos de la <strong>Comisión 11202</strong> del <strong>Plan FinEs</strong> (Mar del Plata), con sede en la <strong>Biblioteca del Casino Central</strong>.
+                            </p>
+                        </div>
+
+                        <div class="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+                            <button type="button" @click="currentTab = 'stats'" class="px-6 py-2.5 bg-health-600 hover:bg-health-700 text-white font-medium rounded-xl transition-all text-sm shadow-md">
+                                Ver Gráficos en Vivo
+                            </button>
+                            <button type="button" @click="resetForm" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-all text-sm">
+                                Cargar otra respuesta
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: GRÁFICOS Y ESTADÍSTICAS EN VIVO ================= -->
+        <div x-show="currentTab === 'stats'" x-transition:enter="transition ease-out duration-300" x-cloak class="space-y-6">
+            
+            <!-- Resumen superior / Contador total -->
+            <div class="bg-gradient-to-r from-health-600 to-brand-600 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">Resultados y Gráficos en Vivo</h2>
+                    <p class="text-xs sm:text-sm text-health-100 mt-1">Conectado a Firebase Firestore · Actualización en tiempo real</p>
+                </div>
+                <div class="bg-white/20 backdrop-blur-md px-6 py-3 rounded-xl border border-white/30 text-center">
+                    <span class="block text-xs uppercase tracking-wider text-health-100 font-semibold">Total Respuestas</span>
+                    <span class="text-3xl font-extrabold" x-text="totalResponses">0</span>
+                </div>
             </div>
 
-            <!-- Formspree hidden form container -->
-            <form id="surveyForm" @submit.prevent="submitForm">
-
-                <!-- STEP 0: Consentimiento -->
-                <div x-show="step === 0" x-transition:enter="transition ease-out duration-300" class="p-6 sm:p-8">
-                    <div class="text-center mb-6">
-                        <span class="inline-block bg-health-100 text-health-700 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-2">Consentimiento Informado</span>
-                        <h2 class="text-2xl font-bold text-slate-900">¿Acepta responder esta encuesta anónima?</h2>
-                        <p class="text-sm text-slate-600 mt-2 max-w-md mx-auto">
-                            Su participación es totalmente voluntaria y anónima. Los datos recolectados tienen fines exclusivamente académicos y estadísticos para comprender las realidades de nuestra comunidad.
-                        </p>
-                    </div>
-
-                    <div class="space-y-3 max-w-md mx-auto my-6">
-                        <label class="flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.consent === 'si' ? 'border-health-600 bg-health-50/50 shadow-sm' : 'border-slate-200'">
-                            <input type="radio" name="consentimiento" value="si" x-model="formData.consent" class="text-health-600 focus:ring-health-500 h-4 w-4">
-                            <span class="ml-3 font-medium text-slate-800">Sí, acepto participar</span>
-                        </label>
-                        <label class="flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.consent === 'no' ? 'border-red-500 bg-red-50/50 shadow-sm' : 'border-slate-200'">
-                            <input type="radio" name="consentimiento" value="no" x-model="formData.consent" class="text-red-600 focus:ring-red-500 h-4 w-4">
-                            <span class="ml-3 font-medium text-slate-800">No acepto</span>
-                        </label>
-                    </div>
-
-                    <!-- Refusal state container -->
-                    <div x-show="formData.consent === 'no'" x-transition class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center text-amber-800 text-sm my-4" x-cloak>
-                        Comprendemos y respetamos su decisión. Le agradecemos de todos modos su tiempo e interés en esta iniciativa comunitaria. Puede cerrar esta ventana con total tranquilidad.
-                    </div>
-
-                    <div class="mt-8 flex justify-end">
-                        <button type="button" @click="nextStep" :disabled="!formData.consent" class="w-full sm:w-auto px-6 py-3 bg-health-600 hover:bg-health-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-medium rounded-xl shadow-md transition-all flex items-center justify-center space-x-2">
-                            <span>Continuar</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </button>
+            <!-- Dashboard Grid de Gráficos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Gráfico 1: Cobertura de Salud -->
+                <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-100">
+                    <h3 class="font-bold text-slate-800 text-sm sm:text-base mb-3 flex items-center justify-between">
+                        <span>Cobertura de Salud</span>
+                        <span class="text-xs font-normal text-slate-400">Doughnut</span>
+                    </h3>
+                    <div class="h-64 relative">
+                        <canvas id="chartCobertura"></canvas>
                     </div>
                 </div>
 
-                <!-- STEP 1: Sección 1 - Datos Generales -->
-                <div x-show="step === 1" x-transition:enter="transition ease-out duration-300" class="p-6 sm:p-8 space-y-6" x-cloak>
-                    <div>
-                        <span class="text-xs font-bold text-health-600 uppercase tracking-widest">Sección 1 de 3</span>
-                        <h2 class="text-2xl font-bold text-slate-900 mt-1">Datos Generales</h2>
-                        <p class="text-sm text-slate-500">Conozcamos algunos datos demográficos generales.</p>
-                    </div>
-
-                    <!-- a) Edad -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-semibold text-slate-700">a) Edad <span class="text-red-500">*</span></label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <template x-for="opt in ['18 a 29', '30 a 44', '45 a 59', '60 o más']">
-                                <label class="flex items-center p-3.5 border rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.edad === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
-                                    <input type="radio" name="edad" :value="opt" x-model="formData.edad" class="text-health-600 focus:ring-health-500 h-4 w-4">
-                                    <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
-                                </label>
-                            </template>
-                        </div>
-                    </div>
-
-                    <!-- b) Género -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-semibold text-slate-700">b) Género <span class="text-red-500">*</span></label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <template x-for="opt in ['Mujer', 'Varón', 'No binarie / Género fluido', 'Otro / Prefiero no decirlo']">
-                                <label class="flex items-center p-3.5 border rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.genero === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
-                                    <input type="radio" name="genero" :value="opt" x-model="formData.genero" class="text-health-600 focus:ring-health-500 h-4 w-4">
-                                    <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
-                                </label>
-                            </template>
-                        </div>
-                    </div>
-
-                    <!-- c) Zona de residencia -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-semibold text-slate-700">c) Zona de residencia <span class="text-red-500">*</span></label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <template x-for="opt in ['Centro o microcentro', 'Barrio cercano al centro', 'Barrio alejado del centro', 'Zonas periurbanas o rurales']">
-                                <label class="flex items-center p-3.5 border rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.zona === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
-                                    <input type="radio" name="zona_residencia" :value="opt" x-model="formData.zona" class="text-health-600 focus:ring-health-500 h-4 w-4">
-                                    <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
-                                </label>
-                            </template>
-                        </div>
-                    </div>
-
-                    <!-- d) ¿Vive en el partido de General Pueyrredon? -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-semibold text-slate-700">d) ¿Vive en el partido de General Pueyrredon? <span class="text-red-500">*</span></label>
-                        <div class="grid grid-cols-2 gap-3">
-                            <template x-for="opt in ['Sí', 'No']">
-                                <label class="flex items-center justify-center p-3.5 border rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.generalPueyrredon === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
-                                    <input type="radio" name="vive_general_pueyrredon" :value="opt" x-model="formData.generalPueyrredon" class="text-health-600 focus:ring-health-500 h-4 w-4">
-                                    <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
-                                </label>
-                            </template>
-                        </div>
-                    </div>
-
-                    <!-- Navigation buttons -->
-                    <div class="pt-4 flex justify-between items-center border-t border-slate-100">
-                        <button type="button" @click="prevStep" class="px-5 py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-xl transition-all">
-                            Anterior
-                        </button>
-                        <button type="button" @click="nextStep" class="px-6 py-2.5 bg-health-600 hover:bg-health-700 text-white font-medium rounded-xl shadow-md transition-all flex items-center space-x-2">
-                            <span>Siguiente</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </button>
+                <!-- Gráfico 2: Lugar de Atención -->
+                <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-100">
+                    <h3 class="font-bold text-slate-800 text-sm sm:text-base mb-3 flex items-center justify-between">
+                        <span>Lugar Habitual de Atención</span>
+                        <span class="text-xs font-normal text-slate-400">Barras Horizontales</span>
+                    </h3>
+                    <div class="h-64 relative">
+                        <canvas id="chartAtencion"></canvas>
                     </div>
                 </div>
 
-                <!-- STEP 2: Sección 2 - Socioeconómico -->
-                <div x-show="step === 2" x-transition:enter="transition ease-out duration-300" class="p-6 sm:p-8 space-y-6" x-cloak>
-                    <div>
-                        <span class="text-xs font-bold text-health-600 uppercase tracking-widest">Sección 2 de 3</span>
-                        <h2 class="text-2xl font-bold text-slate-900 mt-1">Aspecto Socioeconómico</h2>
-                        <p class="text-sm text-slate-500">Información educativa, laboral y del hogar.</p>
-                    </div>
-
-                    <!-- a) Máximo nivel educativo -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-semibold text-slate-700">a) Máximo nivel educativo alcanzado <span class="text-red-500">*</span></label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <template x-for="opt in ['Primario incompleto', 'Primario completo', 'Secundario incompleto', 'Secundario completo', 'Terciario / Universitario incompleto', 'Terciario / Universitario completo']">
-                                <label class="flex items-center p-3.5 border rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.educacion === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
-                                    <input type="radio" name="nivel_educativo" :value="opt" x-model="formData.educacion" class="text-health-600 focus:ring-health-500 h-4 w-4">
-                                    <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
-                                </label>
-                            </template>
-                        </div>
-                    </div>
-
-                    <!-- b) Situación laboral -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-semibold text-slate-700">b) Situación laboral <span class="text-red-500">*</span></label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <template x-for="opt in ['Trabajo registrado', 'Trabajo no registrado', 'Monotributista', 'Trabajo de temporada', 'Desempleado/a en búsqueda laboral', 'Jubilado y/o pensionado', 'No trabajo']">
-                                <label class="flex items-center p-3.5 border rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.laboral === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
-                                    <input type="radio" name="situacion_laboral" :value="opt" x-model="formData.laboral" class="text-health-600 focus:ring-health-500 h-4 w-4">
-                                    <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
-                                </label>
-                            </template>
-                        </div>
-                    </div>
-
-                    <!-- c) Personas que viven en el hogar -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-semibold text-slate-700">c) Personas que viven en el hogar (incluyendole) <span class="text-red-500">*</span></label>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            <template x-for="opt in ['1', '2', '3 o 4', '5 o más']">
-                                <label class="flex items-center justify-center p-3.5 border rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.personasHogar === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
-                                    <input type="radio" name="personas_hogar" :value="opt" x-model="formData.personasHogar" class="text-health-600 focus:ring-health-500 h-4 w-4">
-                                    <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
-                                </label>
-                            </template>
-                        </div>
-                    </div>
-
-                    <!-- Navigation buttons -->
-                    <div class="pt-4 flex justify-between items-center border-t border-slate-100">
-                        <button type="button" @click="prevStep" class="px-5 py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-xl transition-all">
-                            Anterior
-                        </button>
-                        <button type="button" @click="nextStep" class="px-6 py-2.5 bg-health-600 hover:bg-health-700 text-white font-medium rounded-xl shadow-md transition-all flex items-center space-x-2">
-                            <span>Siguiente</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </button>
+                <!-- Gráfico 3: Situación Laboral -->
+                <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-100">
+                    <h3 class="font-bold text-slate-800 text-sm sm:text-base mb-3 flex items-center justify-between">
+                        <span>Situación Laboral</span>
+                        <span class="text-xs font-normal text-slate-400">Barras</span>
+                    </h3>
+                    <div class="h-64 relative">
+                        <canvas id="chartLaboral"></canvas>
                     </div>
                 </div>
 
-                <!-- STEP 3: Sección 3 - Cobertura de salud -->
-                <div x-show="step === 3" x-transition:enter="transition ease-out duration-300" class="p-6 sm:p-8 space-y-6" x-cloak>
-                    <div>
-                        <span class="text-xs font-bold text-health-600 uppercase tracking-widest">Sección 3 de 3</span>
-                        <h2 class="text-2xl font-bold text-slate-900 mt-1">Cobertura y Atención de Salud</h2>
-                        <p class="text-sm text-slate-500">Última sección sobre acceso y atención sanitaria.</p>
-                    </div>
-
-                    <!-- a) Cobertura -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-semibold text-slate-700">a) Cobertura de salud <span class="text-red-500">*</span></label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <template x-for="opt in ['Obra social', 'Prepaga', 'Programa estatal', 'No tengo cobertura']">
-                                <label class="flex items-center p-3.5 border rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.cobertura === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
-                                    <input type="radio" name="cobertura_salud" :value="opt" x-model="formData.cobertura" class="text-health-600 focus:ring-health-500 h-4 w-4">
-                                    <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
-                                </label>
-                            </template>
-                        </div>
-                    </div>
-
-                    <!-- b) Donde se atiende -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-semibold text-slate-700">b) ¿Dónde se atiende habitualmente? <span class="text-red-500">*</span></label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <template x-for="opt in ['CAPS', 'Hospital', 'Clínica o sanatorio', 'Consultorio particular', 'Sólo la guardia', 'No me atiendo habitualmente']">
-                                <label class="flex items-center p-3.5 border rounded-xl cursor-pointer transition-all hover:bg-slate-50" :class="formData.dondeSeAtiende === opt ? 'border-health-600 bg-health-50/40 ring-1 ring-health-600' : 'border-slate-200'">
-                                    <input type="radio" name="donde_se_atiende" :value="opt" x-model="formData.dondeSeAtiende" class="text-health-600 focus:ring-health-500 h-4 w-4">
-                                    <span class="ml-3 text-sm font-medium text-slate-700" x-text="opt"></span>
-                                </label>
-                            </template>
-                        </div>
-                    </div>
-
-                    <!-- Navigation buttons -->
-                    <div class="pt-4 flex justify-between items-center border-t border-slate-100">
-                        <button type="button" @click="prevStep" class="px-5 py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-xl transition-all">
-                            Anterior
-                        </button>
-                        <button type="submit" :disabled="isSubmitting" class="px-8 py-3 bg-brand-600 hover:bg-brand-700 disabled:bg-slate-300 text-white font-semibold rounded-xl shadow-lg shadow-brand-600/20 transition-all flex items-center space-x-2">
-                            <span x-show="!isSubmitting">Enviar Encuesta</span>
-                            <span x-show="isSubmitting">Enviando...</span>
-                            <svg x-show="!isSubmitting" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <svg x-show="isSubmitting" class="animate-spin h-5 w-5 text-white ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </button>
+                <!-- Gráfico 4: Distribución por Edad -->
+                <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-100">
+                    <h3 class="font-bold text-slate-800 text-sm sm:text-base mb-3 flex items-center justify-between">
+                        <span>Rangos Etarios</span>
+                        <span class="text-xs font-normal text-slate-400">Pie</span>
+                    </h3>
+                    <div class="h-64 relative">
+                        <canvas id="chartEdad"></canvas>
                     </div>
                 </div>
 
-                <!-- STEP 4: Éxito y Agradecimiento institucional -->
-                <div x-show="step === 4" x-transition:enter="transition ease-out duration-300" class="p-8 text-center space-y-6" x-cloak>
-                    <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
-
-                    <div class="space-y-2">
-                        <h2 class="text-2xl font-bold text-slate-900">¡Muchas gracias por su participación!</h2>
-                        <p class="text-slate-600 max-w-md mx-auto text-sm leading-relaxed">
-                            Su aporte es fundamental para visibilizar la realidad sanitaria de nuestra comunidad y generar espacios de reflexión y mejora colectiva.
-                        </p>
-                    </div>
-
-                    <!-- Créditos institucionales destacados -->
-                    <div class="bg-gradient-to-r from-health-50 to-brand-50 border border-health-100 rounded-2xl p-6 text-left space-y-3 shadow-sm">
-                        <div class="flex items-center space-x-2 text-health-800 font-semibold text-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-health-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                            <span>Institución y Autores</span>
-                        </div>
-                        <p class="text-xs text-slate-600 leading-relaxed">
-                            Este formulario fue elaborado y diseñado por los alumnos de la <strong>comisión 11202</strong> del <strong>Plan FinEs</strong> (Mar del Plata), con sede en la histórica <strong>Biblioteca del Casino Central</strong>.
-                        </p>
-                    </div>
-
-                    <div class="pt-2">
-                        <button type="button" @click="resetForm" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-all text-sm">
-                            Realizar otra respuesta
-                        </button>
+                <!-- Gráfico 5: Nivel Educativo (Full Width en MD) -->
+                <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-100 md:col-span-2">
+                    <h3 class="font-bold text-slate-800 text-sm sm:text-base mb-3 flex items-center justify-between">
+                        <span>Máximo Nivel Educativo Alcanzado</span>
+                        <span class="text-xs font-normal text-slate-400">Barras</span>
+                    </h3>
+                    <div class="h-64 relative">
+                        <canvas id="chartEducacion"></canvas>
                     </div>
                 </div>
 
-            </form>
+            </div>
         </div>
+
     </main>
 
     <!-- Footer -->
-    <footer class="text-center py-6 text-xs text-slate-500 border-t border-slate-200/60 bg-white/40">
-        <p>La brecha socioeconómica de la salud · Mar del Plata</p>
+    <footer class="text-center py-6 text-xs text-slate-500 border-t border-slate-200 bg-white">
+        <p>Encuesta Socioeconómica de Salud · Plan FinEs 11202 · Mar del Plata</p>
     </footer>
 
-    <!-- Script Application Logic -->
+    <!-- Script de Inicialización de Firebase v10 y Lógica del Sistema -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Configuración entregada de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCorV1LLTppHTcdQRRtSExZ8taw0i7lOkA",
+            authDomain: "formularioagorlabfines.firebaseapp.com",
+            projectId: "formularioagorlabfines",
+            storageBucket: "formularioagorlabfines.firebasestorage.app",
+            messagingSenderId: "612205352726",
+            appId: "1:612205352726:web:d40f04682e128140fbe237"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Exponer funciones necesarias globalmente para Alpine.js
+        window.db = db;
+        window.addSurveyDoc = (data) => addDoc(collection(db, "encuesta_salud"), data);
+        window.listenSurveyDocs = (callback) => onSnapshot(collection(db, "encuesta_salud"), callback);
+    </script>
+
     <script>
+        let chartsInstance = {};
+
         function surveyApp() {
             return {
+                currentTab: 'survey',
                 step: 0,
                 isSubmitting: false,
                 showError: false,
                 errorMessage: '',
+                totalResponses: 0,
                 formData: {
                     consent: '',
                     edad: '',
@@ -380,125 +488,157 @@
                     cobertura: '',
                     dondeSeAtiende: ''
                 },
+                init() {
+                    // Iniciar escucha en vivo con Firebase cuando la ventana cargue
+                    const checkFirebase = setInterval(() => {
+                        if (window.listenSurveyDocs) {
+                            clearInterval(checkFirebase);
+                            window.listenSurveyDocs((snapshot) => {
+                                const docs = [];
+                                snapshot.forEach((doc) => docs.push(doc.data()));
+                                this.totalResponses = docs.length;
+                                this.updateCharts(docs);
+                            });
+                        }
+                    }, 200);
+                },
                 nextStep() {
                     this.showError = false;
-                    
-                    // Validation for Step 0 (Consent)
                     if (this.step === 0) {
                         if (!this.formData.consent) {
-                            this.errorMessage = 'Por favor, indique si acepta responder la encuesta.';
+                            this.errorMessage = 'Por favor seleccione una opción.';
                             this.showError = true;
                             return;
                         }
-                        if (this.formData.consent === 'no') {
-                            return; // Stop flow politely
-                        }
+                        if (this.formData.consent === 'no') return;
                         this.step = 1;
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
                         return;
                     }
-
-                    // Validation for Step 1 (General Data)
                     if (this.step === 1) {
                         if (!this.formData.edad || !this.formData.genero || !this.formData.zona || !this.formData.generalPueyrredon) {
-                            this.errorMessage = 'Por favor, complete todas las preguntas de la Sección 1.';
+                            this.errorMessage = 'Responda todas las preguntas de la Sección 1.';
                             this.showError = true;
                             return;
                         }
                         this.step = 2;
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
                         return;
                     }
-
-                    // Validation for Step 2 (Socioeconomic Data)
                     if (this.step === 2) {
                         if (!this.formData.educacion || !this.formData.laboral || !this.formData.personasHogar) {
-                            this.errorMessage = 'Por favor, complete todas las preguntas de la Sección 2.';
+                            this.errorMessage = 'Responda todas las preguntas de la Sección 2.';
                             this.showError = true;
                             return;
                         }
                         this.step = 3;
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
                         return;
                     }
                 },
                 prevStep() {
                     this.showError = false;
-                    if (this.step > 0) {
-                        this.step--;
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
+                    if (this.step > 0) this.step--;
                 },
-                submitForm() {
+                async submitForm() {
                     this.showError = false;
                     if (!this.formData.cobertura || !this.formData.dondeSeAtiende) {
-                        this.errorMessage = 'Por favor, complete todas las preguntas de la Sección 3.';
+                        this.errorMessage = 'Responda todas las preguntas de la Sección 3.';
                         this.showError = true;
                         return;
                     }
 
                     this.isSubmitting = true;
 
-                    // Prepare payload for Formspree
-                    const dataToSend = new FormData();
-                    dataToSend.append('Consentimiento', this.formData.consent);
-                    dataToSend.append('Edad', this.formData.edad);
-                    dataToSend.append('Genero', this.formData.genero);
-                    dataToSend.append('ZonaResidencia', this.formData.zona);
-                    dataToSend.append('ViveGeneralPueyrredon', this.formData.generalPueyrredon);
-                    dataToSend.append('NivelEducativo', this.formData.educacion);
-                    dataToSend.append('SituacionLaboral', this.formData.laboral);
-                    dataToSend.append('PersonasHogar', this.formData.personasHogar);
-                    dataToSend.append('CoberturasSalud', this.formData.cobertura);
-                    dataToSend.append('DondeSeAtiende', this.formData.dondeSeAtiende);
+                    const payload = {
+                        ...this.formData,
+                        fecha: new Date().toISOString()
+                    };
 
-                    fetch('https://formspree.io/f/xjyypegb', {
-                        method: 'POST',
-                        body: dataToSend,
-                        headers: {
-                            'Accept': 'application/json'
+                    try {
+                        // 1. Guardar en Firebase Firestore
+                        if (window.addSurveyDoc) {
+                            await window.addSurveyDoc(payload);
                         }
-                    })
-                    .then(response => {
+
+                        // 2. Respaldo opcional en Formspree
+                        const formspreeData = new FormData();
+                        Object.keys(payload).forEach(key => formspreeData.append(key, payload[key]));
+                        fetch('https://formspree.io/f/xjyypegb', { method: 'POST', body: formspreeData, headers: { 'Accept': 'application/json' } }).catch(() => {});
+
                         this.isSubmitting = false;
-                        if (response.ok) {
-                            this.step = 4; // Success step
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        } else {
-                            response.json().then(data => {
-                                if (data && data.errors) {
-                                    this.errorMessage = data.errors.map(err => err.message).join(', ');
-                                } else {
-                                    this.errorMessage = 'Hubo un error al enviar el formulario. Por favor, intente nuevamente.';
-                                }
-                                this.showError = true;
-                            }).catch(() => {
-                                this.errorMessage = 'Hubo un error al enviar el formulario. Por favor, intente nuevamente.';
-                                this.showError = true;
-                            });
-                        }
-                    })
-                    .catch(() => {
+                        this.step = 4;
+                    } catch (e) {
+                        console.error(e);
                         this.isSubmitting = false;
-                        this.errorMessage = 'Error de conexión. Verifique su red e intente nuevamente.';
+                        this.errorMessage = 'Hubo un inconveniente al guardar. Intente nuevamente.';
                         this.showError = true;
-                    });
+                    }
                 },
                 resetForm() {
                     this.step = 0;
-                    this.formData = {
-                        consent: '',
-                        edad: '',
-                        genero: '',
-                        zona: '',
-                        generalPueyrredon: '',
-                        educacion: '',
-                        laboral: '',
-                        personasHogar: '',
-                        cobertura: '',
-                        dondeSeAtiende: ''
+                    this.formData = { consent: '', edad: '', genero: '', zona: '', generalPueyrredon: '', educacion: '', laboral: '', personasHogar: '', cobertura: '', dondeSeAtiende: '' };
+                },
+                updateCharts(docs) {
+                    if (!docs || docs.length === 0) return;
+
+                    // Contadores de frecuencia
+                    const countByField = (field) => {
+                        const acc = {};
+                        docs.forEach(d => {
+                            const val = d[field];
+                            if (val) acc[val] = (acc[val] || 0) + 1;
+                        });
+                        return acc;
                     };
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                    // 1. Cobertura (Doughnut)
+                    const cobData = countByField('cobertura');
+                    this.renderSingleChart('chartCobertura', 'doughnut', Object.keys(cobData), Object.values(cobData), ['#0284c7', '#10b981', '#f59e0b', '#ef4444']);
+
+                    // 2. Atención Habitual (Horizontal Bar)
+                    const atenData = countByField('dondeSeAtiende');
+                    this.renderSingleChart('chartAtencion', 'bar', Object.keys(atenData), Object.values(atenData), '#3b82f6', { indexAxis: 'y' });
+
+                    // 3. Situación Laboral (Bar)
+                    const labData = countByField('laboral');
+                    this.renderSingleChart('chartLaboral', 'bar', Object.keys(labData), Object.values(labData), '#6366f1');
+
+                    // 4. Edad (Pie)
+                    const edadData = countByField('edad');
+                    this.renderSingleChart('chartEdad', 'pie', Object.keys(edadData), Object.values(edadData), ['#38bdf8', '#34d399', '#fbbf24', '#f87171']);
+
+                    // 5. Educación (Bar)
+                    const eduData = countByField('educacion');
+                    this.renderSingleChart('chartEducacion', 'bar', Object.keys(eduData), Object.values(eduData), '#14b8a6');
+                },
+                renderSingleChart(canvasId, type, labels, data, colors, extraOptions = {}) {
+                    const ctx = document.getElementById(canvasId);
+                    if (!ctx) return;
+
+                    if (chartsInstance[canvasId]) {
+                        chartsInstance[canvasId].destroy();
+                    }
+
+                    chartsInstance[canvasId] = new Chart(ctx, {
+                        type: type,
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: data,
+                                backgroundColor: colors,
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: type === 'doughnut' || type === 'pie',
+                                    position: 'bottom'
+                                }
+                            },
+                            ...extraOptions
+                        }
+                    });
                 }
             }
         }

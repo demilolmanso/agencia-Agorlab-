@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AGORLAB — El fin del alquiler</title>
+    <title>AGORLAB</title>
     
     <!-- Metadatos Open Graph para WhatsApp y Redes Sociales -->
-    <meta property="og:title" content="AGORLAB — El fin del alquiler">
-    <meta property="og:description" content="Las plataformas masivas están hechas para todos, por ende, no están hechas para vos. Construyamos para vos.">
+    <meta property="og:title" content="AGORLAB — Ecosistema Digital">
+    <meta property="og:description" content="No somos solo una marca. Somos un laboratorio de plataformas que resuelven, conectan y entretienen.">
     <meta property="og:image" content="https://agorlab.com/og-image.jpg">
     <meta property="og:url" content="https://agorlab.com">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     
-    <!-- Favicon: Tu firma autógrafa -->
+    <!-- Favicon: Firma autógrafa (Exacto al original) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 411 419'><path fill='none' stroke='white' stroke-width='20' stroke-linecap='round' stroke-linejoin='round' d='M 105.8 176.9 Q 122.3 189.7, 129.1 191.5 Q 135.8 193.4, 146.6 193.6 Q 157.4 193.9, 174.5 189.2 Q 191.7 184.6, 208.6 177.6 Q 225.6 170.6, 237.9 164.5 Q 250.2 158.4, 258.1 152.9 Q 266.1 147.5, 270.3 144.6 Q 274.5 141.8, 274.8 140.7 Q 275.2 139.6, 273.4 139.7 Q 271.7 139.8, 260.6 140.7 Q 249.4 141.6, 233.8 146.8 Q 218.1 151.9, 203.5 160.8 Q 188.8 169.7, 177.6 178.6 Q 166.5 187.4, 157.8 196.6 Q 149.1 205.8, 143.2 214.2 Q 137.4 222.7, 133.5 231.5 Q 129.7 240.2, 127.9 246.5 Q 126.2 252.7, 126.1 256.7 Q 126.0 260.7, 127.3 263.4 Q 128.5 266.1, 133.9 267.2 Q 139.2 268.3, 152.3 261.5 Q 165.5 254.8, 177.9 245.7 Q 190.4 236.7, 204.7 225.8 Q 219.1 214.9, 232.1 206.0 Q 245.1 197.0, 254.4 191.4 Q 263.7 185.8, 268.6 184.4 Q 273.5 183.0, 274.0 183.0 Q 274.4 183.0, 274.2 183.4 Q 274.0 183.8, 270.6 195.9 Q 267.2 208.0, 266.3 211.4 Q 265.4 214.9, 265.4 216.3 Q 265.3 217.8, 266.1 218.1 Q 266.9 218.4, 275.5 215.9 Q 284.1 213.5, 295.4 207.8 Q 306.6 202.1, 314.6 197.2 Q 322.7 192.2, 328.2 188.8 Q 333.8 185.3, 335.5 183.8 Q 337.2 182.2, 337.5 182.7 Q 337.7 183.2, 338.2 186.1 Q 338.7 188.9, 337.8 195.9 Q 336.8 202.8, 333.2 213.5 Q 329.7 224.2, 320.6 245.0 Q 311.5 265.8, 306.9 274.5 L 302.4 283.1'/></svg>">
     
     <!-- Tipografía Space Mono -->
@@ -26,7 +26,7 @@
             --bg: #000000;
             --text: #ffffff;
             --border: rgba(255, 255, 255, 0.2);
-            --crt-glow: text-shadow: 1px 0px 2px rgba(255, 0, 0, 0.6), -1px 0px 2px rgba(0, 255, 255, 0.6);
+            --crt-glow: 1px 0px 2px rgba(255, 0, 0, 0.6), -1px 0px 2px rgba(0, 255, 255, 0.6);
             --crt-svg-glow: drop-shadow(1px 0px 2px rgba(255, 0, 0, 0.6)) drop-shadow(-1px 0px 2px rgba(0, 255, 255, 0.6));
         }
 
@@ -80,13 +80,8 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .crt::after {
-                animation: none;
-                opacity: 0.02;
-            }
-            .dynamic-word.glitching {
-                animation: none !important;
-            }
+            .crt::after { animation: none; opacity: 0.02; }
+            .dynamic-word.glitching { animation: none !important; }
         }
 
         /* --- LAYOUT GENERAL --- */
@@ -115,7 +110,7 @@
             font-weight: 700;
             font-size: clamp(1rem, 3vw, 1.5rem);
             text-transform: uppercase;
-            var(--crt-glow);
+            text-shadow: var(--crt-glow);
         }
 
         .nav-signature {
@@ -131,9 +126,7 @@
         }
 
         /* --- HERO & MANIFIESTO --- */
-        header.hero {
-            margin-bottom: 80px;
-        }
+        header.hero { margin-bottom: 80px; }
 
         h1 {
             font-size: clamp(2.5rem, 8vw, 6rem);
@@ -141,7 +134,7 @@
             line-height: 1;
             margin-bottom: 20px;
             text-transform: uppercase;
-            var(--crt-glow);
+            text-shadow: var(--crt-glow);
         }
 
         .hero-subtitle {
@@ -216,11 +209,22 @@
             padding: 30px 20px;
             transition: all 0.2s;
             position: relative;
+            text-decoration: none;
+            color: var(--text);
+            display: block;
         }
 
         .editorial-item:hover {
             border-color: var(--text);
             background: rgba(255,255,255,0.05);
+        }
+
+        .editorial-item.archived {
+            opacity: 0.5;
+            border-style: dashed;
+        }
+        .editorial-item.archived:hover {
+            opacity: 0.8;
         }
 
         .item-index {
@@ -236,12 +240,6 @@
             text-transform: uppercase;
         }
 
-        .item-content h2 span {
-            text-decoration: line-through;
-            opacity: 0.5;
-            margin-right: 10px;
-        }
-
         .item-content p {
             font-size: 0.95rem;
             margin-bottom: 15px;
@@ -255,7 +253,6 @@
             display: inline-block;
         }
 
-        /* Botón interno de la tarjeta */
         .niche-link {
             display: inline-block;
             margin-top: 20px;
@@ -364,18 +361,8 @@
                 padding: 40px;
             }
             .item-index { margin-bottom: 0; }
-            
-            .item-content {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            footer.bottom-bar {
-                flex-direction: row;
-                justify-content: space-between;
-                text-align: left;
-            }
+            .item-content { display: flex; flex-direction: column; align-items: flex-start; }
+            footer.bottom-bar { flex-direction: row; justify-content: space-between; text-align: left; }
         }
     </style>
 </head>
@@ -386,148 +373,106 @@
         <nav>
             <div class="logo">
                 AGORLAB
-                <!-- Firma inyectada como isotipo -->
                 <svg class="nav-signature" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 411 419">
                     <path fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" d="M 105.8 176.9 Q 122.3 189.7, 129.1 191.5 Q 135.8 193.4, 146.6 193.6 Q 157.4 193.9, 174.5 189.2 Q 191.7 184.6, 208.6 177.6 Q 225.6 170.6, 237.9 164.5 Q 250.2 158.4, 258.1 152.9 Q 266.1 147.5, 270.3 144.6 Q 274.5 141.8, 274.8 140.7 Q 275.2 139.6, 273.4 139.7 Q 271.7 139.8, 260.6 140.7 Q 249.4 141.6, 233.8 146.8 Q 218.1 151.9, 203.5 160.8 Q 188.8 169.7, 177.6 178.6 Q 166.5 187.4, 157.8 196.6 Q 149.1 205.8, 143.2 214.2 Q 137.4 222.7, 133.5 231.5 Q 129.7 240.2, 127.9 246.5 Q 126.2 252.7, 126.1 256.7 Q 126.0 260.7, 127.3 263.4 Q 128.5 266.1, 133.9 267.2 Q 139.2 268.3, 152.3 261.5 Q 165.5 254.8, 177.9 245.7 Q 190.4 236.7, 204.7 225.8 Q 219.1 214.9, 232.1 206.0 Q 245.1 197.0, 254.4 191.4 Q 263.7 185.8, 268.6 184.4 Q 273.5 183.0, 274.0 183.0 Q 274.4 183.0, 274.2 183.4 Q 274.0 183.8, 270.6 195.9 Q 267.2 208.0, 266.3 211.4 Q 265.4 214.9, 265.4 216.3 Q 265.3 217.8, 266.1 218.1 Q 266.9 218.4, 275.5 215.9 Q 284.1 213.5, 295.4 207.8 Q 306.6 202.1, 314.6 197.2 Q 322.7 192.2, 328.2 188.8 Q 333.8 185.3, 335.5 183.8 Q 337.2 182.2, 337.5 182.7 Q 337.7 183.2, 338.2 186.1 Q 338.7 188.9, 337.8 195.9 Q 336.8 202.8, 333.2 213.5 Q 329.7 224.2, 320.6 245.0 Q 311.5 265.8, 306.9 274.5 L 302.4 283.1"/>
                 </svg>
             </div>
-            <div class="nav-meta">Mar del Plata &mdash; Studio</div>
+            <div class="nav-meta">Mar del Plata &mdash; Agorlab</div>
         </nav>
 
         <!-- Hero & Manifiesto -->
         <header class="hero">
-            <h1>EL FIN DEL ALQUILER.</h1>
-            <div class="hero-subtitle">(De software).</div>
+            <h1>AGORLAB.</h1>
+            <div class="hero-subtitle">(Productos propios, reglas propias.)</div>
             
             <div class="manifesto-box">
-                <p>El software que usa tu empresa no tiene por qué estar limitado por parámetros ajenos. Dejá de adaptar tu negocio a herramientas genéricas y de chocar contra paredes cuando necesitás una función específica.</p>
-                <p><strong>Las plataformas masivas están hechas para todos, por ende, no están hechas para vos.</strong></p>
+                <p>Construimos plataformas que viven, crecen y pertenecen a nuestro universo.</p>
+                <p><strong>Cada proyecto es una pieza independiente, diseñada para resolver, conectar o entretener sin las limitaciones de las herramientas genéricas.</strong></p>
                 
-                <!-- Palabra con resalte invertido y animación al cambiar -->
                 <div class="highlight-statement">
-                    CONSTRUYAMOS PARA VOS. <span id="changing-word" class="dynamic-word">TU EMPRESA</span>, TUS REGLAS.
+                    EXPLORÁ NUESTRO UNIVERSO. <span id="changing-word" class="dynamic-word">PLATAFORMAS</span> PROPIAS.
                 </div>
             </div>
         </header>
 
-        <!-- Catálogo de la Independencia (Comparaciones VS) -->
-        <div class="section-title">// EL CATÁLOGO DE LA INDEPENDENCIA</div>
-        <div class="editorial-grid">
-            <article class="editorial-item">
-                <div class="item-index">01</div>
-                <div class="item-content">
-                    <h2><span>Meet, Zoom, Discord</span> VS.</h2>
-                    <p>Tu propia plataforma de videollamadas y comunicación privada, adaptada exactamente a la estética y funciones que vos querés. Cero límites de terceros.</p>
-                </div>
-                <div class="item-tag">[ Comunicaciones ]</div>
-            </article>
-
-            <article class="editorial-item">
-                <div class="item-index">02</div>
-                <div class="item-content">
-                    <h2><span>PedidosYa, Rappi</span> VS.</h2>
-                    <p>Tu propio sistema de delivery y pedidos directos para tu local. Dejá de regalarle hasta un 30% de margen por cada plato que vendés.</p>
-                </div>
-                <div class="item-tag">[ Gastronomía ]</div>
-            </article>
-
-            <article class="editorial-item">
-                <div class="item-index">03</div>
-                <div class="item-content">
-                    <h2><span>Venti, Passline</span> VS.</h2>
-                    <p>Tu propia app de ticketing, venta de entradas y administración para tus eventos. Todo bajo tu control y sin retenciones usureras.</p>
-                </div>
-                <div class="item-tag">[ Eventos / Cultura ]</div>
-            </article>
-
-            <article class="editorial-item">
-                <div class="item-index">04</div>
-                <div class="item-content">
-                    <h2><span>Tienda Nube, Shopify</span> VS.</h2>
-                    <p>Tu propio e-commerce propietario. Nada de plantillas alquiladas: el código es tuyo y la plata va directo a tu Mercado Pago.</p>
-                </div>
-                <div class="item-tag">[ Retail / E-commerce ]</div>
-            </article>
-        </div>
-
-        <!-- Soluciones Específicas (Landings Satélite) -->
-        <div class="section-title" style="margin-top: 60px;">// SOLUCIONES ESPECÍFICAS POR RUBRO</div>
+        <!-- Catálogo: Ecosistema Activo -->
+        <div class="section-title">// EL ECOSISTEMA ACTIVO</div>
         <div class="editorial-grid">
             
-            <article class="editorial-item">
+            <a href="/PAE" class="editorial-item">
                 <div class="item-index">01</div>
                 <div class="item-content">
-                    <h2>PELUQUERÍAS Y BARBERÍAS</h2>
-                    <p>App de reservas automáticas, fichas técnicas a medida y cero licencias mensuales por agenda. Dejá de perder horas respondiendo WhatsApps.</p>
-                    <a href="/pelu" class="niche-link">VER SISTEMA &rarr;</a>
+                    <h2>PAE CONECTA</h2>
+                    <p>Plataforma integral para adolescentes y jóvenes sin cuidados parentales (que viven en hogares convivenciales o con familias cuidadoras). Tecnología real al servicio de la comunidad.</p>
                 </div>
-                <div class="item-tag">[ Estética ]</div>
-            </article>
+                <div class="item-tag">[ Redes / Apoyo / Comunidad ]</div>
+            </a>
 
-            <article class="editorial-item">
+            <a href="/agorlives" class="editorial-item">
                 <div class="item-index">02</div>
                 <div class="item-content">
-                    <h2>GASTRONOMÍA Y RESTAURANTES</h2>
-                    <p>App de delivery propia (chau PedidosYa), menú interactivo inteligente, comanderas y un sistema de caja ultra sencillo.</p>
-                    <a href="/gastro" class="niche-link">VER SISTEMA &rarr;</a>
+                    <h2>AGORLIVES</h2>
+                    <p>Sistema de ticketing, venta de entradas y administración para eventos, recitales y boliches.</p>
                 </div>
-                <div class="item-tag">[ Gastronomía ]</div>
-            </article>
+                <div class="item-tag">[ Eventos / Cultura ]</div>
+            </a>
 
-            <article class="editorial-item">
+            <a href="/shopping" class="editorial-item">
                 <div class="item-index">03</div>
                 <div class="item-content">
-                    <h2>INDUMENTARIA Y RETAIL</h2>
-                    <p>E-commerce propietario sin comisiones de Tienda Nube, caja unificada que descuenta el stock web y sistemas de drops para showrooms.</p>
-                    <a href="/indum" class="niche-link">VER SISTEMA &rarr;</a>
+                    <h2>AGORSHOPPING</h2>
+                    <p>Nuestra tienda digital oficial. Un caso de éxito en experiencia de usuario y comercio electrónico.</p>
                 </div>
-                <div class="item-tag">[ Retail ]</div>
-            </article>
+                <div class="item-tag">[ Retail / E-commerce ]</div>
+            </a>
 
-            <article class="editorial-item">
+            <a href="/tv" class="editorial-item">
                 <div class="item-index">04</div>
                 <div class="item-content">
-                    <h2>ACADEMIAS Y CLUBES</h2>
-                    <p>App para alumnos, suscripciones de cobro automático con tarjeta, gestión de deudores y molinetes controlados por NFC.</p>
-                    <a href="/clubes" class="niche-link">VER SISTEMA &rarr;</a>
+                    <h2>AGORTV</h2>
+                    <p>Alternativa libre para disfrutar películas y series gratuitamente. <br><em style="color: #fbbf24; font-size: 0.85rem;">⚠️ Se recomienda el uso de bloqueador de anuncios en el navegador.</em></p>
                 </div>
-                <div class="item-tag">[ Educación ]</div>
-            </article>
-
-            <article class="editorial-item">
-                <div class="item-index">05</div>
-                <div class="item-content">
-                    <h2>CLÍNICAS Y CONSULTORIOS</h2>
-                    <p>Agenda inteligente para evitar ausentismos, historias clínicas limpias y rápidas, sin pagar licencias abusivas por cada nuevo médico.</p>
-                    <a href="/consul" class="niche-link">VER SISTEMA &rarr;</a>
-                </div>
-                <div class="item-tag">[ Salud ]</div>
-            </article>
-
-            <article class="editorial-item">
-                <div class="item-index">06</div>
-                <div class="item-content">
-                    <h2>COMPLEJOS DEPORTIVOS</h2>
-                    <p>Grilla de canchas interactiva, pago de seña dividido, automatización de encendido de luces y unificación de la caja con el buffet.</p>
-                    <a href="/complejos" class="niche-link">VER SISTEMA &rarr;</a>
-                </div>
-                <div class="item-tag">[ Deportes ]</div>
-            </article>
+                <div class="item-tag" style="border-color: #fbbf24; color: #fbbf24;">[ Entretenimiento ]</div>
+            </a>
 
         </div>
 
-        <!-- Y mucho más -->
+        <!-- Catálogo: Historia y Equipo -->
+        <div class="section-title" style="margin-top: 60px;">// HISTORIA Y EQUIPO</div>
+        <div class="editorial-grid">
+            
+            <a href="/agencia" class="editorial-item">
+                <div class="item-index">01</div>
+                <div class="item-content">
+                    <h2>AGORLAB AGENCIA</h2>
+                    <p>El fin del modelo de alquiler de software. Conocé la visión y las propuestas comerciales de nuestro ecosistema.</p>
+                </div>
+                <div class="item-tag">[ Agencia de sofware ]</div>
+            </a>
+
+            <a href="/demian" class="editorial-item">
+                <div class="item-index">02</div>
+                <div class="item-content">
+                    <h2>Demián</h2>
+                    <p>Sitio personal oficial de uno de los fundadores de Agorlab. Ideas y proyectos independientes.</p>
+                </div>
+                <div class="item-tag">[ Blog / Portafolio ]</div>
+            </a>
+
+        </div>
+
+        <!-- Extra Section -->
         <section class="extra-section">
-            <h3>Y MUCHO MÁS...</h3>
-            <p>¿Tenés un proceso interno que hacés a mano porque ningún sistema lo hace como vos querés? ¿Se te ocurrió una plataforma disruptiva y querés el MVP ya en la calle?</p>
+            <h3>¿QUERÉS SER PARTE DEL ECOSISTEMA?</h3>
+            <p>¿Tenés una idea disruptiva, un proceso interno que ningún sistema resuelve o querés integrar tu negocio a nuestras plataformas?</p>
             <br>
-            <p>Si se puede imaginar y requiere lógica, <strong>lo programamos a medida desde cero</strong>.</p>
+            <p>Si se puede imaginar y requiere lógica, <strong>lo construimos</strong>.</p>
         </section>
 
         <!-- CTA Final -->
         <section class="footer-cta">
-            <h2>Invertí una vez en tecnología real. Dejá de pagar micromensualidades que te desangran.</h2>
-            <a href="https://wa.me/5491121722028?text=Hola,%20quiero%20conocer%20m%C3%A1s%20sobre%20AGORLAB." target="_blank" rel="noopener noreferrer" class="btn-cta">
+            <h2>Tecnología real, cero cajas negras.</h2>
+            <a href="https://wa.me/5491121722028?text=Hola,%20quiero%20conocer%20m%C3%A1s%20sobre%20el%20ecosistema%20AGORLAB." target="_blank" rel="noopener noreferrer" class="btn-cta">
                 INICIAR CONVERSACIÓN &rarr;
             </a>
         </section>
@@ -542,30 +487,23 @@
         <!-- Footer -->
         <footer class="bottom-bar">
             <div>© 2026 AGORLAB.COM</div>
-            <div>Ingeniería de Software y Hardware</div>
+            <div>Ágora digital</div>
         </footer>
     </div>
 
     <!-- Script de Cambio de Palabra Intermitente -->
     <script>
-        const words = ["TU EMPRESA", "TU LOCAL", "TU NEGOCIO", "TU APP", "TU WEB", "TU SOFTWARE", "TU HARDWARE"];
+        const words = ["PLATAFORMAS", "PRODUCTOS", "SOLUCIONES", "EXPERIENCIAS", "ECOSISTEMA"];
         let wordIndex = 0;
         const targetElement = document.getElementById("changing-word");
 
         setInterval(() => {
-            // Eliminar la clase para resetear la animación
             targetElement.classList.remove("glitching");
-            
-            // Forzar un "reflow" en el navegador para que permita reiniciar la animación CSS
             void targetElement.offsetWidth;
-            
-            // Cambiar al siguiente índice de palabra
             wordIndex = (wordIndex + 1) % words.length;
             targetElement.innerText = words[wordIndex];
-            
-            // Volver a aplicar la clase para ejecutar el flash de 0.3 segundos
             targetElement.classList.add("glitching");
-        }, 2500); // Se actualiza cada 2.5 segundos
+        }, 2500);
     </script>
    
 </body>

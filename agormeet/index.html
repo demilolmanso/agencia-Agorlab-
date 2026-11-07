@@ -1,233 +1,1274 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AgorMeet - Mensajería & WebRTC</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>AGORMEET — Ágora Digital</title>
+  
+  <meta property="og:title" content="AGORMEET — Comunicación P2P Privado & descentralizado">
+  <meta name="twitter:card" content="summary">
+  
+  <!-- Favicon: Firma Favicon: Firma autógrafa -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 411 419'><path fill='none' stroke='white' stroke-width='20' stroke-linecap='round' stroke-linejoin='round' d='M 105.8 176.9 Q 122.3 189.7, 129.1 191.5 Q 135.8 193.4, 146.6 193.6 Q 157.4 193.9, 174.5 189.2 Q 191.7 184.6, 208.6 177.6 Q 225.6 170.6, 237.9 164.5 Q 250.2 158.4, 258.1 152.9 Q 266.1 147.5, 270.3 144.6 Q 274.5 141.8, 274.8 140.7 Q 275.2 139.6, 273.4 139.7 Q 271.7 139.8, 260.6 140.7 Q 249.4 141.6, 233.8 146.8 Q 218.1 151.9, 203.5 160.8 Q 188.8 169.7, 177.6 178.6 Q 166.5 187.4, 157.8 196.6 Q 149.1 205.8, 143.2 214.2 Q 137.4 222.7, 133.5 231.5 Q 129.7 240.2, 127.9 246.5 Q 126.2 252.7, 126.1 256.7 Q 126.0 260.7, 127.3 263.4 Q 128.5 266.1, 133.9 267.2 Q 139.2 268.3, 152.3 261.5 Q 165.5 254.8, 177.9 245.7 Q 190.4 236.7, 204.7 225.8 Q 219.1 214.9, 232.1 206.0 Q 245.1 197.0, 254.4 191.4 Q 263.7 185.8, 268.6 184.4 Q 273.5 183.0, 274.0 183.0 Q 274.4 183.0, 274.2 183.4 Q 274.0 183.8, 270.6 195.9 Q 267.2 208.0, 266.3 211.4 Q 265.4 214.9, 265.4 216.3 Q 265.3 217.8, 266.1 218.1 Q 266.9 218.4, 275.5 215.9 Q 284.1 213.5, 295.4 207.8 Q 306.6 202.1, 314.6 197.2 Q 322.7 192.2, 328.2 188.8 Q 333.8 185.3, 335.5 183.8 Q 337.2 182.2, 337.5 182.7 Q 337.7 183.2, 338.2 186.1 Q 338.7 188.9, 337.8 195.9 Q 336.8 202.8, 333.2 213.5 Q 329.7 224.2, 320.6 245.0 Q 311.5 265.8, 306.9 274.5 L 302.4 283.1'/></svg>">
+  
   <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts -->
+  
+  <!-- Space Mono Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Plus Jakarta Sans', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-            }
-          }
-        }
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #000000;
+      --text: #ffffff;
+      --border: rgba(255, 255, 255, 0.2);
+      --border-solid: #ffffff;
+      --crt-glow: 1px 0px 2px rgba(255, 0, 0, 0.6), -1px 0px 2px rgba(0, 255, 255, 0.6);
+      --crt-svg-glow: drop-shadow(1px 0px 2px rgba(255, 0, 0, 0.6)) drop-shadow(-1px 0px 2px rgba(0, 255, 255, 0.6));
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100dvh;
+      background: radial-gradient(circle at center, #111 0%, #000 100%);
+    }
+
+    /* CRT EFFECT */
+    .crt::before {
+      content: " ";
+      display: block;
+      position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      z-index: 99;
+      background-size: 100% 3px, 4px 100%;
+      pointer-events: none;
+    }
+
+    .crt::after {
+      content: " ";
+      display: block;
+      position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: rgba(255, 255, 255, 0.02);
+      opacity: 0;
+      z-index: 99;
+      pointer-events: none;
+      animation: flicker 0.15s infinite;
+    }
+
+    @keyframes flicker {
+      0% { opacity: 0.01; }
+      50% { opacity: 0.04; }
+      100% { opacity: 0.01; }
+    }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: #fff; }
+    ::-webkit-scrollbar-thumb:hover { background: #ccc; }
+
+    /* LAYOUT */
+    .app-wrapper {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    /* HEADER */
+    header.top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--text);
+      padding: 15px 20px;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      text-shadow: var(--crt-glow);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .logo-signature {
+      height: 1.8em;
+      width: auto;
+      filter: var(--crt-svg-glow);
+    }
+
+    .logo-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-title {
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .logo-sub {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-mono {
+      background: transparent;
+      color: var(--text);
+      border: 2px solid var(--text);
+      padding: 8px 12px;
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-mono:hover {
+      background: var(--text);
+      color: var(--bg);
+      transform: translate(2px, -2px);
+      box-shadow: -4px 4px 0px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-mono.btn-danger {
+      border-color: #ff4444;
+      color: #ff4444;
+    }
+
+    .btn-mono.btn-danger:hover {
+      background: #ff4444;
+      color: var(--bg);
+    }
+
+    .badge {
+      background: #ff4444;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 0;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* MAIN LAYOUT */
+    .main-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 320px;
+      border-right: 2px solid var(--text);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 15px;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .section-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 5px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 8px;
+      border: 2px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    .chats-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .chat-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border: 2px solid transparent;
+      margin-bottom: 5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chat-item:hover {
+      border-color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .chat-item.active {
+      border-color: var(--text);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border: 2px solid var(--border);
+    }
+
+    .chat-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chat-name {
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-sub {
+      font-size: 0.7rem;
+      opacity: 0.6;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-icon {
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    /* CHAT AREA */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-placeholder {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .chat-placeholder-icon {
+      font-size: 4rem;
+      opacity: 0.3;
+      margin-bottom: 20px;
+    }
+
+    .chat-placeholder h2 {
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .chat-placeholder p {
+      font-size: 0.9rem;
+      opacity: 0.6;
+      max-width: 400px;
+    }
+
+    .chat-header {
+      padding: 15px 20px;
+      border-bottom: 2px solid var(--text);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .chat-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-header-avatar {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border: 2px solid var(--border);
+    }
+
+    .chat-header-title {
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .chat-header-sub {
+      font-size: 0.75rem;
+      opacity: 0.6;
+    }
+
+    .chat-header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      max-width: 70%;
+    }
+
+    .message.me {
+      align-self: flex-end;
+    }
+
+    .message.them {
+      align-self: flex-start;
+    }
+
+    .message-bubble {
+      padding: 12px 15px;
+      border: 2px solid var(--text);
+      word-wrap: break-word;
+    }
+
+    .message.me .message-bubble {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
+
+    .message.them .message-bubble {
+      background: transparent;
+      color: var(--text);
+    }
+
+    .message-sender {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      opacity: 0.7;
+    }
+
+    .message-input-bar {
+      padding: 15px 20px;
+      border-top: 2px solid var(--text);
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .input-mono {
+      flex: 1;
+      padding: 10px 15px;
+      background: transparent;
+      border: 2px solid var(--text);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    .input-mono:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .input-mono::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* MODALS */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal {
+      background: #000;
+      border: 2px solid var(--text);
+      max-width: 500px;
+      width: 100%;
+      padding: 30px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-lg {
+      max-width: 900px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .modal-title {
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 1rem;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      opacity: 0.7;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 15px;
+      background: transparent;
+      border: 2px solid var(--text);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    .form-input:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background: var(--text);
+      color: var(--bg);
+      border: 2px solid var(--text);
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: transparent;
+      color: var(--text);
+      transform: translate(2px, -2px);
+      box-shadow: -4px 4px 0px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary {
+      padding: 8px 15px;
+      background: transparent;
+      color: var(--text);
+      border: 2px solid var(--text);
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    /* AUTH SCREEN */
+    .auth-screen {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 20px;
+    }
+
+    .auth-box {
+      max-width: 450px;
+      width: 100%;
+      border: 2px solid var(--text);
+      padding: 40px;
+      background: #000;
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .auth-logo svg {
+      height: 60px;
+      width: auto;
+      filter: var(--crt-svg-glow);
+    }
+
+    .auth-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      text-shadow: var(--crt-glow);
+    }
+
+    .auth-subtitle {
+      font-size: 0.85rem;
+      opacity: 0.6;
+      margin-bottom: 30px;
+    }
+
+    .auth-error {
+      padding: 12px;
+      border: 2px solid #ff4444;
+      color: #ff4444;
+      font-size: 0.8rem;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .auth-error.show {
+      display: block;
+    }
+
+    .auth-switch {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.8rem;
+    }
+
+    .auth-switch a {
+      color: var(--text);
+      font-weight: 700;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* ADMIN PANEL TABLE */
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+
+    .admin-table th {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 2px solid var(--text);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+    }
+
+    .admin-table td {
+      padding: 10px;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .admin-table tr:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .status-badge {
+      padding: 3px 8px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .status-active {
+      border: 1px solid #00ff00;
+      color: #00ff00;
+    }
+
+    .status-banned {
+      border: 1px solid #ff4444;
+      color: #ff4444;
+      background: rgba(255, 68, 68, 0.1);
+    }
+
+    /* CALL INTERFACE */
+    .call-modal {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 150;
+      display: flex;
+      flex-direction: column;
+      padding: 30px;
+    }
+
+    .call-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .call-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 15px;
+      border: 2px solid var(--text);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .call-status-dot {
+      width: 8px;
+      height: 8px;
+      background: #00ff00;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .call-peer-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-shadow: var(--crt-glow);
+    }
+
+    .call-video-container {
+      flex: 1;
+      border: 2px solid var(--text);
+      position: relative;
+      margin-bottom: 20px;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .call-video-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .call-remote-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .call-remote-placeholder img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border: 4px solid var(--text);
+      margin-bottom: 15px;
+    }
+
+    .call-local-video {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      width: 150px;
+      aspect-ratio: 16/9;
+      border: 2px solid var(--text);
+      overflow: hidden;
+    }
+
+    .call-controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .call-btn {
+      width: 50px;
+      height: 50px;
+      border: 2px solid var(--text);
+      background: transparent;
+      color: var(--text);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .call-btn:hover {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    .call-btn.end {
+      border-color: #ff4444;
+      color: #ff4444;
+    }
+
+    .call-btn.end:hover {
+      background: #ff4444;
+      color: #fff;
+    }
+
+    /* INCOMING CALL NOTIFICATION */
+    .incoming-call {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #000;
+      border: 2px solid var(--text);
+      padding: 20px;
+      width: 300px;
+      z-index: 160;
+      animation: slideIn 0.3s;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(400px); }
+      to { transform: translateX(0); }
+    }
+
+    .incoming-call-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .incoming-call-avatar {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border: 2px solid var(--border);
+    }
+
+    .incoming-call-name {
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .incoming-call-type {
+      font-size: 0.75rem;
+      opacity: 0.6;
+    }
+
+    .incoming-call-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .incoming-call-actions button {
+      flex: 1;
+      padding: 10px;
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 2px solid var(--text);
+      background: transparent;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .incoming-call-actions button:hover {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    .incoming-call-actions .reject {
+      border-color: #ff4444;
+      color: #ff4444;
+    }
+
+    .incoming-call-actions .reject:hover {
+      background: #ff4444;
+      color: #fff;
+    }
+
+    /* FRIEND REQUESTS LIST */
+    .request-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      border: 2px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .request-item-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .request-item-avatar {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border: 2px solid var(--border);
+    }
+
+    .request-item-name {
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+
+    .request-item-user {
+      font-size: 0.7rem;
+      opacity: 0.6;
+    }
+
+    .request-actions {
+      display: flex;
+      gap: 5px;
+    }
+
+    .request-actions button {
+      padding: 6px 10px;
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 2px solid var(--text);
+      background: transparent;
+      color: var(--text);
+    }
+
+    .request-actions button.accept {
+      border-color: #00ff00;
+      color: #00ff00;
+    }
+
+    .request-actions button:hover {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    /* PROFILE MODAL */
+    .profile-avatar-preview {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border: 4px solid var(--text);
+      margin: 0 auto 15px;
+      display: block;
+    }
+
+    .file-upload-btn {
+      display: block;
+      text-align: center;
+      padding: 10px;
+      border: 2px dashed var(--border);
+      cursor: pointer;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+      transition: all 0.2s;
+    }
+
+    .file-upload-btn:hover {
+      border-color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .file-upload-btn input {
+      display: none;
+    }
+
+    /* ADMIN BADGE */
+    .admin-badge {
+      padding: 6px 12px;
+      border: 2px solid #ffaa00;
+      color: #ffaa00;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: none;
+    }
+
+    .admin-badge.show {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* GROUP MEMBER ITEM */
+    .member-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      border: 2px solid var(--border);
+      margin-bottom: 8px;
+    }
+
+    .member-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .member-avatar {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border: 2px solid var(--border);
+    }
+
+    .member-name {
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+
+    .member-user {
+      font-size: 0.7rem;
+      opacity: 0.6;
+    }
+
+    .member-action {
+      padding: 6px 10px;
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 2px solid var(--text);
+      background: transparent;
+      color: var(--text);
+    }
+
+    .member-action:hover {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    /* HIDDEN */
+    .hidden {
+      display: none !important;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        z-index: 50;
+      }
+
+      .sidebar.hidden-mobile {
+        display: none;
+      }
+
+      .chat-area {
+        width: 100%;
+      }
+
+      .back-btn {
+        display: inline-flex !important;
+      }
+
+      .modal {
+        padding: 20px;
+      }
+
+      .auth-box {
+        padding: 25px;
       }
     }
-  </script>
-  <style>
-    /* Custom scrollbars */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+
+    @media (min-width: 769px) {
+      .back-btn {
+        display: none !important;
+      }
     }
-    ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.6);
+
+    /* GLITCH EFFECT */
+    .dynamic-word {
+      display: inline-block;
+      background-color: var(--text);
+      color: var(--bg);
+      padding: 0 8px;
+      font-weight: 700;
+      position: relative;
     }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(99, 102, 241, 0.3);
-      border-radius: 4px;
+
+    .dynamic-word.glitching {
+      animation: instant-glitch 0.3s forwards;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(99, 102, 241, 0.6);
+
+    @keyframes instant-glitch {
+      0% { transform: translate(0); filter: invert(0); }
+      20% { transform: translate(-3px, 2px); filter: invert(1); text-shadow: 3px 0 red, -3px 0 cyan; }
+      40% { transform: translate(3px, -2px); filter: invert(0); text-shadow: none; }
+      60% { transform: translate(-2px, -2px); filter: invert(1); text-shadow: -3px 0 red, 3px 0 cyan; }
+      80% { transform: translate(2px, 2px); filter: invert(0); text-shadow: none; }
+      100% { transform: translate(0); filter: invert(0); }
     }
   </style>
 </head>
-<body class="h-full font-sans antialiased bg-slate-950 text-slate-100 selection:bg-brand-500 selection:text-white flex flex-col overflow-hidden">
+<body class="crt">
 
-  <!-- APP CONTAINER -->
-  <div id="app" class="h-full w-full flex flex-col relative">
+  <div class="app-wrapper">
     
     <!-- TOP NAVIGATION BAR -->
-    <header class="h-16 border-b border-slate-800 bg-slate-900/80 backdrop-blur px-4 flex items-center justify-between z-20 shrink-0">
-      <!-- Logo with 7-click easter egg -->
-      <div id="logo-btn" class="flex items-center space-x-3 cursor-pointer select-none py-1 px-2 rounded-xl hover:bg-slate-800/50 transition">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
-          <i class="fa-solid font-bold text-xl fa-shield-cat"></i>
-        </div>
-        <div>
-          <h1 class="font-bold text-lg leading-none bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">AgorMeet</h1>
-          <span class="text-[10px] text-slate-500 tracking-wider font-semibold uppercase">Privado & P2P</span>
+    <header class="top-bar">
+      <div id="logo-btn" class="logo">
+        <svg class="logo-signature" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 411 419">
+          <path fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" d="M 105.8 176.9 Q 122.3 189.7, 129.1 191.5 Q 135.8 193.4, 146.6 193.6 Q 157.4 193.9, 174.5 189.2 Q 191.7 184.6, 208.6 177.6 Q 225.6 170.6, 237.9 164.5 Q 250.2 158.4, 258.1 152.9 Q 266.1 147.5, 270.3 144.6 Q 274.5 141.8, 274.8 140.7 Q 275.2 139.6, 273.4 139.7 Q 271.7 139.8, 260.6 140.7 Q 249.4 141.6, 233.8 146.8 Q 218.1 151.9, 203.5 160.8 Q 188.8 169.7, 177.6 178.6 Q 166.5 187.4, 157.8 196.6 Q 149.1 205.8, 143.2 214.2 Q 137.4 222.7, 133.5 231.5 Q 129.7 240.2, 127.9 246.5 Q 126.2 252.7, 126.1 256.7 Q 126.0 260.7, 127.3 263.4 Q 128.5 266.1, 133.9 267.2 Q 139.2 268.3, 152.3 261.5 Q 165.5 254.8, 177.9 245.7 Q 190.4 236.7, 204.7 225.8 Q 219.1 214.9, 232.1 206.0 Q 245.1 197.0, 254.4 191.4 Q 263.7 185.8, 268.6 184.4 Q 273.5 183.0, 274.0 183.0 Q 274.4 183.0, 274.2 183.4 Q 274.0 183.8, 270.6 195.9 Q 267.2 208.0, 266.3 211.4 Q 265.4 214.9, 265.4 216.3 Q 265.3 217.8, 266.1 218.1 Q 266.9 218.4, 275.5 215.9 Q 284.1 213.5, 295.4 207.8 Q 306.6 202.1, 314.6 197.2 Q 322.7 192.2, 328.2 188.8 Q 333.8 185.3, 335.5 183.8 Q 337.2 182.2, 337.5 182.7 Q 337.7 183.2, 338.2 186.1 Q 338.7 188.9, 337.8 195.9 Q 336.8 202.8, 333.2 213.5 Q 329.7 224.2, 320.6 245.0 Q 311.5 265.8, 306.9 274.5 L 302.4 283.1"/>
+        </svg>
+        <div class="logo-meta">
+          <span class="logo-title">AGORMEET</span>
+          <span class="logo-sub">PRIVADO & P2P</span>
         </div>
       </div>
 
-      <!-- Navigation / Right Actions -->
-      <div id="user-nav" class="hidden items-center space-x-3">
-        <!-- Friends Requests Notification Button -->
-        <button id="requests-btn" class="relative p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
-          <i class="fa-solid fa-user-plus text-sm"></i>
-          <span id="requests-badge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900">0</span>
+      <div id="user-nav" class="nav-actions hidden">
+        <button id="requests-btn" class="btn-mono" title="Solicitudes de amistad">
+          <i class="fa-solid fa-user-plus"></i>
+          <span id="requests-badge" class="badge hidden">0</span>
         </button>
 
-        <!-- User Profile Button -->
-        <button id="open-profile-btn" class="flex items-center space-x-2 p-1.5 pr-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 transition">
-          <img id="nav-avatar" src="https://placehold.co/100x100/334155/ffffff?text=U" class="w-8 h-8 rounded-lg object-cover" />
-          <span id="nav-username" class="text-sm font-semibold text-slate-200">@usuario</span>
+        <button id="open-profile-btn" class="btn-mono">
+          <img id="nav-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=default" style="width: 20px; height: 20px; object-fit: cover;" />
+          <span id="nav-username">@USUARIO</span>
         </button>
 
-        <!-- Admin Badge / Button if Admin -->
-        <button id="admin-panel-btn" class="hidden px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold hover:bg-amber-500/20 transition">
-          <i class="fa-solid fa-crown mr-1"></i> Admin
+        <button id="admin-panel-btn" class="admin-badge">
+          <i class="fa-solid fa-crown"></i> ADMIN
         </button>
 
-        <!-- Logout Button -->
-        <button id="logout-btn" class="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 transition" title="Cerrar Sesión">
+        <button id="logout-btn" class="btn-mono btn-danger" title="Cerrar sesión">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
       </div>
     </header>
 
-    <!-- MAIN CONTENT VIEW -->
-    <main class="flex-1 flex overflow-hidden relative">
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
 
-      <!-- AUTH SCREEN (LOGIN / REGISTER) -->
-      <div id="auth-screen" class="absolute inset-0 bg-slate-950 z-30 flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-          <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand-600/20 rounded-full blur-3xl pointer-events-none"></div>
-          
-          <div class="text-center mb-8">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white text-3xl mx-auto mb-4 shadow-xl shadow-brand-500/20">
-              <i class="fa-solid fa-shield-cat"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-white">Bienvenido a AgorMeet</h2>
-            <p class="text-sm text-slate-400 mt-1">Ingresa con tu usuario único o regístrate</p>
+      <!-- AUTH SCREEN -->
+      <div id="auth-screen" class="auth-screen">
+        <div class="auth-box">
+          <div class="auth-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 411 419">
+              <path fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" d="M 105.8 176.9 Q 122.3 189.7, 129.1 191.5 Q 135.8 193.4, 146.6 193.6 Q 157.4 193.9, 174.5 189.2 Q 191.7 184.6, 208.6 177.6 Q 225.6 170.6, 237.9 164.5 Q 250.2 158.4, 258.1 152.9 Q 266.1 147.5, 270.3 144.6 Q 274.5 141.8, 274.8 140.7 Q 275.2 139.6, 273.4 139.7 Q 271.7 139.8, 260.6 140.7 Q 249.4 141.6, 233.8 146.8 Q 218.1 151.9, 203.5 160.8 Q 188.8 169.7, 177.6 178.6 Q 166.5 187.4, 157.8 196.6 Q 149.1 205.8, 143.2 214.2 Q 137.4 222.7, 133.5 231.5 Q 129.7 240.2, 127.9 246.5 Q 126.2 252.7, 126.1 256.7 Q 126.0 260.7, 127.3 263.4 Q 128.5 266.1, 133.9 267.2 Q 139.2 268.3, 152.3 261.5 Q 165.5 254.8, 177.9 245.7 Q 190.4 236.7, 204.7 225.8 Q 219.1 214.9, 232.1 206.0 Q 245.1 197.0, 254.4 191.4 Q 263.7 185.8, 268.6 184.4 Q 273.5 183.0, 274.0 183.0 Q 274.4 183.0, 274.2 183.4 Q 274.0 183.8, 270.6 195.9 Q 267.2 208.0, 266.3 211.4 Q 265.4 214.9, 265.4 216.3 Q 265.3 217.8, 266.1 218.1 Q 266.9 218.4, 275.5 215.9 Q 284.1 213.5, 295.4 207.8 Q 306.6 202.1, 314.6 197.2 Q 322.7 192.2, 328.2 188.8 Q 333.8 185.3, 335.5 183.8 Q 337.2 182.2, 337.5 182.7 Q 337.7 183.2, 338.2 186.1 Q 338.7 188.9, 337.8 195.9 Q 336.8 202.8, 333.2 213.5 Q 329.7 224.2, 320.6 245.0 Q 311.5 265.8, 306.9 274.5 L 302.4 283.1"/>
+            </svg>
           </div>
+          <h2 class="auth-title">BIENVENIDO A AGORMEET</h2>
+          <p class="auth-subtitle">INGRESÁ CON TU USUARIO ÚNICO O REGISTRATE</p>
 
-          <!-- Auth Form -->
-          <form id="auth-form" class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Nombre de usuario</label>
-              <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">@</span>
-                <input type="text" id="auth-username" required placeholder="tu_usuario" class="w-full pl-8 pr-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition text-sm">
-              </div>
+          <form id="auth-form">
+            <div class="form-group">
+              <label class="form-label">NOMBRE DE USUARIO</label>
+              <input type="text" id="auth-username" required placeholder="tu_usuario" class="form-input">
             </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Contraseña</label>
-              <input type="password" id="auth-password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition text-sm">
+            <div class="form-group">
+              <label class="form-label">CONTRASEÑA</label>
+              <input type="password" id="auth-password" required placeholder="••••••••" class="form-input">
             </div>
 
-            <div id="auth-error" class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3"></div>
+            <div id="auth-error" class="auth-error"></div>
 
-            <button type="submit" id="auth-submit-btn" class="w-full py-3 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold shadow-lg shadow-brand-600/30 transition flex items-center justify-center space-x-2 text-sm">
-              <span id="auth-btn-text">Iniciar Sesión</span>
+            <button type="submit" id="auth-submit-btn" class="btn-primary">
+              <span id="auth-btn-text">INICIAR SESIÓN</span>
             </button>
           </form>
 
-          <div class="mt-6 text-center">
-            <button id="toggle-auth-mode" class="text-xs text-slate-400 hover:text-brand-400 transition font-medium">
-              ¿No tienes cuenta? <span class="text-brand-500 font-bold">Regístrate</span>
-            </button>
+          <div class="auth-switch">
+            <span id="toggle-auth-mode">¿NO TENÉS CUENTA? <a>REGISTRATE</a></span>
           </div>
         </div>
       </div>
 
-      <!-- MAIN APP MESSAGING & CALL LAYOUT -->
-      <div id="main-app" class="hidden w-full h-full flex flex-row relative overflow-hidden">
+      <!-- MAIN APP -->
+      <div id="main-app" class="main-content hidden">
 
-        <!-- SIDEBAR: FRIENDS & GROUPS LIST -->
-        <aside id="sidebar" class="w-full md:w-80 lg:w-96 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 absolute md:relative inset-0 z-10 transition-transform duration-300">
-          
-          <!-- Sidebar Header & Controls -->
-          <div class="p-4 border-b border-slate-800 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Conversaciones</span>
-              <div class="flex space-x-1">
-                <button id="add-friend-btn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Agregar amigo">
-                  <i class="fa-solid fa-user-plus text-xs"></i>
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="sidebar">
+          <div class="sidebar-header">
+            <div class="section-label">
+              <span>CONVERSACIONES</span>
+              <div style="display: flex; gap: 5px;">
+                <button id="add-friend-btn" class="btn-mono" style="padding: 6px 8px;" title="Agregar amigo">
+                  <i class="fa-solid fa-user-plus" style="font-size: 0.7rem;"></i>
                 </button>
-                <button id="create-group-btn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Crear grupo">
-                  <i class="fa-solid fa-users-plus text-xs"></i>
+                <button id="create-group-btn" class="btn-mono" style="padding: 6px 8px;" title="Crear grupo">
+                  <i class="fa-solid fa-users-plus" style="font-size: 0.7rem;"></i>
                 </button>
               </div>
             </div>
 
-            <!-- Tabs: Direct Messages / Groups -->
-            <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800/80">
-              <button id="tab-chats" class="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow-sm transition">Amigos</button>
-              <button id="tab-groups" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">Grupos</button>
+            <div class="tabs">
+              <button id="tab-chats" class="tab active">AMIGOS</button>
+              <button id="tab-groups" class="tab">GRUPOS</button>
             </div>
           </div>
 
-          <!-- Chats Container -->
-          <div class="flex-1 overflow-y-auto p-2 space-y-1" id="chats-list">
-            <!-- Dynamic chats list will load here -->
+          <div id="chats-list" class="chats-list">
+            <!-- Dynamic chats -->
           </div>
         </aside>
 
-        <!-- CHAT VIEW AREA -->
-        <section id="chat-area" class="flex-1 flex flex-col bg-slate-950 relative h-full overflow-hidden">
+        <!-- CHAT AREA -->
+        <section id="chat-area" class="chat-area">
 
-          <!-- No Chat Selected Placeholder -->
-          <div id="no-chat-selected" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
-            <div class="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center text-slate-600 mb-4 border border-slate-800">
-              <i class="fa-solid fa-comments text-3xl"></i>
+          <!-- No Chat Selected -->
+          <div id="no-chat-selected" class="chat-placeholder">
+            <div class="chat-placeholder-icon">
+              <i class="fa-solid fa-comments"></i>
             </div>
-            <h3 class="text-lg font-bold text-slate-300">Selecciona un chat o grupo</h3>
-            <p class="text-sm text-slate-500 max-w-sm mt-1">Conéctate con tus amigos en AgorMeet. Inicia llamadas P2P o envía mensajes instantáneos.</p>
+            <h2>SELECCIONÁ UN CHAT O GRUPO</h2>
+            <p>CONECTATE CON TUS AMIGOS EN AGORMEET. INICIÁ LLAMADAS P2P O ENVIÁ MENSAJES INSTANTÁNEOS.</p>
           </div>
 
-          <!-- Active Chat Container -->
-          <div id="active-chat-container" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+          <!-- Active Chat -->
+          <div id="active-chat-container" class="hidden" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
             
-            <!-- Chat Header -->
-            <div class="h-16 px-4 border-b border-slate-800 bg-slate-900/60 flex items-center justify-between shrink-0">
-              <div class="flex items-center space-x-3">
-                <button id="back-to-sidebar" class="md:hidden p-2 rounded-xl bg-slate-800 text-slate-300">
+            <div class="chat-header">
+              <div class="chat-header-left">
+                <button id="back-to-sidebar" class="back-btn btn-mono" style="padding: 8px 12px;">
                   <i class="fa-solid fa-arrow-left"></i>
                 </button>
-                <div class="relative">
-                  <img id="active-chat-avatar" src="https://placehold.co/100" class="w-10 h-10 rounded-xl object-cover border border-slate-700" />
-                </div>
+                <img id="active-chat-avatar" src="" class="chat-header-avatar" />
                 <div>
-                  <h2 id="active-chat-title" class="font-bold text-sm text-white">Nombre</h2>
-                  <p id="active-chat-sub" class="text-xs text-slate-400">@usuario</p>
+                  <div id="active-chat-title" class="chat-header-title">NOMBRE</div>
+                  <div id="active-chat-sub" class="chat-header-sub">@usuario</div>
                 </div>
               </div>
 
-              <!-- Action buttons (Call/Video/Info) -->
-              <div class="flex items-center space-x-2">
-                <button id="start-voice-call-btn" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 transition" title="Llamada de voz">
+              <div class="chat-header-actions">
+                <button id="start-voice-call-btn" class="btn-mono" style="padding: 8px 12px;" title="Llamada de voz">
                   <i class="fa-solid fa-phone"></i>
                 </button>
-                <button id="start-video-call-btn" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition" title="Videollamada">
+                <button id="start-video-call-btn" class="btn-mono" style="padding: 8px 12px;" title="Videollamada">
                   <i class="fa-solid fa-video"></i>
                 </button>
-                <button id="group-info-btn" class="hidden p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Info del Grupo">
+                <button id="group-info-btn" class="btn-mono hidden" style="padding: 8px 12px;" title="Info del grupo">
                   <i class="fa-solid fa-circle-info"></i>
                 </button>
               </div>
             </div>
 
-            <!-- Messages Scroll Area -->
-            <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3">
-              <!-- Messages load dynamically -->
+            <div id="messages-container" class="messages-container">
+              <!-- Messages -->
             </div>
 
-            <!-- Message Input Bar -->
-            <form id="message-form" class="p-3 border-t border-slate-800 bg-slate-900/60 flex items-center space-x-2 shrink-0">
-              <input type="text" id="message-input" autocomplete="off" placeholder="Escribe un mensaje..." class="flex-1 py-2.5 px-4 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition text-sm">
-              <button type="submit" class="p-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl shadow-md transition flex items-center justify-center">
-                <i class="fa-solid fa-paper-plane text-sm"></i>
+            <form id="message-form" class="message-input-bar">
+              <input type="text" id="message-input" autocomplete="off" placeholder="ESCRIBÍ UN MENSAJE..." class="input-mono">
+              <button type="submit" class="btn-mono" style="padding: 10px 15px;">
+                <i class="fa-solid fa-paper-plane"></i>
               </button>
             </form>
 
@@ -239,243 +1280,243 @@
 
   </div>
 
-  <!-- MODAL: BANNED OVERLAY -->
-  <div id="banned-modal" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-slate-900 border border-rose-500/30 rounded-3xl p-6 text-center shadow-2xl">
-      <div class="w-16 h-16 bg-rose-500/20 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
-        <i class="fa-solid fa-user-slash"></i>
+  <!-- BANNED MODAL -->
+  <div id="banned-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div style="text-align: center;">
+        <div style="font-size: 4rem; margin-bottom: 20px; color: #ff4444;">
+          <i class="fa-solid fa-user-slash"></i>
+        </div>
+        <h2 style="font-size: 1.5rem; text-transform: uppercase; margin-bottom: 15px;">CUENTA SUSPENDIDA</h2>
+        <p style="opacity: 0.6; margin-bottom: 20px;">HAS SIDO BANEADO DE AGORMEET POR INFRINGIR LAS NORMAS DE LA COMUNIDAD. NO PODÉS ENVIAR MENSAJES NI PARTICIPAR EN CHATS.</p>
+        <button id="banned-logout-btn" class="btn-primary">CERRAR SESIÓN</button>
       </div>
-      <h2 class="text-2xl font-bold text-white">Cuenta Suspendida</h2>
-      <p class="text-sm text-slate-400 mt-2">Has sido baneado de AgorMeet por infringir las normas de la comunidad. No puedes enviar mensajes ni participar en chats.</p>
-      <button id="banned-logout-btn" class="mt-6 w-full py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-semibold transition">
-        Cerrar Sesión
-      </button>
     </div>
   </div>
 
-  <!-- MODAL: ADD FRIEND (Search by Exact Username) -->
-  <div id="add-friend-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
-    <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="font-bold text-white text-base">Enviar Solicitud de Amistad</h3>
-        <button id="close-add-friend-modal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <p class="text-xs text-slate-400 mb-4">Ingresa el usuario exacto de tu amigo para enviarle una invitación.</p>
-      <form id="send-request-form" class="space-y-4">
-        <div class="relative">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500 text-sm">@</span>
-          <input type="text" id="target-username-input" required placeholder="usuario_exacto" class="w-full pl-8 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 text-sm focus:outline-none focus:border-brand-500">
-        </div>
-        <div id="request-status-msg" class="hidden text-xs p-3 rounded-xl"></div>
-        <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-sm transition">
-          Enviar Invitación
+  <!-- ADD FRIEND MODAL -->
+  <div id="add-friend-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">ENVIAR SOLICITUD DE AMISTAD</h3>
+        <button id="close-add-friend-modal" class="modal-close">
+          <i class="fa-solid fa-xmark"></i>
         </button>
+      </div>
+      <p style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 20px;">INGRESÁ EL USUARIO EXACTO DE TU AMIGO PARA ENVIARLE UNA INVITACIÓN.</p>
+      <form id="send-request-form">
+        <div class="form-group">
+          <label class="form-label">USUARIO</label>
+          <input type="text" id="target-username-input" required placeholder="usuario_exacto" class="form-input">
+        </div>
+        <div id="request-status-msg" class="auth-error" style="margin-bottom: 15px;"></div>
+        <button type="submit" class="btn-primary">ENVIAR INVITACIÓN</button>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: FRIEND REQUESTS LIST -->
-  <div id="requests-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
-      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
-        <h3 class="font-bold text-white text-base">Solicitudes Pendientes</h3>
-        <button id="close-requests-modal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+  <!-- REQUESTS MODAL -->
+  <div id="requests-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">SOLICITUDES PENDIENTES</h3>
+        <button id="close-requests-modal" class="modal-close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-      <div id="requests-list-container" class="space-y-3 max-h-80 overflow-y-auto pr-1">
-        <!-- Dynamic pending requests -->
+      <div id="requests-list-container" style="max-height: 400px; overflow-y: auto;">
+        <!-- Requests -->
       </div>
     </div>
   </div>
 
-  <!-- MODAL: CREATE GROUP -->
-  <div id="create-group-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
-      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
-        <h3 class="font-bold text-white text-base">Crear Nuevo Grupo</h3>
-        <button id="close-group-modal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+  <!-- CREATE GROUP MODAL -->
+  <div id="create-group-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">CREAR NUEVO GRUPO</h3>
+        <button id="close-group-modal" class="modal-close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-      <form id="create-group-form" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Nombre del Grupo</label>
-          <input type="text" id="group-name-input" required placeholder="Ej. Equipo de Proyecto" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-brand-500">
+      <form id="create-group-form">
+        <div class="form-group">
+          <label class="form-label">NOMBRE DEL GRUPO</label>
+          <input type="text" id="group-name-input" required placeholder="EJ. EQUIPO DE PROYECTO" class="form-input">
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-2">Selecciona Amigos para Agregar</label>
-          <div id="group-friends-select" class="space-y-2 max-h-48 overflow-y-auto border border-slate-800 bg-slate-950 p-2 rounded-xl">
-            <!-- Friend checkboxes -->
+        <div class="form-group">
+          <label class="form-label">SELECCIONÁ AMIGOS PARA AGREGAR</label>
+          <div id="group-friends-select" style="border: 2px dashed var(--border); padding: 10px; max-height: 200px; overflow-y: auto;">
+            <!-- Checkboxes -->
           </div>
         </div>
-        <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-sm transition">
-          Crear Grupo
-        </button>
+        <button type="submit" class="btn-primary">CREAR GRUPO</button>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: GROUP INFO & MEMBERS (FRIEND DIRECT CONNECT) -->
-  <div id="group-info-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
-      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+  <!-- GROUP INFO MODAL -->
+  <div id="group-info-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
         <div>
-          <h3 id="group-info-name" class="font-bold text-white text-base">Nombre Grupo</h3>
-          <span class="text-xs text-slate-400">Integrantes del Grupo</span>
+          <h3 id="group-info-name" class="modal-title">NOMBRE GRUPO</h3>
+          <p style="font-size: 0.75rem; opacity: 0.6;">INTEGRANTES DEL GRUPO</p>
         </div>
-        <button id="close-group-info-modal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        <button id="close-group-info-modal" class="modal-close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-      <div id="group-members-list" class="space-y-3 max-h-80 overflow-y-auto pr-1">
-        <!-- Members load dynamically -->
+      <div id="group-members-list" style="max-height: 400px; overflow-y: auto;">
+        <!-- Members -->
       </div>
     </div>
   </div>
 
-  <!-- MODAL: PROFILE EDITING (WITH IMGBB UPLOAD) -->
-  <div id="profile-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
-      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
-        <h3 class="font-bold text-white text-base">Editar Perfil</h3>
-        <button id="close-profile-modal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+  <!-- PROFILE MODAL -->
+  <div id="profile-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">EDITAR PERFIL</h3>
+        <button id="close-profile-modal" class="modal-close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-      <form id="profile-form" class="space-y-4">
-        <div class="flex flex-col items-center mb-4">
-          <img id="profile-modal-avatar-preview" src="https://placehold.co/100" class="w-20 h-20 rounded-2xl object-cover border-2 border-brand-500 mb-3 shadow-lg">
-          <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 px-3 py-1.5 rounded-xl border border-slate-700 transition">
-            <i class="fa-solid fa-camera mr-1"></i> Cambiar Foto (ImgBB)
-            <input type="file" id="profile-avatar-file" accept="image/*" class="hidden">
+      <form id="profile-form">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img id="profile-modal-avatar-preview" src="" class="profile-avatar-preview">
+          <label class="file-upload-btn">
+            <i class="fa-solid fa-camera"></i> CAMBIAR FOTO (IMGBB)
+            <input type="file" id="profile-avatar-file" accept="image/*">
           </label>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Nombre Público</label>
-          <input type="text" id="profile-displayName" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-brand-500">
+        <div class="form-group">
+          <label class="form-label">NOMBRE PÚBLICO</label>
+          <input type="text" id="profile-displayName" required class="form-input">
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Biografía / Info</label>
-          <textarea id="profile-bio" rows="3" placeholder="Hola, estoy usando AgorMeet..." class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-brand-500"></textarea>
+        <div class="form-group">
+          <label class="form-label">BIOGRAFÍA / INFO</label>
+          <textarea id="profile-bio" rows="3" placeholder="HOLA, ESTOY USANDO AGORMEET..." class="form-input"></textarea>
         </div>
-        <div id="profile-save-status" class="hidden text-xs text-emerald-400 bg-emerald-500/10 p-2.5 rounded-xl text-center"></div>
-        <button type="submit" id="profile-save-btn" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-sm transition">
-          Guardar Cambios
-        </button>
+        <div id="profile-save-status" class="auth-error" style="border-color: #00ff00; color: #00ff00; margin-bottom: 15px;"></div>
+        <button type="submit" class="btn-primary">GUARDAR CAMBIOS</button>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: SECRET ADMIN LOGIN (TRIGGERED BY 7 CLICKS ON LOGO) -->
-  <div id="admin-login-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-sm bg-slate-900 border border-amber-500/30 rounded-3xl p-6 shadow-2xl relative">
-      <div class="text-center mb-6">
-        <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl">
+  <!-- ADMIN LOGIN MODAL -->
+  <div id="admin-login-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div style="text-align: center; margin-bottom: 25px;">
+        <div style="font-size: 2rem; color: #ffaa00; margin-bottom: 10px;">
           <i class="fa-solid fa-user-shield"></i>
         </div>
-        <h3 class="font-bold text-white text-lg">Acceso Administrador</h3>
-        <p class="text-xs text-slate-400">Ingreso exclusivo para cepedademian2005@gmail.com</p>
+        <h3 style="font-size: 1.2rem; text-transform: uppercase; margin-bottom: 5px;">ACCESO ADMINISTRADOR</h3>
+        <p style="font-size: 0.75rem; opacity: 0.6;">INGRESO EXCLUSIVO PARA cepedademian2005@gmail.com</p>
       </div>
-      <form id="admin-login-form" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Correo Electrónico Real</label>
-          <input type="email" id="admin-email" required placeholder="cepedademian2005@gmail.com" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500">
+      <form id="admin-login-form">
+        <div class="form-group">
+          <label class="form-label">CORREO ELECTRÓNICO</label>
+          <input type="email" id="admin-email" required placeholder="cepedademian2005@gmail.com" class="form-input">
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Contraseña</label>
-          <input type="password" id="admin-password" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500">
+        <div class="form-group">
+          <label class="form-label">CONTRASEÑA</label>
+          <input type="password" id="admin-password" required placeholder="••••••••" class="form-input">
         </div>
-        <div id="admin-login-error" class="hidden text-xs text-rose-400 bg-rose-500/10 p-2.5 rounded-xl"></div>
-        <div class="flex space-x-2">
-          <button type="button" id="close-admin-login-modal" class="w-1/2 py-2.5 bg-slate-800 text-slate-300 font-semibold rounded-xl text-sm hover:bg-slate-700">Cancelar</button>
-          <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm transition">Entrar</button>
+        <div id="admin-login-error" class="auth-error" style="margin-bottom: 15px;"></div>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" id="close-admin-login-modal" class="btn-secondary" style="flex: 1;">CANCELAR</button>
+          <button type="submit" class="btn-primary" style="flex: 1;">ENTRAR</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: ADMIN CONTROL PANEL -->
-  <div id="admin-panel-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-3xl bg-slate-900 border border-amber-500/30 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
-      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
-        <div class="flex items-center space-x-2 text-amber-400">
-          <i class="fa-solid fa-crown text-xl"></i>
-          <h3 class="font-bold text-white text-lg">Panel de Administración Global</h3>
+  <!-- ADMIN PANEL MODAL -->
+  <div id="admin-panel-modal" class="modal-overlay hidden">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px; color: #ffaa00;">
+          <i class="fa-solid fa-crown" style="font-size: 1.2rem;"></i>
+          <h3 class="modal-title">PANEL DE ADMINISTRACIÓN GLOBAL</h3>
         </div>
-        <button id="close-admin-panel-modal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <button id="close-admin-panel-modal" class="modal-close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
 
-      <p class="text-xs text-slate-400 mb-4">Gestiona a los usuarios registrados. Los usuarios baneados no podrán usar la plataforma.</p>
+      <p style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 20px;">GESTIONÁ A LOS USUARIOS REGISTRADOS. LOS USUARIOS BANEADOS NO PODRÁN USAR LA PLATAFORMA.</p>
 
-      <div class="flex-1 overflow-y-auto border border-slate-800 rounded-2xl bg-slate-950">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
+      <div style="border: 2px solid var(--text); max-height: 500px; overflow-y: auto;">
+        <table class="admin-table">
+          <thead>
             <tr>
-              <th class="p-3">Usuario</th>
-              <th class="p-3">Nombre</th>
-              <th class="p-3">Email Interno</th>
-              <th class="p-3">Estado</th>
-              <th class="p-3 text-right">Acciones</th>
+              <th>USUARIO</th>
+              <th>NOMBRE</th>
+              <th>EMAIL INTERNO</th>
+              <th>ESTADO</th>
+              <th style="text-align: right;">ACCIONES</th>
             </tr>
           </thead>
           <tbody id="admin-users-table">
-            <!-- Dynamic Users Rows -->
+            <!-- Users -->
           </tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: WEBRTC CALL INTERFACE (AUDIO & VIDEO) -->
-  <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 flex flex-col items-center justify-between p-4 sm:p-8">
-    <!-- Call Header -->
-    <div class="text-center z-10">
-      <div class="inline-flex items-center space-x-2 px-3 py-1 bg-slate-900 border border-slate-800 rounded-full text-xs font-semibold text-brand-400 mb-2">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-        <span id="call-status-text">Conectando llamada P2P...</span>
+  <!-- CALL MODAL -->
+  <div id="call-modal" class="call-modal hidden">
+    <div class="call-header">
+      <div class="call-status">
+        <span class="call-status-dot"></span>
+        <span id="call-status-text">CONECTANDO LLAMADA P2P...</span>
       </div>
-      <h3 id="call-peer-name" class="text-xl font-bold text-white">Nombre del Amigo</h3>
+      <h3 id="call-peer-name" class="call-peer-name">NOMBRE DEL AMIGO</h3>
     </div>
 
-    <!-- Video Containers -->
-    <div class="relative w-full max-w-4xl flex-1 my-4 bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
-      <!-- Remote Video -->
-      <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
-      <!-- Remote Placeholder if no video -->
-      <div id="remote-avatar-placeholder" class="absolute flex flex-col items-center justify-center">
-        <img id="call-peer-avatar" src="https://placehold.co/150" class="w-28 h-28 rounded-3xl object-cover border-4 border-slate-800 shadow-xl mb-3">
-        <span class="text-sm font-semibold text-slate-400">Audio P2P Transmitiendo</span>
+    <div class="call-video-container">
+      <video id="remote-video" autoplay playsinline></video>
+      <div id="remote-avatar-placeholder" class="call-remote-placeholder">
+        <img id="call-peer-avatar" src="">
+        <span style="font-size: 0.85rem; text-transform: uppercase; opacity: 0.6;">AUDIO P2P TRANSMITIENDO</span>
       </div>
 
-      <!-- Local Video Overlay -->
-      <div class="absolute bottom-4 right-4 w-32 sm:w-48 aspect-video bg-slate-950 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl">
-        <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+      <div class="call-local-video">
+        <video id="local-video" autoplay playsinline muted></video>
       </div>
     </div>
 
-    <!-- Call Controls -->
-    <div class="flex items-center space-x-4 z-10">
-      <button id="toggle-mic-btn" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-lg transition">
+    <div class="call-controls">
+      <button id="toggle-mic-btn" class="call-btn">
         <i class="fa-solid fa-microphone"></i>
       </button>
-      <button id="end-call-btn" class="w-14 h-14 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center text-xl shadow-lg shadow-rose-600/40 transition">
+      <button id="end-call-btn" class="call-btn end">
         <i class="fa-solid fa-phone-slash"></i>
       </button>
-      <button id="toggle-cam-btn" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-lg transition">
+      <button id="toggle-cam-btn" class="call-btn">
         <i class="fa-solid fa-video"></i>
       </button>
     </div>
   </div>
 
-  <!-- INCOMING CALL MODAL NOTIFICATION -->
-  <div id="incoming-call-modal" class="hidden fixed bottom-6 right-6 bg-slate-900 border border-brand-500/40 shadow-2xl rounded-3xl p-5 z-50 w-80 animate-bounce">
-    <div class="flex items-center space-x-3 mb-4">
-      <img id="incoming-caller-avatar" src="https://placehold.co/100" class="w-12 h-12 rounded-xl object-cover border border-slate-700">
+  <!-- INCOMING CALL MODAL -->
+  <div id="incoming-call-modal" class="incoming-call hidden">
+    <div class="incoming-call-header">
+      <img id="incoming-caller-avatar" src="" class="incoming-call-avatar">
       <div>
-        <h4 id="incoming-caller-name" class="font-bold text-white text-sm">Nombre</h4>
-        <p id="incoming-call-type" class="text-xs text-brand-400 font-medium">Llamada entrante...</p>
+        <div id="incoming-caller-name" class="incoming-call-name">NOMBRE</div>
+        <div id="incoming-call-type" class="incoming-call-type">LLAMADA ENTRANTE...</div>
       </div>
     </div>
-    <div class="flex space-x-2">
-      <button id="reject-call-btn" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition">Rechazar</button>
-      <button id="accept-call-btn" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition">Contestar</button>
+    <div class="incoming-call-actions">
+      <button id="reject-call-btn" class="reject">RECHAZAR</button>
+      <button id="accept-call-btn">CONTESTAR</button>
     </div>
   </div>
 
-  <!-- FIREBASE MODULE & APPLICATION LOGIC -->
+  <!-- FIREBASE & LOGIC -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -503,7 +1544,6 @@
       deleteDoc
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // App Configurations
     const firebaseConfig = {
       apiKey: "AIzaSyBEOlNssEhbSnk_qku9vmwD60rfmdMvnxU",
       authDomain: "agormeet.firebaseapp.com",
@@ -517,27 +1557,23 @@
     const DOMAIN = "@agormeet.app";
     const ADMIN_EMAIL = "cepedademian2005@gmail.com";
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Global State
     let currentUser = null;
     let currentUserData = null;
     let isRegisterMode = false;
     let logoClickCount = 0;
     let logoClickTimer = null;
     
-    // Active Chat State
-    let activeChat = null; // { id, type: 'dm'|'group', name, avatar, members: [] }
+    let activeChat = null;
     let unsubscribeMessages = null;
     let unsubscribeFriends = null;
     let unsubscribeRequests = null;
     let unsubscribeGroups = null;
     let unsubscribeIncomingCalls = null;
 
-    // WebRTC State
     let localStream = null;
     let remoteStream = null;
     let peerConnection = null;
@@ -552,7 +1588,6 @@
       ]
     };
 
-    // DOM Elements
     const authScreen = document.getElementById('auth-screen');
     const mainApp = document.getElementById('main-app');
     const authForm = document.getElementById('auth-form');
@@ -567,27 +1602,23 @@
     const navUsername = document.getElementById('nav-username');
     const adminPanelBtn = document.getElementById('admin-panel-btn');
 
-    // --- AUTHENTICATION & PROFILE LOGIC ---
-
-    // Toggle Auth Mode (Login vs Register)
     toggleAuthModeBtn.addEventListener('click', () => {
       isRegisterMode = !isRegisterMode;
-      authBtnText.innerText = isRegisterMode ? "Registrarse" : "Iniciar Sesión";
+      authBtnText.innerText = isRegisterMode ? "REGISTRARSE" : "INICIAR SESIÓN";
       toggleAuthModeBtn.innerHTML = isRegisterMode 
-        ? '¿Ya tienes cuenta? <span class="text-brand-500 font-bold">Inicia Sesión</span>' 
-        : '¿No tienes cuenta? <span class="text-brand-500 font-bold">Regístrate</span>';
-      authError.classList.add('hidden');
+        ? '¿YA TENÉS CUENTA? <a>INICIÁ SESIÓN</a>' 
+        : '¿NO TENÉS CUENTA? <a>REGISTRATE</a>';
+      authError.classList.remove('show');
     });
 
-    // Form Submit (Fake Mail Mapping)
     authForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      authError.classList.add('hidden');
+      authError.classList.remove('show');
       const username = authUsernameInput.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
       const password = authPasswordInput.value;
 
       if (!username || password.length < 6) {
-        showAuthError("El usuario debe ser válido y la contraseña tener al menos 6 caracteres.");
+        showAuthError("EL USUARIO DEBE SER VÁLIDO Y LA CONTRASEÑA TENER AL MENOS 6 CARACTERES.");
         return;
       }
 
@@ -595,27 +1626,24 @@
 
       try {
         if (isRegisterMode) {
-          // Check if username is taken in Firestore 'usernames' collection
           const userDocRef = doc(db, 'usernames', username);
           const userDocSnap = await getDoc(userDocRef);
 
           if (userDocSnap.exists()) {
-            showAuthError("El nombre de usuario ya está registrado por otra persona.");
+            showAuthError("EL NOMBRE DE USUARIO YA ESTÁ REGISTRADO POR OTRA PERSONA.");
             return;
           }
 
-          // Register in Auth
           const cred = await createUserWithEmailAndPassword(auth, fakeEmail, password);
           const uid = cred.user.uid;
 
-          // Save User Data in Firestore
           const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`;
           const userData = {
             uid,
             username,
             email: fakeEmail,
-            displayName: username,
-            bio: "¡Hola! Estoy usando AgorMeet.",
+            displayName: username.toUpperCase(),
+            bio: "¡HOLA! ESTOY USANDO AGORMEET.",
             avatarUrl: defaultAvatar,
             isBanned: false,
             createdAt: serverTimestamp()
@@ -625,30 +1653,26 @@
           await setDoc(doc(db, 'usernames', username), { uid });
 
         } else {
-          // Login
           await signInWithEmailAndPassword(auth, fakeEmail, password);
         }
       } catch (err) {
         console.error(err);
-        showAuthError(isRegisterMode ? "Error al registrar el usuario." : "Usuario o contraseña incorrectos.");
+        showAuthError(isRegisterMode ? "ERROR AL REGISTRAR EL USUARIO." : "USUARIO O CONTRASEÑA INCORRECTOS.");
       }
     });
 
     function showAuthError(msg) {
       authError.innerText = msg;
-      authError.classList.remove('hidden');
+      authError.classList.add('show');
     }
 
-    // Auth State Change Listener
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
-        // Listen to Current User Doc
         onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
           if (docSnap.exists()) {
             currentUserData = docSnap.data();
 
-            // Handle Banned User
             if (currentUserData.isBanned) {
               document.getElementById('banned-modal').classList.remove('hidden');
               return;
@@ -656,23 +1680,20 @@
               document.getElementById('banned-modal').classList.add('hidden');
             }
 
-            // Update UI Topbar
-            navUsername.innerText = `@${currentUserData.username}`;
+            navUsername.innerText = `@${currentUserData.username.toUpperCase()}`;
             navAvatar.src = currentUserData.avatarUrl;
             userNav.classList.remove('hidden');
             userNav.classList.add('flex');
 
-            // Show Admin Button if logged in as Admin email
             if (user.email === ADMIN_EMAIL) {
-              adminPanelBtn.classList.remove('hidden');
+              adminPanelBtn.classList.add('show');
             } else {
-              adminPanelBtn.classList.add('hidden');
+              adminPanelBtn.classList.remove('show');
             }
 
             authScreen.classList.add('hidden');
             mainApp.classList.remove('hidden');
 
-            // Initialize app listeners
             initAppListeners();
           }
         });
@@ -689,7 +1710,6 @@
     document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
     document.getElementById('banned-logout-btn').addEventListener('click', () => signOut(auth));
 
-    // --- SECRET ADMIN LOGIC (7 CLICKS ON LOGO) ---
     const logoBtn = document.getElementById('logo-btn');
     logoBtn.addEventListener('click', () => {
       logoClickCount++;
@@ -711,7 +1731,7 @@
       const email = document.getElementById('admin-email').value;
       const pass = document.getElementById('admin-password').value;
       const errDiv = document.getElementById('admin-login-error');
-      errDiv.classList.add('hidden');
+      errDiv.classList.remove('show');
 
       try {
         await signInWithEmailAndPassword(auth, email, pass);
@@ -720,8 +1740,8 @@
           openAdminPanel();
         }
       } catch (err) {
-        errDiv.innerText = "Credenciales administrativas inválidas.";
-        errDiv.classList.remove('hidden');
+        errDiv.innerText = "CREDENCIALES ADMINISTRATIVAS INVÁLIDAS.";
+        errDiv.classList.add('show');
       }
     });
 
@@ -733,7 +1753,7 @@
     async function openAdminPanel() {
       document.getElementById('admin-panel-modal').classList.remove('hidden');
       const tableBody = document.getElementById('admin-users-table');
-      tableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">Cargando usuarios...</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; opacity: 0.6;">CARGANDO USUARIOS...</td></tr>';
 
       const usersSnap = await getDocs(collection(db, 'users'));
       tableBody.innerHTML = '';
@@ -741,19 +1761,18 @@
       usersSnap.forEach((uDoc) => {
         const u = uDoc.data();
         const tr = document.createElement('tr');
-        tr.className = 'border-b border-slate-800/50 hover:bg-slate-800/30';
         tr.innerHTML = `
-          <td class="p-3 font-semibold text-white">@${u.username}</td>
-          <td class="p-3 text-slate-300">${u.displayName || u.username}</td>
-          <td class="p-3 text-slate-400 font-mono text-[11px]">${u.email}</td>
-          <td class="p-3">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.isBanned ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">
+          <td style="font-weight: 700;">@${u.username.toUpperCase()}</td>
+          <td>${(u.displayName || u.username).toUpperCase()}</td>
+          <td style="font-family: monospace; font-size: 0.65rem;">${u.email}</td>
+          <td>
+            <span class="status-badge ${u.isBanned ? 'status-banned' : 'status-active'}">
               ${u.isBanned ? 'BANEADO' : 'ACTIVO'}
             </span>
           </td>
-          <td class="p-3 text-right">
-            <button data-uid="${u.uid}" data-banned="${u.isBanned}" class="toggle-ban-btn px-2.5 py-1 rounded-lg text-[11px] font-bold ${u.isBanned ? 'bg-emerald-600 hover:bg-emerald-500 text-white' : 'bg-rose-600 hover:bg-rose-500 text-white'} transition">
-              ${u.isBanned ? 'Desbanear' : 'Banear'}
+          <td style="text-align: right;">
+            <button data-uid="${u.uid}" data-banned="${u.isBanned}" class="toggle-ban-btn btn-secondary">
+              ${u.isBanned ? 'DESBANEAR' : 'BANEAR'}
             </button>
           </td>
         `;
@@ -765,12 +1784,11 @@
           const targetUid = e.currentTarget.getAttribute('data-uid');
           const isCurrentBanned = e.currentTarget.getAttribute('data-banned') === 'true';
           await updateDoc(doc(db, 'users', targetUid), { isBanned: !isCurrentBanned });
-          openAdminPanel(); // Refresh
+          openAdminPanel();
         });
       });
     }
 
-    // --- PROFILE & IMGBB AVATAR UPLOAD ---
     const profileModal = document.getElementById('profile-modal');
     document.getElementById('open-profile-btn').addEventListener('click', () => {
       document.getElementById('profile-displayName').value = currentUserData.displayName || '';
@@ -781,7 +1799,6 @@
 
     document.getElementById('close-profile-modal').addEventListener('click', () => profileModal.classList.add('hidden'));
 
-    // ImgBB Upload Handler
     document.getElementById('profile-avatar-file').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -790,8 +1807,8 @@
       formData.append('image', file);
 
       const statusDiv = document.getElementById('profile-save-status');
-      statusDiv.innerText = "Subiendo imagen a ImgBB...";
-      statusDiv.classList.remove('hidden');
+      statusDiv.innerText = "SUBIENDO IMAGEN A IMGBB...";
+      statusDiv.classList.add('show');
 
       try {
         const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
@@ -801,13 +1818,13 @@
         const data = await res.json();
         if (data && data.data && data.data.url) {
           document.getElementById('profile-modal-avatar-preview').src = data.data.url;
-          statusDiv.innerText = "Imagen subida exitosamente!";
+          statusDiv.innerText = "¡IMAGEN SUBIDA EXITOSAMENTE!";
         } else {
           throw new Error("Error en la subida a ImgBB");
         }
       } catch (err) {
         console.error(err);
-        statusDiv.innerText = "Error al subir imagen a ImgBB.";
+        statusDiv.innerText = "ERROR AL SUBIR IMAGEN A IMGBB.";
       }
     });
 
@@ -826,11 +1843,10 @@
       profileModal.classList.add('hidden');
     });
 
-    // --- FRIEND REQUEST SYSTEM (EXACT MATCH SEARCH) ---
     const addFriendModal = document.getElementById('add-friend-modal');
     document.getElementById('add-friend-btn').addEventListener('click', () => {
       document.getElementById('target-username-input').value = '';
-      document.getElementById('request-status-msg').classList.add('hidden');
+      document.getElementById('request-status-msg').classList.remove('show');
       addFriendModal.classList.remove('hidden');
     });
 
@@ -840,36 +1856,30 @@
       e.preventDefault();
       const targetUser = document.getElementById('target-username-input').value.trim().toLowerCase();
       const msgDiv = document.getElementById('request-status-msg');
-      msgDiv.classList.add('hidden');
+      msgDiv.classList.remove('show');
 
       if (targetUser === currentUserData.username) {
-        msgDiv.innerText = "No puedes enviarte una solicitud a ti mismo.";
-        msgDiv.className = "text-xs p-3 rounded-xl bg-amber-500/20 text-amber-300";
-        msgDiv.classList.remove('hidden');
+        msgDiv.innerText = "NO PODÉS ENVIARTE UNA SOLICITUD A VOS MISMO.";
+        msgDiv.classList.add('show');
         return;
       }
 
-      // Exact check if username exists
       const usernameSnap = await getDoc(doc(db, 'usernames', targetUser));
       if (!usernameSnap.exists()) {
-        msgDiv.innerText = "El usuario no existe.";
-        msgDiv.className = "text-xs p-3 rounded-xl bg-rose-500/20 text-rose-300";
-        msgDiv.classList.remove('hidden');
+        msgDiv.innerText = "EL USUARIO NO EXISTE.";
+        msgDiv.classList.add('show');
         return;
       }
 
       const targetUid = usernameSnap.data().uid;
 
-      // Check if already friends
       const friendsSnap = await getDoc(doc(db, 'users', currentUser.uid, 'friends', targetUid));
       if (friendsSnap.exists()) {
-        msgDiv.innerText = "Ya eres amigo de este usuario.";
-        msgDiv.className = "text-xs p-3 rounded-xl bg-amber-500/20 text-amber-300";
-        msgDiv.classList.remove('hidden');
+        msgDiv.innerText = "YA SOS AMIGO DE ESTE USUARIO.";
+        msgDiv.classList.add('show');
         return;
       }
 
-      // Send Request in Firestore
       const reqId = `${currentUser.uid}_${targetUid}`;
       await setDoc(doc(db, 'friend_requests', reqId), {
         fromUid: currentUser.uid,
@@ -879,19 +1889,15 @@
         createdAt: serverTimestamp()
       });
 
-      msgDiv.innerText = "¡Solicitud enviada con éxito!";
-      msgDiv.className = "text-xs p-3 rounded-xl bg-emerald-500/20 text-emerald-300";
-      msgDiv.classList.remove('hidden');
+      msgDiv.innerText = "¡SOLICITUD ENVIADA CON ÉXITO!";
+      msgDiv.classList.add('show');
     });
 
-    // Handle Incoming Friend Requests Modal
     const requestsModal = document.getElementById('requests-modal');
     document.getElementById('requests-btn').addEventListener('click', () => requestsModal.classList.remove('hidden'));
     document.getElementById('close-requests-modal').addEventListener('click', () => requestsModal.classList.add('hidden'));
 
-    // --- APP LISTENERS (FRIENDS, REQUESTS, GROUPS, MESSAGES) ---
     function initAppListeners() {
-      // 1. Listen to Pending Friend Requests
       const reqQuery = query(collection(db, 'friend_requests'), where('toUid', '==', currentUser.uid), where('status', '==', 'pending'));
       unsubscribeRequests = onSnapshot(reqQuery, async (snap) => {
         const badge = document.getElementById('requests-badge');
@@ -900,7 +1906,7 @@
 
         if (snap.empty) {
           badge.classList.add('hidden');
-          container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">No tienes solicitudes pendientes.</p>';
+          container.innerHTML = '<p style="text-align: center; opacity: 0.6; padding: 20px;">NO TENÉS SOLICITUDES PENDIENTES.</p>';
           return;
         }
 
@@ -913,48 +1919,42 @@
           const sender = senderSnap.data() || { displayName: req.fromUsername, avatarUrl: '' };
 
           const div = document.createElement('div');
-          div.className = "flex items-center justify-between bg-slate-950 p-3 rounded-2xl border border-slate-800";
+          div.className = "request-item";
           div.innerHTML = `
-            <div class="flex items-center space-x-3">
-              <img src="${sender.avatarUrl || 'https://placehold.co/100'}" class="w-10 h-10 rounded-xl object-cover">
+            <div class="request-item-info">
+              <img src="${sender.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=default'}" class="request-item-avatar">
               <div>
-                <h4 class="font-bold text-sm text-white">${sender.displayName}</h4>
-                <p class="text-xs text-slate-400">@${sender.username}</p>
+                <div class="request-item-name">${sender.displayName}</div>
+                <div class="request-item-user">@${sender.username}</div>
               </div>
             </div>
-            <div class="flex space-x-1">
-              <button class="accept-req-btn p-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold" data-reqid="${rDoc.id}" data-from="${req.fromUid}">Aceptar</button>
-              <button class="reject-req-btn p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl text-xs font-semibold" data-reqid="${rDoc.id}">Rechazar</button>
+            <div class="request-actions">
+              <button class="accept" data-reqid="${rDoc.id}" data-from="${req.fromUid}">ACEPTAR</button>
+              <button data-reqid="${rDoc.id}">RECHAZAR</button>
             </div>
           `;
           container.appendChild(div);
 
-          // Event Listeners for Accept/Reject
-          div.querySelector('.accept-req-btn').addEventListener('click', async (e) => {
+          div.querySelector('.accept').addEventListener('click', async (e) => {
             const reqId = e.currentTarget.getAttribute('data-reqid');
             const friendUid = e.currentTarget.getAttribute('data-from');
             await acceptFriendRequest(reqId, friendUid);
           });
 
-          div.querySelector('.reject-req-btn').addEventListener('click', async (e) => {
+          div.querySelector('button:not(.accept)').addEventListener('click', async (e) => {
             const reqId = e.currentTarget.getAttribute('data-reqid');
             await deleteDoc(doc(db, 'friend_requests', reqId));
           });
         });
       });
 
-      // 2. Listen to Friends List
       unsubscribeFriends = onSnapshot(collection(db, 'users', currentUser.uid, 'friends'), async (snap) => {
         renderChatsList(snap);
       });
 
-      // 3. Listen to Groups
       const groupQuery = query(collection(db, 'groups'), where('members', 'array-contains', currentUser.uid));
-      unsubscribeGroups = onSnapshot(groupQuery, (snap) => {
-        // Groups loaded for switching tab
-      });
+      unsubscribeGroups = onSnapshot(groupQuery, (snap) => {});
 
-      // 4. Listen to Incoming WebRTC Calls
       const callQuery = query(collection(db, 'calls'), where('targetUid', '==', currentUser.uid), where('status', '==', 'offered'));
       unsubscribeIncomingCalls = onSnapshot(callQuery, (snap) => {
         if (!snap.empty && !currentCallId) {
@@ -966,10 +1966,8 @@
     }
 
     async function acceptFriendRequest(reqId, friendUid) {
-      // Add mutual friend documents
       await setDoc(doc(db, 'users', currentUser.uid, 'friends', friendUid), { addedAt: serverTimestamp() });
       await setDoc(doc(db, 'users', friendUid, 'friends', currentUser.uid), { addedAt: serverTimestamp() });
-      // Delete request doc
       await deleteDoc(doc(db, 'friend_requests', reqId));
     }
 
@@ -981,22 +1979,21 @@
       if (unsubscribeIncomingCalls) unsubscribeIncomingCalls();
     }
 
-    // Tab Switching: Friends vs Groups
     let activeTab = 'chats';
     const tabChats = document.getElementById('tab-chats');
     const tabGroups = document.getElementById('tab-groups');
 
     tabChats.addEventListener('click', () => {
       activeTab = 'chats';
-      tabChats.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow-sm transition";
-      tabGroups.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition";
+      tabChats.classList.add('active');
+      tabGroups.classList.remove('active');
       renderFriendsTab();
     });
 
     tabGroups.addEventListener('click', () => {
       activeTab = 'groups';
-      tabGroups.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow-sm transition";
-      tabChats.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition";
+      tabGroups.classList.add('active');
+      tabChats.classList.remove('active');
       renderGroupsTab();
     });
 
@@ -1012,21 +2009,21 @@
       container.innerHTML = '';
 
       if (groupsSnap.empty) {
-        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">No perteneces a ningún grupo aún.</p>';
+        container.innerHTML = '<p style="text-align: center; opacity: 0.6; padding: 30px;">NO PERTENECÉS A NINGÚN GRUPO AÚN.</p>';
         return;
       }
 
       groupsSnap.forEach(gDoc => {
         const group = gDoc.data();
         const div = document.createElement('div');
-        div.className = "flex items-center space-x-3 p-3 rounded-2xl cursor-pointer hover:bg-slate-800/60 transition border border-transparent hover:border-slate-800";
+        div.className = "chat-item";
         div.innerHTML = `
-          <div class="w-10 h-10 rounded-xl bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center font-bold">
-            <i class="fa-solid fa-users text-sm"></i>
+          <div class="chat-icon">
+            <i class="fa-solid fa-users"></i>
           </div>
-          <div class="flex-1 min-w-0">
-            <h4 class="font-bold text-sm text-white truncate">${group.name}</h4>
-            <p class="text-xs text-slate-400 truncate">${group.members.length} miembros</p>
+          <div class="chat-info">
+            <div class="chat-name">${group.name}</div>
+            <div class="chat-sub">${group.members.length} MIEMBROS</div>
           </div>
         `;
         div.addEventListener('click', () => selectChat({
@@ -1046,7 +2043,7 @@
       container.innerHTML = '';
 
       if (friendsSnap.empty) {
-        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">No tienes amigos agregados.</p>';
+        container.innerHTML = '<p style="text-align: center; opacity: 0.6; padding: 30px;">NO TENÉS AMIGOS AGREGADOS.</p>';
         return;
       }
 
@@ -1057,16 +2054,15 @@
         const fUser = friendUserSnap.data();
 
         const div = document.createElement('div');
-        div.className = "flex items-center space-x-3 p-3 rounded-2xl cursor-pointer hover:bg-slate-800/60 transition border border-transparent hover:border-slate-800";
+        div.className = "chat-item";
         div.innerHTML = `
-          <img src="${fUser.avatarUrl || 'https://placehold.co/100'}" class="w-10 h-10 rounded-xl object-cover border border-slate-800">
-          <div class="flex-1 min-w-0">
-            <h4 class="font-bold text-sm text-white truncate">${fUser.displayName}</h4>
-            <p class="text-xs text-slate-400 truncate">@${fUser.username}</p>
+          <img src="${fUser.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=default'}" class="chat-avatar">
+          <div class="chat-info">
+            <div class="chat-name">${fUser.displayName}</div>
+            <div class="chat-sub">@${fUser.username.toUpperCase()}</div>
           </div>
         `;
 
-        // Direct Message Chat ID logic (sorted UIDs)
         const dmId = [currentUser.uid, friendUid].sort().join('_');
         div.addEventListener('click', () => selectChat({
           id: dmId,
@@ -1081,15 +2077,14 @@
       });
     }
 
-    // SELECT AND OPEN A CHAT
     function selectChat(chatObj) {
       activeChat = chatObj;
       document.getElementById('no-chat-selected').classList.add('hidden');
       document.getElementById('active-chat-container').classList.remove('hidden');
+      document.getElementById('active-chat-container').style.display = 'flex';
 
-      // Update Header
       document.getElementById('active-chat-title').innerText = chatObj.name;
-      document.getElementById('active-chat-sub').innerText = chatObj.type === 'dm' ? `@${chatObj.username}` : `${chatObj.members.length} miembros`;
+      document.getElementById('active-chat-sub').innerText = chatObj.type === 'dm' ? `@${chatObj.username.toUpperCase()}` : `${chatObj.members.length} MIEMBROS`;
       
       const avatarImg = document.getElementById('active-chat-avatar');
       if (chatObj.type === 'dm') {
@@ -1101,10 +2096,8 @@
         document.getElementById('group-info-btn').classList.remove('hidden');
       }
 
-      // Hide sidebar on mobile
-      document.getElementById('sidebar').classList.add('hidden', 'md:flex');
+      document.getElementById('sidebar').classList.add('hidden-mobile');
 
-      // Listen to Chat Messages
       if (unsubscribeMessages) unsubscribeMessages();
       const msgQuery = query(collection(db, 'chats', chatObj.id, 'messages'), orderBy('createdAt', 'asc'));
 
@@ -1117,11 +2110,11 @@
           const isMe = msg.senderUid === currentUser.uid;
 
           const msgDiv = document.createElement('div');
-          msgDiv.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'}`;
+          msgDiv.className = `message ${isMe ? 'me' : 'them'}`;
           msgDiv.innerHTML = `
-            <div class="flex flex-col max-w-[80%] sm:max-w-[70%] ${isMe ? 'bg-brand-600 text-white rounded-2xl rounded-tr-xs' : 'bg-slate-900 text-slate-100 border border-slate-800 rounded-2xl rounded-tl-xs'} p-3 shadow-md">
-              ${!isMe && chatObj.type === 'group' ? `<span class="text-[10px] font-bold text-brand-400 mb-1">@${msg.senderUsername}</span>` : ''}
-              <p class="text-sm leading-relaxed break-words">${escapeHtml(msg.text)}</p>
+            ${!isMe && chatObj.type === 'group' ? `<div class="message-sender">@${msg.senderUsername}</div>` : ''}
+            <div class="message-bubble">
+              <div style="font-size: 0.85rem;">${escapeHtml(msg.text)}</div>
             </div>
           `;
           msgContainer.appendChild(msgDiv);
@@ -1132,10 +2125,9 @@
     }
 
     document.getElementById('back-to-sidebar').addEventListener('click', () => {
-      document.getElementById('sidebar').classList.remove('hidden');
+      document.getElementById('sidebar').classList.remove('hidden-mobile');
     });
 
-    // Send Message
     document.getElementById('message-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!activeChat) return;
@@ -1158,7 +2150,6 @@
       return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    // --- CREATE GROUP CHAT LOGIC ---
     const createGroupModal = document.getElementById('create-group-modal');
     document.getElementById('create-group-btn').addEventListener('click', async () => {
       const selectContainer = document.getElementById('group-friends-select');
@@ -1166,7 +2157,7 @@
 
       const friendsSnap = await getDocs(collection(db, 'users', currentUser.uid, 'friends'));
       if (friendsSnap.empty) {
-        selectContainer.innerHTML = '<p class="text-xs text-slate-500 p-2">Necesitas tener amigos para agregarlos a un grupo.</p>';
+        selectContainer.innerHTML = '<p style="font-size: 0.75rem; opacity: 0.6; padding: 10px;">NECESITÁS TENER AMIGOS PARA AGREGARLOS A UN GRUPO.</p>';
       } else {
         friendsSnap.forEach(async (fDoc) => {
           const fUserSnap = await getDoc(doc(db, 'users', fDoc.id));
@@ -1174,11 +2165,11 @@
           const fUser = fUserSnap.data();
 
           const label = document.createElement('label');
-          label.className = "flex items-center space-x-3 p-2 rounded-xl hover:bg-slate-900 cursor-pointer";
+          label.style.cssText = "display: flex; align-items: center; gap: 10px; padding: 8px; cursor: pointer; border-bottom: 1px dashed var(--border);";
           label.innerHTML = `
-            <input type="checkbox" value="${fUser.uid}" class="group-friend-checkbox rounded text-brand-600 focus:ring-brand-500 bg-slate-950 border-slate-800">
-            <img src="${fUser.avatarUrl || 'https://placehold.co/100'}" class="w-7 h-7 rounded-lg object-cover">
-            <span class="text-xs font-semibold text-slate-200">${fUser.displayName} (@${fUser.username})</span>
+            <input type="checkbox" value="${fUser.uid}" style="width: 16px; height: 16px;">
+            <img src="${fUser.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=default'}" style="width: 30px; height: 30px; object-fit: cover; border: 2px solid var(--border);">
+            <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">${fUser.displayName} (@${fUser.username})</span>
           `;
           selectContainer.appendChild(label);
         });
@@ -1192,7 +2183,7 @@
     document.getElementById('create-group-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const groupName = document.getElementById('group-name-input').value.trim();
-      const checked = Array.from(document.querySelectorAll('.group-friend-checkbox:checked')).map(cb => cb.value);
+      const checked = Array.from(document.querySelectorAll('#group-friends-select input[type="checkbox"]:checked')).map(cb => cb.value);
 
       if (!groupName || checked.length === 0) return;
 
@@ -1208,13 +2199,12 @@
       tabGroups.click();
     });
 
-    // --- GROUP INFO & NON-FRIEND DIRECT FRIEND ADD ---
     document.getElementById('group-info-btn').addEventListener('click', async () => {
       if (!activeChat || activeChat.type !== 'group') return;
       document.getElementById('group-info-name').innerText = activeChat.name;
 
       const listContainer = document.getElementById('group-members-list');
-      listContainer.innerHTML = '<p class="text-xs text-slate-500 text-center">Cargando integrantes...</p>';
+      listContainer.innerHTML = '<p style="text-align: center; opacity: 0.6; padding: 20px;">CARGANDO INTEGRANTES...</p>';
       document.getElementById('group-info-modal').classList.remove('hidden');
 
       listContainer.innerHTML = '';
@@ -1225,38 +2215,36 @@
         const member = mDoc.data();
 
         const isMe = mUid === currentUser.uid;
-        // Check if member is friend
         const friendCheck = await getDoc(doc(db, 'users', currentUser.uid, 'friends', mUid));
         const isFriend = friendCheck.exists();
 
-        // Check if there is a pending request
         const reqCheck1 = await getDoc(doc(db, 'friend_requests', `${currentUser.uid}_${mUid}`));
         const reqCheck2 = await getDoc(doc(db, 'friend_requests', `${mUid}_${currentUser.uid}`));
         const pendingOut = reqCheck1.exists() && reqCheck1.data().status === 'pending';
         const pendingIn = reqCheck2.exists() && reqCheck2.data().status === 'pending';
 
         const div = document.createElement('div');
-        div.className = "flex items-center justify-between bg-slate-950 p-3 rounded-2xl border border-slate-800";
+        div.className = "member-item";
         
         let actionBtn = '';
         if (isMe) {
-          actionBtn = '<span class="text-[10px] bg-slate-800 text-slate-400 px-2.5 py-1 rounded-lg font-semibold">Tú</span>';
+          actionBtn = '<span style="font-size: 0.65rem; border: 2px solid var(--border); padding: 6px 10px; opacity: 0.6;">VOS</span>';
         } else if (isFriend) {
-          actionBtn = '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-lg font-semibold">Amigos</span>';
+          actionBtn = '<span style="font-size: 0.65rem; border: 2px solid #00ff00; color: #00ff00; padding: 6px 10px;">AMIGOS</span>';
         } else if (pendingIn) {
-          actionBtn = `<button data-reqid="${reqCheck2.id}" data-uid="${mUid}" class="group-accept-btn px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-bold">Aceptar Solicitud</button>`;
+          actionBtn = `<button data-reqid="${reqCheck2.id}" data-uid="${mUid}" class="group-accept-btn member-action">ACEPTAR SOLICITUD</button>`;
         } else if (pendingOut) {
-          actionBtn = '<span class="text-[10px] bg-amber-500/20 text-amber-400 px-2.5 py-1 rounded-lg font-semibold">Solicitud Enviada</span>';
+          actionBtn = '<span style="font-size: 0.65rem; border: 2px solid #ffaa00; color: #ffaa00; padding: 6px 10px;">SOLICITUD ENVIADA</span>';
         } else {
-          actionBtn = `<button data-uid="${mUid}" data-username="${member.username}" class="group-add-btn px-2.5 py-1 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-bold transition">Agregar Amigo</button>`;
+          actionBtn = `<button data-uid="${mUid}" data-username="${member.username}" class="group-add-btn member-action">AGREGAR AMIGO</button>`;
         }
 
         div.innerHTML = `
-          <div class="flex items-center space-x-3">
-            <img src="${member.avatarUrl || 'https://placehold.co/100'}" class="w-10 h-10 rounded-xl object-cover">
+          <div class="member-info">
+            <img src="${member.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=default'}" class="member-avatar">
             <div>
-              <h4 class="font-bold text-sm text-white">${member.displayName}</h4>
-              <p class="text-xs text-slate-400">@${member.username}</p>
+              <div class="member-name">${member.displayName}</div>
+              <div class="member-user">@${member.username}</div>
             </div>
           </div>
           <div>${actionBtn}</div>
@@ -1265,11 +2253,9 @@
         listContainer.appendChild(div);
       }
 
-      // Action Handlers inside Group Member List
       document.querySelectorAll('.group-add-btn').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           const targetUid = e.currentTarget.getAttribute('data-uid');
-          const targetUsername = e.currentTarget.getAttribute('data-username');
           const reqId = `${currentUser.uid}_${targetUid}`;
           await setDoc(doc(db, 'friend_requests', reqId), {
             fromUid: currentUser.uid,
@@ -1278,7 +2264,7 @@
             status: 'pending',
             createdAt: serverTimestamp()
           });
-          e.currentTarget.parentElement.innerHTML = '<span class="text-[10px] bg-amber-500/20 text-amber-400 px-2.5 py-1 rounded-lg font-semibold">Solicitud Enviada</span>';
+          e.currentTarget.parentElement.innerHTML = '<span style="font-size: 0.65rem; border: 2px solid #ffaa00; color: #ffaa00; padding: 6px 10px;">SOLICITUD ENVIADA</span>';
         });
       });
 
@@ -1287,7 +2273,7 @@
           const reqId = e.currentTarget.getAttribute('data-reqid');
           const targetUid = e.currentTarget.getAttribute('data-uid');
           await acceptFriendRequest(reqId, targetUid);
-          e.currentTarget.parentElement.innerHTML = '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-lg font-semibold">Amigos</span>';
+          e.currentTarget.parentElement.innerHTML = '<span style="font-size: 0.65rem; border: 2px solid #00ff00; color: #00ff00; padding: 6px 10px;">AMIGOS</span>';
         });
       });
     });
@@ -1296,7 +2282,6 @@
       document.getElementById('group-info-modal').classList.add('hidden');
     });
 
-    // --- WEBRTC P2P VOICE & VIDEO CALLS LOGIC ---
     const callModal = document.getElementById('call-modal');
     const localVideo = document.getElementById('local-video');
     const remoteVideo = document.getElementById('remote-video');
@@ -1306,14 +2291,14 @@
 
     async function startCall(withVideo) {
       if (!activeChat || activeChat.type !== 'dm') {
-        alert("Las llamadas P2P sólo están disponibles en chats 1 a 1.");
+        alert("LAS LLAMADAS P2P SÓLO ESTÁN DISPONIBLES EN CHATS 1 A 1.");
         return;
       }
 
       isCaller = true;
       currentCallId = `${currentUser.uid}_${activeChat.targetUid}_${Date.now()}`;
       
-      setupCallUI(activeChat.name, activeChat.avatar, "Llamando a amigo...");
+      setupCallUI(activeChat.name, activeChat.avatar, "LLAMANDO A AMIGO...");
       await initMediaStream(withVideo);
 
       peerConnection = new RTCPeerConnection(rtcConfig);
@@ -1327,7 +2312,6 @@
         document.getElementById('remote-avatar-placeholder').classList.add('hidden');
       };
 
-      // Candidates caller -> Firestore
       const callerCandidatesCol = collection(db, 'calls', currentCallId, 'callerCandidates');
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
@@ -1335,7 +2319,6 @@
         }
       };
 
-      // Create SDP Offer
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
 
@@ -1349,20 +2332,18 @@
         offer: { type: offer.type, sdp: offer.sdp }
       });
 
-      // Listen for Answer
       onSnapshot(doc(db, 'calls', currentCallId), async (snap) => {
         const data = snap.data();
         if (data && data.answer && !peerConnection.currentRemoteDescription) {
           const rsd = new RTCSessionDescription(data.answer);
           await peerConnection.setRemoteDescription(rsd);
-          document.getElementById('call-status-text').innerText = "En llamada P2P";
+          document.getElementById('call-status-text').innerText = "EN LLAMADA P2P";
         }
         if (data && data.status === 'ended') {
           endCall();
         }
       });
 
-      // Listen for Callee Candidates
       onSnapshot(collection(db, 'calls', currentCallId, 'calleeCandidates'), (snap) => {
         snap.docChanges().forEach(async (change) => {
           if (change.type === 'added') {
@@ -1375,8 +2356,8 @@
     function showIncomingCallNotification(callId, callData) {
       currentCallId = callId;
       document.getElementById('incoming-caller-name').innerText = callData.callerName;
-      document.getElementById('incoming-caller-avatar').src = callData.callerAvatar || 'https://placehold.co/100';
-      document.getElementById('incoming-call-type').innerText = callData.withVideo ? "Videollamada entrante..." : "Llamada de voz entrante...";
+      document.getElementById('incoming-caller-avatar').src = callData.callerAvatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=default';
+      document.getElementById('incoming-call-type').innerText = callData.withVideo ? "VIDEOLLAMADA ENTRANTE..." : "LLAMADA DE VOZ ENTRANTE...";
       
       const incomingModal = document.getElementById('incoming-call-modal');
       incomingModal.classList.remove('hidden');
@@ -1393,7 +2374,7 @@
       document.getElementById('incoming-call-modal').classList.add('hidden');
       isCaller = false;
 
-      setupCallUI(callData.callerName, callData.callerAvatar, "Conectando...");
+      setupCallUI(callData.callerName, callData.callerAvatar, "CONECTANDO...");
       await initMediaStream(callData.withVideo);
 
       peerConnection = new RTCPeerConnection(rtcConfig);
@@ -1407,7 +2388,6 @@
         document.getElementById('remote-avatar-placeholder').classList.add('hidden');
       };
 
-      // Candidates callee -> Firestore
       const calleeCandidatesCol = collection(db, 'calls', callId, 'calleeCandidates');
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
@@ -1415,10 +2395,8 @@
         }
       };
 
-      // Set Remote Description (Offer)
       await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
 
-      // Create SDP Answer
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
 
@@ -1427,9 +2405,8 @@
         status: 'accepted'
       });
 
-      document.getElementById('call-status-text').innerText = "En llamada P2P";
+      document.getElementById('call-status-text').innerText = "EN LLAMADA P2P";
 
-      // Listen for Caller Candidates
       onSnapshot(collection(db, 'calls', callId, 'callerCandidates'), (snap) => {
         snap.docChanges().forEach(async (change) => {
           if (change.type === 'added') {
@@ -1438,7 +2415,6 @@
         });
       });
 
-      // Listen for Termination
       onSnapshot(doc(db, 'calls', callId), (snap) => {
         if (snap.exists() && snap.data().status === 'ended') {
           endCall();
@@ -1460,7 +2436,7 @@
 
     function setupCallUI(peerName, peerAvatar, statusText) {
       document.getElementById('call-peer-name').innerText = peerName;
-      document.getElementById('call-peer-avatar').src = peerAvatar || 'https://placehold.co/150';
+      document.getElementById('call-peer-avatar').src = peerAvatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=default';
       document.getElementById('call-status-text').innerText = statusText;
       document.getElementById('remote-avatar-placeholder').classList.remove('hidden');
       callModal.classList.remove('hidden');
@@ -1486,14 +2462,13 @@
       currentCallId = null;
     }
 
-    // Toggle Mic / Cam Controls
     document.getElementById('toggle-mic-btn').addEventListener('click', (e) => {
       if (localStream) {
         const audioTrack = localStream.getAudioTracks()[0];
         if (audioTrack) {
           isMicMuted = !isMicMuted;
           audioTrack.enabled = !isMicMuted;
-          e.currentTarget.innerHTML = isMicMuted ? '<i class="fa-solid fa-microphone-slash text-rose-400"></i>' : '<i class="fa-solid fa-microphone"></i>';
+          e.currentTarget.innerHTML = isMicMuted ? '<i class="fa-solid fa-microphone-slash" style="color: #ff4444;"></i>' : '<i class="fa-solid fa-microphone"></i>';
         }
       }
     });
@@ -1504,7 +2479,7 @@
         if (videoTrack) {
           isCamOff = !isCamOff;
           videoTrack.enabled = !isCamOff;
-          e.currentTarget.innerHTML = isCamOff ? '<i class="fa-solid fa-video-slash text-rose-400"></i>' : '<i class="fa-solid fa-video"></i>';
+          e.currentTarget.innerHTML = isCamOff ? '<i class="fa-solid fa-video-slash" style="color: #ff4444;"></i>' : '<i class="fa-solid fa-video"></i>';
         }
       }
     });

@@ -1666,45 +1666,57 @@
       authError.classList.add('show');
     }
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        currentUser = user;
-        onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
-          if (docSnap.exists()) {
-            currentUserData = docSnap.data();
+    let unsubscribeUser = null;
+    let listenersActive = false;
 
-            if (currentUserData.isBanned) {
-              document.getElementById('banned-modal').classList.remove('hidden');
-              return;
-            } else {
-              document.getElementById('banned-modal').classList.add('hidden');
-            }
+    function startListeners() {
+      if (listenersActive) return;
+      listenersActive = true;
+      initAppListeners();
+    }
 
-            navUsername.innerText = `@${currentUserData.username.toUpperCase()}`;
-            navAvatar.src = currentUserData.avatarUrl;
-            userNav.classList.remove('hidden');
-            userNav.classList.add('flex');
+    onAuthStateChanged(auth, (user) => {
+      if (unsubscribeUser) { unsubscribeUser(); unsubscribeUser = null; }
+      cleanupAppListeners();
+      activeChat = null;
 
-            if (user.email === ADMIN_EMAIL) {
-              adminPanelBtn.classList.add('show');
-            } else {
-              adminPanelBtn.classList.remove('show');
-            }
-
-            authScreen.classList.add('hidden');
-            mainApp.classList.remove('hidden');
-
-            initAppListeners();
-          }
-        });
-      } else {
+      if (!user) {
         currentUser = null;
         currentUserData = null;
         userNav.classList.add('hidden');
         authScreen.classList.remove('hidden');
         mainApp.classList.add('hidden');
-        cleanupAppListeners();
+        document.getElementById('banned-modal').classList.add('hidden');
+        return;
       }
+
+      currentUser = user;
+      unsubscribeUser = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
+        if (!docSnap.exists()) return;
+        currentUserData = docSnap.data();
+
+        // BANEADO: se cortan listeners y se oculta la app.
+        // (La protección real está en las reglas de Firestore.)
+        if (currentUserData.isBanned) {
+          cleanupAppListeners();
+          authScreen.classList.add('hidden');
+          mainApp.classList.add('hidden');
+          userNav.classList.add('hidden');
+          document.getElementById('banned-modal').classList.remove('hidden');
+          return;
+        }
+        document.getElementById('banned-modal').classList.add('hidden');
+
+        navUsername.innerText = `@${currentUserData.username.toUpperCase()}`;
+        navAvatar.src = currentUserData.avatarUrl;
+        userNav.classList.remove('hidden');
+        adminPanelBtn.classList.toggle('show', user.email === ADMIN_EMAIL);
+
+        authScreen.classList.add('hidden');
+        mainApp.classList.remove('hidden');
+
+        startListeners();
+      }, (err) => console.error('Error leyendo perfil:', err));
     });
 
     document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
@@ -1762,16 +1774,16 @@
         const u = uDoc.data();
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td style="font-weight: 700;">@${u.username.toUpperCase()}</td>
-          <td>${(u.displayName || u.username).toUpperCase()}</td>
-          <td style="font-family: monospace; font-size: 0.65rem;">${u.email}</td>
+          <td style="font-weight: 700;">@${escapeHtml(u.username.toUpperCase())}</td>
+          <td>${escapeHtml((u.displayName || u.username).toUpperCase())}</td>
+          <td style="font-family: monospace; font-size: 0.65rem;">${escapeHtml(u.email)}</td>
           <td>
             <span class="status-badge ${u.isBanned ? 'status-banned' : 'status-active'}">
               ${u.isBanned ? 'BANEADO' : 'ACTIVO'}
             </span>
           </td>
           <td style="text-align: right;">
-            <button data-uid="${u.uid}" data-banned="${u.isBanned}" class="toggle-ban-btn btn-secondary">
+            <button data-uid="${escapeHtml(u.uid)}" data-banned="${u.isBanned}" class="toggle-ban-btn btn-secondary">
               ${u.isBanned ? 'DESBANEAR' : 'BANEAR'}
             </button>
           </td>
@@ -1922,14 +1934,14 @@
           div.className = "request-item";
           div.innerHTML = `
             <div class="request-item-info">
-              <img src="${sender.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=default'}" class="request-item-avatar">
+              <img src="${escapeHtml(sender.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=default')}" class="request-item-avatar">
               <div>
-                <div class="request-item-name">${sender.displayName}</div>
-                <div class="request-item-user">@${sender.username}</div>
+                <div class="request-item-name">${escapeHtml(sender.displayName)}</div>
+                <div class="request-item-user">@${escapeHtml(sender.username || req.fromUsername)}</div>
               </div>
             </div>
             <div class="request-actions">
-              <button class="accept" data-reqid="${rDoc.id}" data-from="${req.fromUid}">ACEPTAR</button>
+              <button class="accept" data-reqid="${rDoc.id}" data-from="${escapeHtml(req.fromUid)}">ACEPTAR</button>
               <button data-reqid="${rDoc.id}">RECHAZAR</button>
             </div>
           `;
@@ -1972,6 +1984,7 @@
     }
 
     function cleanupAppListeners() {
+      listenersActive = false;
       if (unsubscribeMessages) unsubscribeMessages();
       if (unsubscribeFriends) unsubscribeFriends();
       if (unsubscribeRequests) unsubscribeRequests();
@@ -2022,7 +2035,7 @@
             <i class="fa-solid fa-users"></i>
           </div>
           <div class="chat-info">
-            <div class="chat-name">${group.name}</div>
+            <div class="chat-name">${escapeHtml(group.name)}</div>
             <div class="chat-sub">${group.members.length} MIEMBROS</div>
           </div>
         `;
@@ -2056,10 +2069,10 @@
         const div = document.createElement('div');
         div.className = "chat-item";
         div.innerHTML = `
-          <img src="${fUser.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=default'}" class="chat-avatar">
+          <img src="${escapeHtml(fUser.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=default')}" class="chat-avatar">
           <div class="chat-info">
-            <div class="chat-name">${fUser.displayName}</div>
-            <div class="chat-sub">@${fUser.username.toUpperCase()}</div>
+            <div class="chat-name">${escapeHtml(fUser.displayName)}</div>
+            <div class="chat-sub">@${escapeHtml(fUser.username.toUpperCase())}</div>
           </div>
         `;
 
@@ -2112,7 +2125,7 @@
           const msgDiv = document.createElement('div');
           msgDiv.className = `message ${isMe ? 'me' : 'them'}`;
           msgDiv.innerHTML = `
-            ${!isMe && chatObj.type === 'group' ? `<div class="message-sender">@${msg.senderUsername}</div>` : ''}
+            ${!isMe && chatObj.type === 'group' ? `<div class="message-sender">@${escapeHtml(msg.senderUsername)}</div>` : ''}
             <div class="message-bubble">
               <div style="font-size: 0.85rem;">${escapeHtml(msg.text)}</div>
             </div>
@@ -2147,7 +2160,12 @@
     });
 
     function escapeHtml(text) {
-      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return String(text ?? '')
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     const createGroupModal = document.getElementById('create-group-modal');
@@ -2167,9 +2185,9 @@
           const label = document.createElement('label');
           label.style.cssText = "display: flex; align-items: center; gap: 10px; padding: 8px; cursor: pointer; border-bottom: 1px dashed var(--border);";
           label.innerHTML = `
-            <input type="checkbox" value="${fUser.uid}" style="width: 16px; height: 16px;">
-            <img src="${fUser.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=default'}" style="width: 30px; height: 30px; object-fit: cover; border: 2px solid var(--border);">
-            <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">${fUser.displayName} (@${fUser.username})</span>
+            <input type="checkbox" value="${escapeHtml(fUser.uid)}" style="width: 16px; height: 16px;">
+            <img src="${escapeHtml(fUser.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=default')}" style="width: 30px; height: 30px; object-fit: cover; border: 2px solid var(--border);">
+            <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">${escapeHtml(fUser.displayName)} (@${escapeHtml(fUser.username)})</span>
           `;
           selectContainer.appendChild(label);
         });
@@ -2236,15 +2254,15 @@
         } else if (pendingOut) {
           actionBtn = '<span style="font-size: 0.65rem; border: 2px solid #ffaa00; color: #ffaa00; padding: 6px 10px;">SOLICITUD ENVIADA</span>';
         } else {
-          actionBtn = `<button data-uid="${mUid}" data-username="${member.username}" class="group-add-btn member-action">AGREGAR AMIGO</button>`;
+          actionBtn = `<button data-uid="${mUid}" data-username="${escapeHtml(member.username)}" class="group-add-btn member-action">AGREGAR AMIGO</button>`;
         }
 
         div.innerHTML = `
           <div class="member-info">
-            <img src="${member.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=default'}" class="member-avatar">
+            <img src="${escapeHtml(member.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=default')}" class="member-avatar">
             <div>
-              <div class="member-name">${member.displayName}</div>
-              <div class="member-user">@${member.username}</div>
+              <div class="member-name">${escapeHtml(member.displayName)}</div>
+              <div class="member-user">@${escapeHtml(member.username)}</div>
             </div>
           </div>
           <div>${actionBtn}</div>

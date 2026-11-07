@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgorMeet - Mensajería & WebRTC</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.3);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.6);
+    }
+  </style>
+</head>
+<body class="h-full font-sans antialiased bg-slate-950 text-slate-100 selection:bg-brand-500 selection:text-white flex flex-col overflow-hidden">
+
+  <!-- APP CONTAINER -->
+  <div id="app" class="h-full w-full flex flex-col relative">
+    
+    <!-- TOP NAVIGATION BAR -->
+    <header class="h-16 border-b border-slate-800 bg-slate-900/80 backdrop-blur px-4 flex items-center justify-between z-20 shrink-0">
+      <!-- Logo with 7-click easter egg -->
+      <div id="logo-btn" class="flex items-center space-x-3 cursor-pointer select-none py-1 px-2 rounded-xl hover:bg-slate-800/50 transition">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+          <i class="fa-solid font-bold text-xl fa-shield-cat"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-none bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">AgorMeet</h1>
+          <span class="text-[10px] text-slate-500 tracking-wider font-semibold uppercase">Privado & P2P</span>
+        </div>
+      </div>
+
+      <!-- Navigation / Right Actions -->
+      <div id="user-nav" class="hidden items-center space-x-3">
+        <!-- Friends Requests Notification Button -->
+        <button id="requests-btn" class="relative p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          <i class="fa-solid fa-user-plus text-sm"></i>
+          <span id="requests-badge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900">0</span>
+        </button>
+
+        <!-- User Profile Button -->
+        <button id="open-profile-btn" class="flex items-center space-x-2 p-1.5 pr-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 transition">
+          <img id="nav-avatar" src="https://placehold.co/100x100/334155/ffffff?text=U" class="w-8 h-8 rounded-lg object-cover" />
+          <span id="nav-username" class="text-sm font-semibold text-slate-200">@usuario</span>
+        </button>
+
+        <!-- Admin Badge / Button if Admin -->
+        <button id="admin-panel-btn" class="hidden px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold hover:bg-amber-500/20 transition">
+          <i class="fa-solid fa-crown mr-1"></i> Admin
+        </button>
+
+        <!-- Logout Button -->
+        <button id="logout-btn" class="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 transition" title="Cerrar Sesión">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT VIEW -->
+    <main class="flex-1 flex overflow-hidden relative">
+
+      <!-- AUTH SCREEN (LOGIN / REGISTER) -->
+      <div id="auth-screen" class="absolute inset-0 bg-slate-950 z-30 flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+          <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand-600/20 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div class="text-center mb-8">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white text-3xl mx-auto mb-4 shadow-xl shadow-brand-500/20">
+              <i class="fa-solid fa-shield-cat"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white">Bienvenido a AgorMeet</h2>
+            <p class="text-sm text-slate-400 mt-1">Ingresa con tu usuario único o regístrate</p>
+          </div>
+
+          <!-- Auth Form -->
+          <form id="auth-form" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Nombre de usuario</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">@</span>
+                <input type="text" id="auth-username" required placeholder="tu_usuario" class="w-full pl-8 pr-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition text-sm">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Contraseña</label>
+              <input type="password" id="auth-password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition text-sm">
+            </div>
+
+            <div id="auth-error" class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3"></div>
+
+            <button type="submit" id="auth-submit-btn" class="w-full py-3 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold shadow-lg shadow-brand-600/30 transition flex items-center justify-center space-x-2 text-sm">
+              <span id="auth-btn-text">Iniciar Sesión</span>
+            </button>
+          </form>
+
+          <div class="mt-6 text-center">
+            <button id="toggle-auth-mode" class="text-xs text-slate-400 hover:text-brand-400 transition font-medium">
+              ¿No tienes cuenta? <span class="text-brand-500 font-bold">Regístrate</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN APP MESSAGING & CALL LAYOUT -->
+      <div id="main-app" class="hidden w-full h-full flex flex-row relative overflow-hidden">
+
+        <!-- SIDEBAR: FRIENDS & GROUPS LIST -->
+        <aside id="sidebar" class="w-full md:w-80 lg:w-96 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 absolute md:relative inset-0 z-10 transition-transform duration-300">
+          
+          <!-- Sidebar Header & Controls -->
+          <div class="p-4 border-b border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Conversaciones</span>
+              <div class="flex space-x-1">
+                <button id="add-friend-btn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Agregar amigo">
+                  <i class="fa-solid fa-user-plus text-xs"></i>
+                </button>
+                <button id="create-group-btn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Crear grupo">
+                  <i class="fa-solid fa-users-plus text-xs"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tabs: Direct Messages / Groups -->
+            <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800/80">
+              <button id="tab-chats" class="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow-sm transition">Amigos</button>
+              <button id="tab-groups" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">Grupos</button>
+            </div>
+          </div>
+
+          <!-- Chats Container -->
+          <div class="flex-1 overflow-y-auto p-2 space-y-1" id="chats-list">
+            <!-- Dynamic chats list will load here -->
+          </div>
+        </aside>
+
+        <!-- CHAT VIEW AREA -->
+        <section id="chat-area" class="flex-1 flex flex-col bg-slate-950 relative h-full overflow-hidden">
+
+          <!-- No Chat Selected Placeholder -->
+          <div id="no-chat-selected" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <div class="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center text-slate-600 mb-4 border border-slate-800">
+              <i class="fa-solid fa-comments text-3xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-300">Selecciona un chat o grupo</h3>
+            <p class="text-sm text-slate-500 max-w-sm mt-1">Conéctate con tus amigos en AgorMeet. Inicia llamadas P2P o envía mensajes instantáneos.</p>
+          </div>
+
+          <!-- Active Chat Container -->
+          <div id="active-chat-container" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+            
+            <!-- Chat Header -->
+            <div class="h-16 px-4 border-b border-slate-800 bg-slate-900/60 flex items-center justify-between shrink-0">
+              <div class="flex items-center space-x-3">
+                <button id="back-to-sidebar" class="md:hidden p-2 rounded-xl bg-slate-800 text-slate-300">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div class="relative">
+                  <img id="active-chat-avatar" src="https://placehold.co/100" class="w-10 h-10 rounded-xl object-cover border border-slate-700" />
+                </div>
+                <div>
+                  <h2 id="active-chat-title" class="font-bold text-sm text-white">Nombre</h2>
+                  <p id="active-chat-sub" class="text-xs text-slate-400">@usuario</p>
+                </div>
+              </div>
+
+              <!-- Action buttons (Call/Video/Info) -->
+              <div class="flex items-center space-x-2">
+                <button id="start-voice-call-btn" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 transition" title="Llamada de voz">
+                  <i class="fa-solid fa-phone"></i>
+                </button>
+                <button id="start-video-call-btn" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition" title="Videollamada">
+                  <i class="fa-solid fa-video"></i>
+                </button>
+                <button id="group-info-btn" class="hidden p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Info del Grupo">
+                  <i class="fa-solid fa-circle-info"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Messages Scroll Area -->
+            <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3">
+              <!-- Messages load dynamically -->
+            </div>
+
+            <!-- Message Input Bar -->
+            <form id="message-form" class="p-3 border-t border-slate-800 bg-slate-900/60 flex items-center space-x-2 shrink-0">
+              <input type="text" id="message-input" autocomplete="off" placeholder="Escribe un mensaje..." class="flex-1 py-2.5 px-4 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition text-sm">
+              <button type="submit" class="p-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl shadow-md transition flex items-center justify-center">
+                <i class="fa-solid fa-paper-plane text-sm"></i>
+              </button>
+            </form>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- MODAL: BANNED OVERLAY -->
+  <div id="banned-modal" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-slate-900 border border-rose-500/30 rounded-3xl p-6 text-center shadow-2xl">
+      <div class="w-16 h-16 bg-rose-500/20 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+        <i class="fa-solid fa-user-slash"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-white">Cuenta Suspendida</h2>
+      <p class="text-sm text-slate-400 mt-2">Has sido baneado de AgorMeet por infringir las normas de la comunidad. No puedes enviar mensajes ni participar en chats.</p>
+      <button id="banned-logout-btn" class="mt-6 w-full py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-semibold transition">
+        Cerrar Sesión
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD FRIEND (Search by Exact Username) -->
+  <div id="add-friend-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+    <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-white text-base">Enviar Solicitud de Amistad</h3>
+        <button id="close-add-friend-modal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <p class="text-xs text-slate-400 mb-4">Ingresa el usuario exacto de tu amigo para enviarle una invitación.</p>
+      <form id="send-request-form" class="space-y-4">
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500 text-sm">@</span>
+          <input type="text" id="target-username-input" required placeholder="usuario_exacto" class="w-full pl-8 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 text-sm focus:outline-none focus:border-brand-500">
+        </div>
+        <div id="request-status-msg" class="hidden text-xs p-3 rounded-xl"></div>
+        <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-sm transition">
+          Enviar Invitación
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: FRIEND REQUESTS LIST -->
+  <div id="requests-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-white text-base">Solicitudes Pendientes</h3>
+        <button id="close-requests-modal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="requests-list-container" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+        <!-- Dynamic pending requests -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREATE GROUP -->
+  <div id="create-group-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-white text-base">Crear Nuevo Grupo</h3>
+        <button id="close-group-modal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="create-group-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Nombre del Grupo</label>
+          <input type="text" id="group-name-input" required placeholder="Ej. Equipo de Proyecto" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-brand-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-2">Selecciona Amigos para Agregar</label>
+          <div id="group-friends-select" class="space-y-2 max-h-48 overflow-y-auto border border-slate-800 bg-slate-950 p-2 rounded-xl">
+            <!-- Friend checkboxes -->
+          </div>
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-sm transition">
+          Crear Grupo
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: GROUP INFO & MEMBERS (FRIEND DIRECT CONNECT) -->
+  <div id="group-info-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <div>
+          <h3 id="group-info-name" class="font-bold text-white text-base">Nombre Grupo</h3>
+          <span class="text-xs text-slate-400">Integrantes del Grupo</span>
+        </div>
+        <button id="close-group-info-modal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="group-members-list" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+        <!-- Members load dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PROFILE EDITING (WITH IMGBB UPLOAD) -->
+  <div id="profile-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-white text-base">Editar Perfil</h3>
+        <button id="close-profile-modal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="profile-form" class="space-y-4">
+        <div class="flex flex-col items-center mb-4">
+          <img id="profile-modal-avatar-preview" src="https://placehold.co/100" class="w-20 h-20 rounded-2xl object-cover border-2 border-brand-500 mb-3 shadow-lg">
+          <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 px-3 py-1.5 rounded-xl border border-slate-700 transition">
+            <i class="fa-solid fa-camera mr-1"></i> Cambiar Foto (ImgBB)
+            <input type="file" id="profile-avatar-file" accept="image/*" class="hidden">
+          </label>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Nombre Público</label>
+          <input type="text" id="profile-displayName" required class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-brand-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Biografía / Info</label>
+          <textarea id="profile-bio" rows="3" placeholder="Hola, estoy usando AgorMeet..." class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-brand-500"></textarea>
+        </div>
+        <div id="profile-save-status" class="hidden text-xs text-emerald-400 bg-emerald-500/10 p-2.5 rounded-xl text-center"></div>
+        <button type="submit" id="profile-save-btn" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-sm transition">
+          Guardar Cambios
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SECRET ADMIN LOGIN (TRIGGERED BY 7 CLICKS ON LOGO) -->
+  <div id="admin-login-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-sm bg-slate-900 border border-amber-500/30 rounded-3xl p-6 shadow-2xl relative">
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <h3 class="font-bold text-white text-lg">Acceso Administrador</h3>
+        <p class="text-xs text-slate-400">Ingreso exclusivo para cepedademian2005@gmail.com</p>
+      </div>
+      <form id="admin-login-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Correo Electrónico Real</label>
+          <input type="email" id="admin-email" required placeholder="cepedademian2005@gmail.com" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Contraseña</label>
+          <input type="password" id="admin-password" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500">
+        </div>
+        <div id="admin-login-error" class="hidden text-xs text-rose-400 bg-rose-500/10 p-2.5 rounded-xl"></div>
+        <div class="flex space-x-2">
+          <button type="button" id="close-admin-login-modal" class="w-1/2 py-2.5 bg-slate-800 text-slate-300 font-semibold rounded-xl text-sm hover:bg-slate-700">Cancelar</button>
+          <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm transition">Entrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADMIN CONTROL PANEL -->
+  <div id="admin-panel-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-3xl bg-slate-900 border border-amber-500/30 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-2 text-amber-400">
+          <i class="fa-solid fa-crown text-xl"></i>
+          <h3 class="font-bold text-white text-lg">Panel de Administración Global</h3>
+        </div>
+        <button id="close-admin-panel-modal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <p class="text-xs text-slate-400 mb-4">Gestiona a los usuarios registrados. Los usuarios baneados no podrán usar la plataforma.</p>
+
+      <div class="flex-1 overflow-y-auto border border-slate-800 rounded-2xl bg-slate-950">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
+            <tr>
+              <th class="p-3">Usuario</th>
+              <th class="p-3">Nombre</th>
+              <th class="p-3">Email Interno</th>
+              <th class="p-3">Estado</th>
+              <th class="p-3 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="admin-users-table">
+            <!-- Dynamic Users Rows -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: WEBRTC CALL INTERFACE (AUDIO & VIDEO) -->
+  <div id="call-modal" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 flex flex-col items-center justify-between p-4 sm:p-8">
+    <!-- Call Header -->
+    <div class="text-center z-10">
+      <div class="inline-flex items-center space-x-2 px-3 py-1 bg-slate-900 border border-slate-800 rounded-full text-xs font-semibold text-brand-400 mb-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+        <span id="call-status-text">Conectando llamada P2P...</span>
+      </div>
+      <h3 id="call-peer-name" class="text-xl font-bold text-white">Nombre del Amigo</h3>
+    </div>
+
+    <!-- Video Containers -->
+    <div class="relative w-full max-w-4xl flex-1 my-4 bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center shadow-2xl">
+      <!-- Remote Video -->
+      <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
+      <!-- Remote Placeholder if no video -->
+      <div id="remote-avatar-placeholder" class="absolute flex flex-col items-center justify-center">
+        <img id="call-peer-avatar" src="https://placehold.co/150" class="w-28 h-28 rounded-3xl object-cover border-4 border-slate-800 shadow-xl mb-3">
+        <span class="text-sm font-semibold text-slate-400">Audio P2P Transmitiendo</span>
+      </div>
+
+      <!-- Local Video Overlay -->
+      <div class="absolute bottom-4 right-4 w-32 sm:w-48 aspect-video bg-slate-950 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl">
+        <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+      </div>
+    </div>
+
+    <!-- Call Controls -->
+    <div class="flex items-center space-x-4 z-10">
+      <button id="toggle-mic-btn" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-lg transition">
+        <i class="fa-solid fa-microphone"></i>
+      </button>
+      <button id="end-call-btn" class="w-14 h-14 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center text-xl shadow-lg shadow-rose-600/40 transition">
+        <i class="fa-solid fa-phone-slash"></i>
+      </button>
+      <button id="toggle-cam-btn" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-lg transition">
+        <i class="fa-solid fa-video"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- INCOMING CALL MODAL NOTIFICATION -->
+  <div id="incoming-call-modal" class="hidden fixed bottom-6 right-6 bg-slate-900 border border-brand-500/40 shadow-2xl rounded-3xl p-5 z-50 w-80 animate-bounce">
+    <div class="flex items-center space-x-3 mb-4">
+      <img id="incoming-caller-avatar" src="https://placehold.co/100" class="w-12 h-12 rounded-xl object-cover border border-slate-700">
+      <div>
+        <h4 id="incoming-caller-name" class="font-bold text-white text-sm">Nombre</h4>
+        <p id="incoming-call-type" class="text-xs text-brand-400 font-medium">Llamada entrante...</p>
+      </div>
+    </div>
+    <div class="flex space-x-2">
+      <button id="reject-call-btn" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition">Rechazar</button>
+      <button id="accept-call-btn" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition">Contestar</button>
+    </div>
+  </div>
+
+  <!-- FIREBASE MODULE & APPLICATION LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      signOut, 
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      getDoc, 
+      setDoc, 
+      updateDoc, 
+      collection, 
+      query, 
+      where, 
+      getDocs, 
+      addDoc, 
+      onSnapshot, 
+      serverTimestamp, 
+      orderBy,
+      arrayUnion,
+      deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // App Configurations
+    const firebaseConfig = {
+      apiKey: "AIzaSyBEOlNssEhbSnk_qku9vmwD60rfmdMvnxU",
+      authDomain: "agormeet.firebaseapp.com",
+      projectId: "agormeet",
+      storageBucket: "agormeet.firebasestorage.app",
+      messagingSenderId: "716071769345",
+      appId: "1:716071769345:web:7c5ec8717adb385e313700"
+    };
+
+    const IMGBB_API_KEY = "8a3cfa0af5b5956470ff391fc1648f12";
+    const DOMAIN = "@agormeet.app";
+    const ADMIN_EMAIL = "cepedademian2005@gmail.com";
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Global State
+    let currentUser = null;
+    let currentUserData = null;
+    let isRegisterMode = false;
+    let logoClickCount = 0;
+    let logoClickTimer = null;
+    
+    // Active Chat State
+    let activeChat = null; // { id, type: 'dm'|'group', name, avatar, members: [] }
+    let unsubscribeMessages = null;
+    let unsubscribeFriends = null;
+    let unsubscribeRequests = null;
+    let unsubscribeGroups = null;
+    let unsubscribeIncomingCalls = null;
+
+    // WebRTC State
+    let localStream = null;
+    let remoteStream = null;
+    let peerConnection = null;
+    let currentCallId = null;
+    let isCaller = false;
+    let isMicMuted = false;
+    let isCamOff = false;
+
+    const rtcConfig = {
+      iceServers: [
+        { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }
+      ]
+    };
+
+    // DOM Elements
+    const authScreen = document.getElementById('auth-screen');
+    const mainApp = document.getElementById('main-app');
+    const authForm = document.getElementById('auth-form');
+    const authUsernameInput = document.getElementById('auth-username');
+    const authPasswordInput = document.getElementById('auth-password');
+    const authSubmitBtn = document.getElementById('auth-submit-btn');
+    const authBtnText = document.getElementById('auth-btn-text');
+    const toggleAuthModeBtn = document.getElementById('toggle-auth-mode');
+    const authError = document.getElementById('auth-error');
+    const userNav = document.getElementById('user-nav');
+    const navAvatar = document.getElementById('nav-avatar');
+    const navUsername = document.getElementById('nav-username');
+    const adminPanelBtn = document.getElementById('admin-panel-btn');
+
+    // --- AUTHENTICATION & PROFILE LOGIC ---
+
+    // Toggle Auth Mode (Login vs Register)
+    toggleAuthModeBtn.addEventListener('click', () => {
+      isRegisterMode = !isRegisterMode;
+      authBtnText.innerText = isRegisterMode ? "Registrarse" : "Iniciar Sesión";
+      toggleAuthModeBtn.innerHTML = isRegisterMode 
+        ? '¿Ya tienes cuenta? <span class="text-brand-500 font-bold">Inicia Sesión</span>' 
+        : '¿No tienes cuenta? <span class="text-brand-500 font-bold">Regístrate</span>';
+      authError.classList.add('hidden');
+    });
+
+    // Form Submit (Fake Mail Mapping)
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      authError.classList.add('hidden');
+      const username = authUsernameInput.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+      const password = authPasswordInput.value;
+
+      if (!username || password.length < 6) {
+        showAuthError("El usuario debe ser válido y la contraseña tener al menos 6 caracteres.");
+        return;
+      }
+
+      const fakeEmail = `${username}${DOMAIN}`;
+
+      try {
+        if (isRegisterMode) {
+          // Check if username is taken in Firestore 'usernames' collection
+          const userDocRef = doc(db, 'usernames', username);
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists()) {
+            showAuthError("El nombre de usuario ya está registrado por otra persona.");
+            return;
+          }
+
+          // Register in Auth
+          const cred = await createUserWithEmailAndPassword(auth, fakeEmail, password);
+          const uid = cred.user.uid;
+
+          // Save User Data in Firestore
+          const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`;
+          const userData = {
+            uid,
+            username,
+            email: fakeEmail,
+            displayName: username,
+            bio: "¡Hola! Estoy usando AgorMeet.",
+            avatarUrl: defaultAvatar,
+            isBanned: false,
+            createdAt: serverTimestamp()
+          };
+
+          await setDoc(doc(db, 'users', uid), userData);
+          await setDoc(doc(db, 'usernames', username), { uid });
+
+        } else {
+          // Login
+          await signInWithEmailAndPassword(auth, fakeEmail, password);
+        }
+      } catch (err) {
+        console.error(err);
+        showAuthError(isRegisterMode ? "Error al registrar el usuario." : "Usuario o contraseña incorrectos.");
+      }
+    });
+
+    function showAuthError(msg) {
+      authError.innerText = msg;
+      authError.classList.remove('hidden');
+    }
+
+    // Auth State Change Listener
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        // Listen to Current User Doc
+        onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
+          if (docSnap.exists()) {
+            currentUserData = docSnap.data();
+
+            // Handle Banned User
+            if (currentUserData.isBanned) {
+              document.getElementById('banned-modal').classList.remove('hidden');
+              return;
+            } else {
+              document.getElementById('banned-modal').classList.add('hidden');
+            }
+
+            // Update UI Topbar
+            navUsername.innerText = `@${currentUserData.username}`;
+            navAvatar.src = currentUserData.avatarUrl;
+            userNav.classList.remove('hidden');
+            userNav.classList.add('flex');
+
+            // Show Admin Button if logged in as Admin email
+            if (user.email === ADMIN_EMAIL) {
+              adminPanelBtn.classList.remove('hidden');
+            } else {
+              adminPanelBtn.classList.add('hidden');
+            }
+
+            authScreen.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+
+            // Initialize app listeners
+            initAppListeners();
+          }
+        });
+      } else {
+        currentUser = null;
+        currentUserData = null;
+        userNav.classList.add('hidden');
+        authScreen.classList.remove('hidden');
+        mainApp.classList.add('hidden');
+        cleanupAppListeners();
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+    document.getElementById('banned-logout-btn').addEventListener('click', () => signOut(auth));
+
+    // --- SECRET ADMIN LOGIC (7 CLICKS ON LOGO) ---
+    const logoBtn = document.getElementById('logo-btn');
+    logoBtn.addEventListener('click', () => {
+      logoClickCount++;
+      clearTimeout(logoClickTimer);
+      if (logoClickCount >= 7) {
+        logoClickCount = 0;
+        document.getElementById('admin-login-modal').classList.remove('hidden');
+      } else {
+        logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 3000);
+      }
+    });
+
+    document.getElementById('close-admin-login-modal').addEventListener('click', () => {
+      document.getElementById('admin-login-modal').classList.add('hidden');
+    });
+
+    document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('admin-email').value;
+      const pass = document.getElementById('admin-password').value;
+      const errDiv = document.getElementById('admin-login-error');
+      errDiv.classList.add('hidden');
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        document.getElementById('admin-login-modal').classList.add('hidden');
+        if (email === ADMIN_EMAIL) {
+          openAdminPanel();
+        }
+      } catch (err) {
+        errDiv.innerText = "Credenciales administrativas inválidas.";
+        errDiv.classList.remove('hidden');
+      }
+    });
+
+    adminPanelBtn.addEventListener('click', openAdminPanel);
+    document.getElementById('close-admin-panel-modal').addEventListener('click', () => {
+      document.getElementById('admin-panel-modal').classList.add('hidden');
+    });
+
+    async function openAdminPanel() {
+      document.getElementById('admin-panel-modal').classList.remove('hidden');
+      const tableBody = document.getElementById('admin-users-table');
+      tableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">Cargando usuarios...</td></tr>';
+
+      const usersSnap = await getDocs(collection(db, 'users'));
+      tableBody.innerHTML = '';
+
+      usersSnap.forEach((uDoc) => {
+        const u = uDoc.data();
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-slate-800/50 hover:bg-slate-800/30';
+        tr.innerHTML = `
+          <td class="p-3 font-semibold text-white">@${u.username}</td>
+          <td class="p-3 text-slate-300">${u.displayName || u.username}</td>
+          <td class="p-3 text-slate-400 font-mono text-[11px]">${u.email}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.isBanned ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">
+              ${u.isBanned ? 'BANEADO' : 'ACTIVO'}
+            </span>
+          </td>
+          <td class="p-3 text-right">
+            <button data-uid="${u.uid}" data-banned="${u.isBanned}" class="toggle-ban-btn px-2.5 py-1 rounded-lg text-[11px] font-bold ${u.isBanned ? 'bg-emerald-600 hover:bg-emerald-500 text-white' : 'bg-rose-600 hover:bg-rose-500 text-white'} transition">
+              ${u.isBanned ? 'Desbanear' : 'Banear'}
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+
+      document.querySelectorAll('.toggle-ban-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const targetUid = e.currentTarget.getAttribute('data-uid');
+          const isCurrentBanned = e.currentTarget.getAttribute('data-banned') === 'true';
+          await updateDoc(doc(db, 'users', targetUid), { isBanned: !isCurrentBanned });
+          openAdminPanel(); // Refresh
+        });
+      });
+    }
+
+    // --- PROFILE & IMGBB AVATAR UPLOAD ---
+    const profileModal = document.getElementById('profile-modal');
+    document.getElementById('open-profile-btn').addEventListener('click', () => {
+      document.getElementById('profile-displayName').value = currentUserData.displayName || '';
+      document.getElementById('profile-bio').value = currentUserData.bio || '';
+      document.getElementById('profile-modal-avatar-preview').src = currentUserData.avatarUrl;
+      profileModal.classList.remove('hidden');
+    });
+
+    document.getElementById('close-profile-modal').addEventListener('click', () => profileModal.classList.add('hidden'));
+
+    // ImgBB Upload Handler
+    document.getElementById('profile-avatar-file').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const statusDiv = document.getElementById('profile-save-status');
+      statusDiv.innerText = "Subiendo imagen a ImgBB...";
+      statusDiv.classList.remove('hidden');
+
+      try {
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data && data.data && data.data.url) {
+          document.getElementById('profile-modal-avatar-preview').src = data.data.url;
+          statusDiv.innerText = "Imagen subida exitosamente!";
+        } else {
+          throw new Error("Error en la subida a ImgBB");
+        }
+      } catch (err) {
+        console.error(err);
+        statusDiv.innerText = "Error al subir imagen a ImgBB.";
+      }
+    });
+
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const displayName = document.getElementById('profile-displayName').value;
+      const bio = document.getElementById('profile-bio').value;
+      const avatarUrl = document.getElementById('profile-modal-avatar-preview').src;
+
+      await updateDoc(doc(db, 'users', currentUser.uid), {
+        displayName,
+        bio,
+        avatarUrl
+      });
+
+      profileModal.classList.add('hidden');
+    });
+
+    // --- FRIEND REQUEST SYSTEM (EXACT MATCH SEARCH) ---
+    const addFriendModal = document.getElementById('add-friend-modal');
+    document.getElementById('add-friend-btn').addEventListener('click', () => {
+      document.getElementById('target-username-input').value = '';
+      document.getElementById('request-status-msg').classList.add('hidden');
+      addFriendModal.classList.remove('hidden');
+    });
+
+    document.getElementById('close-add-friend-modal').addEventListener('click', () => addFriendModal.classList.add('hidden'));
+
+    document.getElementById('send-request-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const targetUser = document.getElementById('target-username-input').value.trim().toLowerCase();
+      const msgDiv = document.getElementById('request-status-msg');
+      msgDiv.classList.add('hidden');
+
+      if (targetUser === currentUserData.username) {
+        msgDiv.innerText = "No puedes enviarte una solicitud a ti mismo.";
+        msgDiv.className = "text-xs p-3 rounded-xl bg-amber-500/20 text-amber-300";
+        msgDiv.classList.remove('hidden');
+        return;
+      }
+
+      // Exact check if username exists
+      const usernameSnap = await getDoc(doc(db, 'usernames', targetUser));
+      if (!usernameSnap.exists()) {
+        msgDiv.innerText = "El usuario no existe.";
+        msgDiv.className = "text-xs p-3 rounded-xl bg-rose-500/20 text-rose-300";
+        msgDiv.classList.remove('hidden');
+        return;
+      }
+
+      const targetUid = usernameSnap.data().uid;
+
+      // Check if already friends
+      const friendsSnap = await getDoc(doc(db, 'users', currentUser.uid, 'friends', targetUid));
+      if (friendsSnap.exists()) {
+        msgDiv.innerText = "Ya eres amigo de este usuario.";
+        msgDiv.className = "text-xs p-3 rounded-xl bg-amber-500/20 text-amber-300";
+        msgDiv.classList.remove('hidden');
+        return;
+      }
+
+      // Send Request in Firestore
+      const reqId = `${currentUser.uid}_${targetUid}`;
+      await setDoc(doc(db, 'friend_requests', reqId), {
+        fromUid: currentUser.uid,
+        fromUsername: currentUserData.username,
+        toUid: targetUid,
+        status: 'pending',
+        createdAt: serverTimestamp()
+      });
+
+      msgDiv.innerText = "¡Solicitud enviada con éxito!";
+      msgDiv.className = "text-xs p-3 rounded-xl bg-emerald-500/20 text-emerald-300";
+      msgDiv.classList.remove('hidden');
+    });
+
+    // Handle Incoming Friend Requests Modal
+    const requestsModal = document.getElementById('requests-modal');
+    document.getElementById('requests-btn').addEventListener('click', () => requestsModal.classList.remove('hidden'));
+    document.getElementById('close-requests-modal').addEventListener('click', () => requestsModal.classList.add('hidden'));
+
+    // --- APP LISTENERS (FRIENDS, REQUESTS, GROUPS, MESSAGES) ---
+    function initAppListeners() {
+      // 1. Listen to Pending Friend Requests
+      const reqQuery = query(collection(db, 'friend_requests'), where('toUid', '==', currentUser.uid), where('status', '==', 'pending'));
+      unsubscribeRequests = onSnapshot(reqQuery, async (snap) => {
+        const badge = document.getElementById('requests-badge');
+        const container = document.getElementById('requests-list-container');
+        container.innerHTML = '';
+
+        if (snap.empty) {
+          badge.classList.add('hidden');
+          container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">No tienes solicitudes pendientes.</p>';
+          return;
+        }
+
+        badge.innerText = snap.size;
+        badge.classList.remove('hidden');
+
+        snap.forEach(async (rDoc) => {
+          const req = rDoc.data();
+          const senderSnap = await getDoc(doc(db, 'users', req.fromUid));
+          const sender = senderSnap.data() || { displayName: req.fromUsername, avatarUrl: '' };
+
+          const div = document.createElement('div');
+          div.className = "flex items-center justify-between bg-slate-950 p-3 rounded-2xl border border-slate-800";
+          div.innerHTML = `
+            <div class="flex items-center space-x-3">
+              <img src="${sender.avatarUrl || 'https://placehold.co/100'}" class="w-10 h-10 rounded-xl object-cover">
+              <div>
+                <h4 class="font-bold text-sm text-white">${sender.displayName}</h4>
+                <p class="text-xs text-slate-400">@${sender.username}</p>
+              </div>
+            </div>
+            <div class="flex space-x-1">
+              <button class="accept-req-btn p-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold" data-reqid="${rDoc.id}" data-from="${req.fromUid}">Aceptar</button>
+              <button class="reject-req-btn p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl text-xs font-semibold" data-reqid="${rDoc.id}">Rechazar</button>
+            </div>
+          `;
+          container.appendChild(div);
+
+          // Event Listeners for Accept/Reject
+          div.querySelector('.accept-req-btn').addEventListener('click', async (e) => {
+            const reqId = e.currentTarget.getAttribute('data-reqid');
+            const friendUid = e.currentTarget.getAttribute('data-from');
+            await acceptFriendRequest(reqId, friendUid);
+          });
+
+          div.querySelector('.reject-req-btn').addEventListener('click', async (e) => {
+            const reqId = e.currentTarget.getAttribute('data-reqid');
+            await deleteDoc(doc(db, 'friend_requests', reqId));
+          });
+        });
+      });
+
+      // 2. Listen to Friends List
+      unsubscribeFriends = onSnapshot(collection(db, 'users', currentUser.uid, 'friends'), async (snap) => {
+        renderChatsList(snap);
+      });
+
+      // 3. Listen to Groups
+      const groupQuery = query(collection(db, 'groups'), where('members', 'array-contains', currentUser.uid));
+      unsubscribeGroups = onSnapshot(groupQuery, (snap) => {
+        // Groups loaded for switching tab
+      });
+
+      // 4. Listen to Incoming WebRTC Calls
+      const callQuery = query(collection(db, 'calls'), where('targetUid', '==', currentUser.uid), where('status', '==', 'offered'));
+      unsubscribeIncomingCalls = onSnapshot(callQuery, (snap) => {
+        if (!snap.empty && !currentCallId) {
+          const callDoc = snap.docs[0];
+          const callData = callDoc.data();
+          showIncomingCallNotification(callDoc.id, callData);
+        }
+      });
+    }
+
+    async function acceptFriendRequest(reqId, friendUid) {
+      // Add mutual friend documents
+      await setDoc(doc(db, 'users', currentUser.uid, 'friends', friendUid), { addedAt: serverTimestamp() });
+      await setDoc(doc(db, 'users', friendUid, 'friends', currentUser.uid), { addedAt: serverTimestamp() });
+      // Delete request doc
+      await deleteDoc(doc(db, 'friend_requests', reqId));
+    }
+
+    function cleanupAppListeners() {
+      if (unsubscribeMessages) unsubscribeMessages();
+      if (unsubscribeFriends) unsubscribeFriends();
+      if (unsubscribeRequests) unsubscribeRequests();
+      if (unsubscribeGroups) unsubscribeGroups();
+      if (unsubscribeIncomingCalls) unsubscribeIncomingCalls();
+    }
+
+    // Tab Switching: Friends vs Groups
+    let activeTab = 'chats';
+    const tabChats = document.getElementById('tab-chats');
+    const tabGroups = document.getElementById('tab-groups');
+
+    tabChats.addEventListener('click', () => {
+      activeTab = 'chats';
+      tabChats.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow-sm transition";
+      tabGroups.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition";
+      renderFriendsTab();
+    });
+
+    tabGroups.addEventListener('click', () => {
+      activeTab = 'groups';
+      tabGroups.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow-sm transition";
+      tabChats.className = "flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition";
+      renderGroupsTab();
+    });
+
+    async function renderFriendsTab() {
+      const friendsSnap = await getDocs(collection(db, 'users', currentUser.uid, 'friends'));
+      renderChatsList(friendsSnap);
+    }
+
+    async function renderGroupsTab() {
+      const groupQuery = query(collection(db, 'groups'), where('members', 'array-contains', currentUser.uid));
+      const groupsSnap = await getDocs(groupQuery);
+      const container = document.getElementById('chats-list');
+      container.innerHTML = '';
+
+      if (groupsSnap.empty) {
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">No perteneces a ningún grupo aún.</p>';
+        return;
+      }
+
+      groupsSnap.forEach(gDoc => {
+        const group = gDoc.data();
+        const div = document.createElement('div');
+        div.className = "flex items-center space-x-3 p-3 rounded-2xl cursor-pointer hover:bg-slate-800/60 transition border border-transparent hover:border-slate-800";
+        div.innerHTML = `
+          <div class="w-10 h-10 rounded-xl bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-users text-sm"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-sm text-white truncate">${group.name}</h4>
+            <p class="text-xs text-slate-400 truncate">${group.members.length} miembros</p>
+          </div>
+        `;
+        div.addEventListener('click', () => selectChat({
+          id: gDoc.id,
+          type: 'group',
+          name: group.name,
+          avatar: '',
+          members: group.members
+        }));
+        container.appendChild(div);
+      });
+    }
+
+    async function renderChatsList(friendsSnap) {
+      if (activeTab !== 'chats') return;
+      const container = document.getElementById('chats-list');
+      container.innerHTML = '';
+
+      if (friendsSnap.empty) {
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">No tienes amigos agregados.</p>';
+        return;
+      }
+
+      friendsSnap.forEach(async (fDoc) => {
+        const friendUid = fDoc.id;
+        const friendUserSnap = await getDoc(doc(db, 'users', friendUid));
+        if (!friendUserSnap.exists()) return;
+        const fUser = friendUserSnap.data();
+
+        const div = document.createElement('div');
+        div.className = "flex items-center space-x-3 p-3 rounded-2xl cursor-pointer hover:bg-slate-800/60 transition border border-transparent hover:border-slate-800";
+        div.innerHTML = `
+          <img src="${fUser.avatarUrl || 'https://placehold.co/100'}" class="w-10 h-10 rounded-xl object-cover border border-slate-800">
+          <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-sm text-white truncate">${fUser.displayName}</h4>
+            <p class="text-xs text-slate-400 truncate">@${fUser.username}</p>
+          </div>
+        `;
+
+        // Direct Message Chat ID logic (sorted UIDs)
+        const dmId = [currentUser.uid, friendUid].sort().join('_');
+        div.addEventListener('click', () => selectChat({
+          id: dmId,
+          type: 'dm',
+          targetUid: friendUid,
+          name: fUser.displayName,
+          username: fUser.username,
+          avatar: fUser.avatarUrl
+        }));
+
+        container.appendChild(div);
+      });
+    }
+
+    // SELECT AND OPEN A CHAT
+    function selectChat(chatObj) {
+      activeChat = chatObj;
+      document.getElementById('no-chat-selected').classList.add('hidden');
+      document.getElementById('active-chat-container').classList.remove('hidden');
+
+      // Update Header
+      document.getElementById('active-chat-title').innerText = chatObj.name;
+      document.getElementById('active-chat-sub').innerText = chatObj.type === 'dm' ? `@${chatObj.username}` : `${chatObj.members.length} miembros`;
+      
+      const avatarImg = document.getElementById('active-chat-avatar');
+      if (chatObj.type === 'dm') {
+        avatarImg.src = chatObj.avatar;
+        avatarImg.classList.remove('hidden');
+        document.getElementById('group-info-btn').classList.add('hidden');
+      } else {
+        avatarImg.src = `https://api.dicebear.com/7.x/shapes/svg?seed=${chatObj.id}`;
+        document.getElementById('group-info-btn').classList.remove('hidden');
+      }
+
+      // Hide sidebar on mobile
+      document.getElementById('sidebar').classList.add('hidden', 'md:flex');
+
+      // Listen to Chat Messages
+      if (unsubscribeMessages) unsubscribeMessages();
+      const msgQuery = query(collection(db, 'chats', chatObj.id, 'messages'), orderBy('createdAt', 'asc'));
+
+      unsubscribeMessages = onSnapshot(msgQuery, (snap) => {
+        const msgContainer = document.getElementById('messages-container');
+        msgContainer.innerHTML = '';
+
+        snap.forEach((mDoc) => {
+          const msg = mDoc.data();
+          const isMe = msg.senderUid === currentUser.uid;
+
+          const msgDiv = document.createElement('div');
+          msgDiv.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'}`;
+          msgDiv.innerHTML = `
+            <div class="flex flex-col max-w-[80%] sm:max-w-[70%] ${isMe ? 'bg-brand-600 text-white rounded-2xl rounded-tr-xs' : 'bg-slate-900 text-slate-100 border border-slate-800 rounded-2xl rounded-tl-xs'} p-3 shadow-md">
+              ${!isMe && chatObj.type === 'group' ? `<span class="text-[10px] font-bold text-brand-400 mb-1">@${msg.senderUsername}</span>` : ''}
+              <p class="text-sm leading-relaxed break-words">${escapeHtml(msg.text)}</p>
+            </div>
+          `;
+          msgContainer.appendChild(msgDiv);
+        });
+
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+      });
+    }
+
+    document.getElementById('back-to-sidebar').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('hidden');
+    });
+
+    // Send Message
+    document.getElementById('message-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!activeChat) return;
+
+      const input = document.getElementById('message-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+
+      await addDoc(collection(db, 'chats', activeChat.id, 'messages'), {
+        senderUid: currentUser.uid,
+        senderUsername: currentUserData.username,
+        text,
+        createdAt: serverTimestamp()
+      });
+    });
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // --- CREATE GROUP CHAT LOGIC ---
+    const createGroupModal = document.getElementById('create-group-modal');
+    document.getElementById('create-group-btn').addEventListener('click', async () => {
+      const selectContainer = document.getElementById('group-friends-select');
+      selectContainer.innerHTML = '';
+
+      const friendsSnap = await getDocs(collection(db, 'users', currentUser.uid, 'friends'));
+      if (friendsSnap.empty) {
+        selectContainer.innerHTML = '<p class="text-xs text-slate-500 p-2">Necesitas tener amigos para agregarlos a un grupo.</p>';
+      } else {
+        friendsSnap.forEach(async (fDoc) => {
+          const fUserSnap = await getDoc(doc(db, 'users', fDoc.id));
+          if (!fUserSnap.exists()) return;
+          const fUser = fUserSnap.data();
+
+          const label = document.createElement('label');
+          label.className = "flex items-center space-x-3 p-2 rounded-xl hover:bg-slate-900 cursor-pointer";
+          label.innerHTML = `
+            <input type="checkbox" value="${fUser.uid}" class="group-friend-checkbox rounded text-brand-600 focus:ring-brand-500 bg-slate-950 border-slate-800">
+            <img src="${fUser.avatarUrl || 'https://placehold.co/100'}" class="w-7 h-7 rounded-lg object-cover">
+            <span class="text-xs font-semibold text-slate-200">${fUser.displayName} (@${fUser.username})</span>
+          `;
+          selectContainer.appendChild(label);
+        });
+      }
+
+      createGroupModal.classList.remove('hidden');
+    });
+
+    document.getElementById('close-group-modal').addEventListener('click', () => createGroupModal.classList.add('hidden'));
+
+    document.getElementById('create-group-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const groupName = document.getElementById('group-name-input').value.trim();
+      const checked = Array.from(document.querySelectorAll('.group-friend-checkbox:checked')).map(cb => cb.value);
+
+      if (!groupName || checked.length === 0) return;
+
+      const members = [currentUser.uid, ...checked];
+      await addDoc(collection(db, 'groups'), {
+        name: groupName,
+        members,
+        createdBy: currentUser.uid,
+        createdAt: serverTimestamp()
+      });
+
+      createGroupModal.classList.add('hidden');
+      tabGroups.click();
+    });
+
+    // --- GROUP INFO & NON-FRIEND DIRECT FRIEND ADD ---
+    document.getElementById('group-info-btn').addEventListener('click', async () => {
+      if (!activeChat || activeChat.type !== 'group') return;
+      document.getElementById('group-info-name').innerText = activeChat.name;
+
+      const listContainer = document.getElementById('group-members-list');
+      listContainer.innerHTML = '<p class="text-xs text-slate-500 text-center">Cargando integrantes...</p>';
+      document.getElementById('group-info-modal').classList.remove('hidden');
+
+      listContainer.innerHTML = '';
+
+      for (const mUid of activeChat.members) {
+        const mDoc = await getDoc(doc(db, 'users', mUid));
+        if (!mDoc.exists()) continue;
+        const member = mDoc.data();
+
+        const isMe = mUid === currentUser.uid;
+        // Check if member is friend
+        const friendCheck = await getDoc(doc(db, 'users', currentUser.uid, 'friends', mUid));
+        const isFriend = friendCheck.exists();
+
+        // Check if there is a pending request
+        const reqCheck1 = await getDoc(doc(db, 'friend_requests', `${currentUser.uid}_${mUid}`));
+        const reqCheck2 = await getDoc(doc(db, 'friend_requests', `${mUid}_${currentUser.uid}`));
+        const pendingOut = reqCheck1.exists() && reqCheck1.data().status === 'pending';
+        const pendingIn = reqCheck2.exists() && reqCheck2.data().status === 'pending';
+
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between bg-slate-950 p-3 rounded-2xl border border-slate-800";
+        
+        let actionBtn = '';
+        if (isMe) {
+          actionBtn = '<span class="text-[10px] bg-slate-800 text-slate-400 px-2.5 py-1 rounded-lg font-semibold">Tú</span>';
+        } else if (isFriend) {
+          actionBtn = '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-lg font-semibold">Amigos</span>';
+        } else if (pendingIn) {
+          actionBtn = `<button data-reqid="${reqCheck2.id}" data-uid="${mUid}" class="group-accept-btn px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-bold">Aceptar Solicitud</button>`;
+        } else if (pendingOut) {
+          actionBtn = '<span class="text-[10px] bg-amber-500/20 text-amber-400 px-2.5 py-1 rounded-lg font-semibold">Solicitud Enviada</span>';
+        } else {
+          actionBtn = `<button data-uid="${mUid}" data-username="${member.username}" class="group-add-btn px-2.5 py-1 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-bold transition">Agregar Amigo</button>`;
+        }
+
+        div.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <img src="${member.avatarUrl || 'https://placehold.co/100'}" class="w-10 h-10 rounded-xl object-cover">
+            <div>
+              <h4 class="font-bold text-sm text-white">${member.displayName}</h4>
+              <p class="text-xs text-slate-400">@${member.username}</p>
+            </div>
+          </div>
+          <div>${actionBtn}</div>
+        `;
+
+        listContainer.appendChild(div);
+      }
+
+      // Action Handlers inside Group Member List
+      document.querySelectorAll('.group-add-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const targetUid = e.currentTarget.getAttribute('data-uid');
+          const targetUsername = e.currentTarget.getAttribute('data-username');
+          const reqId = `${currentUser.uid}_${targetUid}`;
+          await setDoc(doc(db, 'friend_requests', reqId), {
+            fromUid: currentUser.uid,
+            fromUsername: currentUserData.username,
+            toUid: targetUid,
+            status: 'pending',
+            createdAt: serverTimestamp()
+          });
+          e.currentTarget.parentElement.innerHTML = '<span class="text-[10px] bg-amber-500/20 text-amber-400 px-2.5 py-1 rounded-lg font-semibold">Solicitud Enviada</span>';
+        });
+      });
+
+      document.querySelectorAll('.group-accept-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const reqId = e.currentTarget.getAttribute('data-reqid');
+          const targetUid = e.currentTarget.getAttribute('data-uid');
+          await acceptFriendRequest(reqId, targetUid);
+          e.currentTarget.parentElement.innerHTML = '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-lg font-semibold">Amigos</span>';
+        });
+      });
+    });
+
+    document.getElementById('close-group-info-modal').addEventListener('click', () => {
+      document.getElementById('group-info-modal').classList.add('hidden');
+    });
+
+    // --- WEBRTC P2P VOICE & VIDEO CALLS LOGIC ---
+    const callModal = document.getElementById('call-modal');
+    const localVideo = document.getElementById('local-video');
+    const remoteVideo = document.getElementById('remote-video');
+
+    document.getElementById('start-voice-call-btn').addEventListener('click', () => startCall(false));
+    document.getElementById('start-video-call-btn').addEventListener('click', () => startCall(true));
+
+    async function startCall(withVideo) {
+      if (!activeChat || activeChat.type !== 'dm') {
+        alert("Las llamadas P2P sólo están disponibles en chats 1 a 1.");
+        return;
+      }
+
+      isCaller = true;
+      currentCallId = `${currentUser.uid}_${activeChat.targetUid}_${Date.now()}`;
+      
+      setupCallUI(activeChat.name, activeChat.avatar, "Llamando a amigo...");
+      await initMediaStream(withVideo);
+
+      peerConnection = new RTCPeerConnection(rtcConfig);
+      localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+      remoteStream = new MediaStream();
+      remoteVideo.srcObject = remoteStream;
+
+      peerConnection.ontrack = (event) => {
+        event.streams[0].getTracks().forEach(track => remoteStream.addTrack(track));
+        document.getElementById('remote-avatar-placeholder').classList.add('hidden');
+      };
+
+      // Candidates caller -> Firestore
+      const callerCandidatesCol = collection(db, 'calls', currentCallId, 'callerCandidates');
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          addDoc(callerCandidatesCol, event.candidate.toJSON());
+        }
+      };
+
+      // Create SDP Offer
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+
+      await setDoc(doc(db, 'calls', currentCallId), {
+        callerUid: currentUser.uid,
+        callerName: currentUserData.displayName,
+        callerAvatar: currentUserData.avatarUrl,
+        targetUid: activeChat.targetUid,
+        status: 'offered',
+        withVideo,
+        offer: { type: offer.type, sdp: offer.sdp }
+      });
+
+      // Listen for Answer
+      onSnapshot(doc(db, 'calls', currentCallId), async (snap) => {
+        const data = snap.data();
+        if (data && data.answer && !peerConnection.currentRemoteDescription) {
+          const rsd = new RTCSessionDescription(data.answer);
+          await peerConnection.setRemoteDescription(rsd);
+          document.getElementById('call-status-text').innerText = "En llamada P2P";
+        }
+        if (data && data.status === 'ended') {
+          endCall();
+        }
+      });
+
+      // Listen for Callee Candidates
+      onSnapshot(collection(db, 'calls', currentCallId, 'calleeCandidates'), (snap) => {
+        snap.docChanges().forEach(async (change) => {
+          if (change.type === 'added') {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+          }
+        });
+      });
+    }
+
+    function showIncomingCallNotification(callId, callData) {
+      currentCallId = callId;
+      document.getElementById('incoming-caller-name').innerText = callData.callerName;
+      document.getElementById('incoming-caller-avatar').src = callData.callerAvatar || 'https://placehold.co/100';
+      document.getElementById('incoming-call-type').innerText = callData.withVideo ? "Videollamada entrante..." : "Llamada de voz entrante...";
+      
+      const incomingModal = document.getElementById('incoming-call-modal');
+      incomingModal.classList.remove('hidden');
+
+      document.getElementById('accept-call-btn').onclick = () => answerCall(callId, callData);
+      document.getElementById('reject-call-btn').onclick = async () => {
+        await updateDoc(doc(db, 'calls', callId), { status: 'ended' });
+        incomingModal.classList.add('hidden');
+        currentCallId = null;
+      };
+    }
+
+    async function answerCall(callId, callData) {
+      document.getElementById('incoming-call-modal').classList.add('hidden');
+      isCaller = false;
+
+      setupCallUI(callData.callerName, callData.callerAvatar, "Conectando...");
+      await initMediaStream(callData.withVideo);
+
+      peerConnection = new RTCPeerConnection(rtcConfig);
+      localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+      remoteStream = new MediaStream();
+      remoteVideo.srcObject = remoteStream;
+
+      peerConnection.ontrack = (event) => {
+        event.streams[0].getTracks().forEach(track => remoteStream.addTrack(track));
+        document.getElementById('remote-avatar-placeholder').classList.add('hidden');
+      };
+
+      // Candidates callee -> Firestore
+      const calleeCandidatesCol = collection(db, 'calls', callId, 'calleeCandidates');
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          addDoc(calleeCandidatesCol, event.candidate.toJSON());
+        }
+      };
+
+      // Set Remote Description (Offer)
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
+
+      // Create SDP Answer
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+
+      await updateDoc(doc(db, 'calls', callId), {
+        answer: { type: answer.type, sdp: answer.sdp },
+        status: 'accepted'
+      });
+
+      document.getElementById('call-status-text').innerText = "En llamada P2P";
+
+      // Listen for Caller Candidates
+      onSnapshot(collection(db, 'calls', callId, 'callerCandidates'), (snap) => {
+        snap.docChanges().forEach(async (change) => {
+          if (change.type === 'added') {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+          }
+        });
+      });
+
+      // Listen for Termination
+      onSnapshot(doc(db, 'calls', callId), (snap) => {
+        if (snap.exists() && snap.data().status === 'ended') {
+          endCall();
+        }
+      });
+    }
+
+    async function initMediaStream(withVideo) {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: withVideo
+        });
+        localVideo.srcObject = localStream;
+      } catch (err) {
+        console.error("Error al acceder a cámara/micrófono", err);
+      }
+    }
+
+    function setupCallUI(peerName, peerAvatar, statusText) {
+      document.getElementById('call-peer-name').innerText = peerName;
+      document.getElementById('call-peer-avatar').src = peerAvatar || 'https://placehold.co/150';
+      document.getElementById('call-status-text').innerText = statusText;
+      document.getElementById('remote-avatar-placeholder').classList.remove('hidden');
+      callModal.classList.remove('hidden');
+    }
+
+    document.getElementById('end-call-btn').addEventListener('click', async () => {
+      if (currentCallId) {
+        await updateDoc(doc(db, 'calls', currentCallId), { status: 'ended' });
+      }
+      endCall();
+    });
+
+    function endCall() {
+      if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+      }
+      if (localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+        localStream = null;
+      }
+      callModal.classList.add('hidden');
+      currentCallId = null;
+    }
+
+    // Toggle Mic / Cam Controls
+    document.getElementById('toggle-mic-btn').addEventListener('click', (e) => {
+      if (localStream) {
+        const audioTrack = localStream.getAudioTracks()[0];
+        if (audioTrack) {
+          isMicMuted = !isMicMuted;
+          audioTrack.enabled = !isMicMuted;
+          e.currentTarget.innerHTML = isMicMuted ? '<i class="fa-solid fa-microphone-slash text-rose-400"></i>' : '<i class="fa-solid fa-microphone"></i>';
+        }
+      }
+    });
+
+    document.getElementById('toggle-cam-btn').addEventListener('click', (e) => {
+      if (localStream) {
+        const videoTrack = localStream.getVideoTracks()[0];
+        if (videoTrack) {
+          isCamOff = !isCamOff;
+          videoTrack.enabled = !isCamOff;
+          e.currentTarget.innerHTML = isCamOff ? '<i class="fa-solid fa-video-slash text-rose-400"></i>' : '<i class="fa-solid fa-video"></i>';
+        }
+      }
+    });
+
+  </script>
+</body>
+</html>

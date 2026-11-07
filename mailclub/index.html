@@ -4,15 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agorlab VIP Club — Suscripción Automática</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Google Font Inter & Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
     .font-mono { font-family: 'Fira Code', monospace; }
@@ -20,11 +16,9 @@
 </head>
 <body class="h-full flex flex-col justify-between bg-slate-950 text-slate-100 antialiased selection:bg-sky-500 selection:text-white">
 
-  <!-- BACKGROUND DECORATIVE GLOWS -->
   <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-sky-600/15 via-indigo-600/10 to-transparent blur-3xl pointer-events-none -z-10"></div>
   <div class="fixed bottom-0 right-0 w-96 h-96 bg-emerald-600/10 blur-3xl pointer-events-none -z-10"></div>
 
-  <!-- NAVBAR HEADER -->
   <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-40">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -38,10 +32,7 @@
           <p class="text-[11px] text-slate-400">Pases & Membresías Recurrentes</p>
         </div>
       </div>
-
-      <!-- Auth State & User Menu -->
       <div id="nav-user-area" class="flex items-center gap-3">
-        <!-- Filled dynamically by JS -->
         <span class="text-xs text-slate-400 flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-slate-600 animate-pulse"></span> Cargando...
         </span>
@@ -49,15 +40,12 @@
     </div>
   </header>
 
-  <!-- MAIN CONTENT CONTAINER -->
   <main class="max-w-4xl w-full mx-auto px-4 py-8 sm:py-12 flex-1 flex flex-col justify-center">
 
-    <!-- ADMIN PANEL (Visible ONLY for cepedademian2005@gmail.com) -->
     <div id="admin-panel" class="hidden mb-10 bg-gradient-to-r from-amber-950/40 via-slate-900 to-amber-950/40 border border-amber-500/40 rounded-3xl p-6 shadow-2xl relative overflow-hidden backdrop-blur-sm">
       <div class="absolute top-0 right-0 bg-amber-500 text-slate-950 font-bold text-[10px] tracking-widest px-3 py-1 rounded-bl-xl uppercase flex items-center gap-1">
         <i data-lucide="shield-check" class="w-3 h-3"></i> Panel de Control Admin
       </div>
-      
       <div class="flex items-center gap-3 mb-4">
         <div class="p-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl">
           <i data-lucide="sliders" class="w-5 h-5"></i>
@@ -67,7 +55,6 @@
           <p class="text-xs text-slate-400">Hola Damián. Cambia el precio mensual en tiempo real para todos los clientes (Se guarda en Firebase Firestore).</p>
         </div>
       </div>
-
       <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
         <div class="relative flex-1">
           <span class="absolute left-3.5 top-2.5 text-slate-400 text-sm font-semibold">ARS $</span>
@@ -81,18 +68,12 @@
       </div>
     </div>
 
-
-    <!-- MAIN PUBLIC CARD: VIP SUBSCRIPTION CARD -->
     <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl relative overflow-hidden">
-      
       <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-        
-        <!-- Left Details (7 cols) -->
         <div class="md:col-span-7 space-y-6">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-semibold">
             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Membresía Recurrente
           </div>
-
           <div>
             <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
               Suscripción <span class="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">Agorlab VIP</span>
@@ -101,8 +82,6 @@
               Obtén acceso total y automático a todos los beneficios exclusivos del club. Se debitará mensualmente de forma transparente en tu tarjeta.
             </p>
           </div>
-
-          <!-- Feature List -->
           <ul class="space-y-3 text-sm text-slate-300">
             <li class="flex items-center gap-3">
               <div class="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
@@ -124,39 +103,29 @@
             </li>
           </ul>
         </div>
-
-        <!-- Right Price Box & Checkout Action (5 cols) -->
         <div class="md:col-span-5 flex flex-col justify-between bg-slate-950/70 border border-slate-800 rounded-2xl p-6 text-center space-y-6">
           <div>
             <span class="text-xs uppercase tracking-widest text-slate-400 font-bold">Valor de la Suscripción</span>
             <div class="mt-2 flex items-baseline justify-center gap-1">
               <span class="text-slate-400 font-semibold text-lg">$</span>
-              <span id="display-subscription-price" class="text-4xl sm:text-5xl font-black text-white tracking-tight">
-                ...
-              </span>
+              <span id="display-subscription-price" class="text-4xl sm:text-5xl font-black text-white tracking-tight">...</span>
               <span class="text-slate-400 text-xs font-medium">ARS / mes</span>
             </div>
             <p class="text-[11px] text-slate-400 mt-1">Débito directo automático cada 30 días</p>
           </div>
-
-          <!-- SUBSCRIBE ACTION BUTTON -->
           <div class="space-y-3">
             <button id="btn-subscribe" class="w-full bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 hover:from-sky-400 hover:to-purple-500 text-white font-bold text-base py-3.5 px-6 rounded-xl shadow-xl shadow-sky-500/20 transition-all transform active:scale-95 flex items-center justify-center gap-2">
               <i data-lucide="credit-card" class="w-5 h-5"></i>
               <span>Suscribirme Ahora</span>
             </button>
-
             <p id="subscribe-hint" class="text-[11px] text-amber-400 font-medium">
               * Debes iniciar sesión con tu cuenta para suscribirte.
             </p>
           </div>
         </div>
-
       </div>
-
     </div>
 
-    <!-- TERMINAL / AUDIT LOG -->
     <div class="mt-8 bg-slate-900 border border-slate-800/80 rounded-2xl p-4">
       <div class="flex items-center justify-between mb-2">
         <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
@@ -171,19 +140,15 @@
 
   </main>
 
-  <!-- FOOTER -->
   <footer class="border-t border-slate-800/60 py-4 text-center text-xs text-slate-400">
     Agorlab Mail Club &copy; Sandbox de Suscripciones con Mercado Pago
   </footer>
 
-
-  <!-- AUTH MODAL (LOGIN / REGISTRO) -->
   <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
       <button id="btn-close-modal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-200">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
-
       <div class="text-center mb-6">
         <div class="w-12 h-12 bg-sky-500/10 text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
           <i data-lucide="user-check" class="w-6 h-6"></i>
@@ -191,17 +156,10 @@
         <h3 id="modal-title" class="font-bold text-lg text-white">Iniciar Sesión</h3>
         <p class="text-xs text-slate-400 mt-1">Ingresa con tu correo de Agorlab Mail Club</p>
       </div>
-
-      <!-- Auth Tabs -->
       <div class="flex border-b border-slate-800 mb-4">
-        <button id="tab-login" class="flex-1 py-2 text-xs font-semibold border-b-2 border-sky-500 text-sky-400">
-          Entrar
-        </button>
-        <button id="tab-signup" class="flex-1 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400">
-          Registrarme
-        </button>
+        <button id="tab-login" class="flex-1 py-2 text-xs font-semibold border-b-2 border-sky-500 text-sky-400">Entrar</button>
+        <button id="tab-signup" class="flex-1 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400">Registrarme</button>
       </div>
-
       <form id="modal-auth-form" class="space-y-4">
         <div>
           <label class="block text-xs font-medium text-slate-300 mb-1">Correo Electrónico</label>
@@ -220,30 +178,17 @@
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
 
-  <!-- FIREBASE & APPLICATION LOGIC -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { 
-      getAuth, 
-      createUserWithEmailAndPassword, 
-      signInWithEmailAndPassword, 
-      signOut, 
-      onAuthStateChanged 
+      getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
     import { 
-      getFirestore, 
-      doc, 
-      getDoc, 
-      setDoc, 
-      onSnapshot 
+      getFirestore, doc, getDoc, setDoc, onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-    // 1. EMBEDDED CONFIGURATIONS
-    
-    // Configuración de Firebase (Mantener igual)
     const firebaseConfig = {
       apiKey: "AIzaSyDKde7Zl3aONeQh3sVipda67V-FwW638_U",
       authDomain: "agorlabmailclub.firebaseapp.com",
@@ -253,27 +198,18 @@
       appId: "1:584657815523:web:b014ebe6fdd5b379ca02d6"
     };
 
-    // URL de tu Cloudflare Worker (Nueva Integración Segura)
     const WORKER_URL = "https://agorlabmailclub.demilolmanso.workers.dev";
-    
-    // IMPORTANTE: El token ya NO se expone aquí. Lo pasamos al Worker.
-    // Si quieres mayor seguridad, mueve MERCADO_PAGO_ACCESS_TOKEN a las variables de entorno del Worker (env.MP_TOKEN)
-    // y elimina esta constante del frontend completamente. Por ahora, lo mantenemos aquí pero protegido por el proxy.
     const MERCADO_PAGO_ACCESS_TOKEN = "APP_USR-5242923375218611-110711-83995225eebc7683aa6c71cd8de657e5-323912180";
-    
     const ADMIN_EMAIL = "cepedademian2005@gmail.com";
 
-    // 2. INITIALIZE FIREBASE SDK
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // State Variables
     let currentUser = null;
-    let currentSubscriptionPrice = 5000; // Default price
-    let authMode = "login"; // 'login' | 'signup'
+    let currentSubscriptionPrice = 5000;
+    let authMode = "login";
 
-    // DOM Elements
     const navUserArea = document.getElementById('nav-user-area');
     const adminPanel = document.getElementById('admin-panel');
     const adminPriceInput = document.getElementById('admin-price-input');
@@ -283,8 +219,6 @@
     const subscribeHint = document.getElementById('subscribe-hint');
     const logConsole = document.getElementById('log-console');
     const btnClearLogs = document.getElementById('btn-clear-logs');
-    
-    // Auth Modal DOM
     const authModal = document.getElementById('auth-modal');
     const btnCloseModal = document.getElementById('btn-close-modal');
     const tabLogin = document.getElementById('tab-login');
@@ -297,30 +231,23 @@
 
     lucide.createIcons();
 
-    // Helper: Toast Notifications
     function showToast(msg, type = 'info') {
       const toast = document.createElement('div');
       toast.className = `pointer-events-auto p-3 rounded-xl shadow-xl text-xs font-medium border flex items-center gap-2 transition-all transform translate-y-2 opacity-0 duration-200`;
       if (type === 'success') toast.className += ' bg-emerald-950 border-emerald-800 text-emerald-200';
       else if (type === 'error') toast.className += ' bg-rose-950 border-rose-800 text-rose-200';
       else toast.className += ' bg-slate-900 border-slate-700 text-slate-200';
-      
       toast.innerHTML = `<span>${msg}</span>`;
       document.getElementById('toast-container').appendChild(toast);
       setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
-      setTimeout(() => {
-        toast.classList.add('opacity-0');
-        setTimeout(() => toast.remove(), 200);
-      }, 4000);
+      setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 200); }, 4000);
     }
 
-    // Helper: Console Log Output
     function logEvent(title, detail = null, type = 'info') {
       const item = document.createElement('div');
       item.className = 'border-l-2 pl-2 py-0.5 my-1';
       let titleColor = type === 'success' ? 'text-emerald-400' : (type === 'error' ? 'text-rose-400' : 'text-sky-400');
       item.className += type === 'success' ? ' border-emerald-500' : (type === 'error' ? ' border-rose-500' : ' border-sky-500');
-
       let html = `<div class="flex justify-between items-center text-[11px]"><span class="font-bold ${titleColor}">${title}</span><span class="text-slate-500 text-[10px]">${new Date().toLocaleTimeString()}</span></div>`;
       if (detail) {
         const str = typeof detail === 'object' ? JSON.stringify(detail, null, 2) : detail;
@@ -335,14 +262,12 @@
       logConsole.innerHTML = `<div class="text-slate-500 italic">// Consola limpia.</div>`;
     });
 
-    // 3. LISTEN TO FIRESTORE REALTIME PRICE CHANGES
     const priceDocRef = doc(db, "config", "subscription");
     onSnapshot(priceDocRef, (docSnap) => {
       if (docSnap.exists() && docSnap.data().price) {
         currentSubscriptionPrice = Number(docSnap.data().price);
         logEvent("FIREBASE: PRECIO ACTUALIZADO EN TIEMPO REAL", { price: currentSubscriptionPrice }, "success");
       } else {
-        // Initialize if doc doesn't exist yet
         setDoc(priceDocRef, { price: currentSubscriptionPrice, updatedAt: new Date().toISOString() }, { merge: true });
         logEvent("FIREBASE: PRECIO POR DEFECTO CONFIGURADO", { price: currentSubscriptionPrice }, "info");
       }
@@ -354,7 +279,6 @@
       logEvent("FIREBASE FIRESTORE ERROR", error.message, "error");
     });
 
-    // 4. ADMIN SAVE PRICE ACTION
     btnSavePrice.addEventListener('click', async () => {
       const newPrice = parseFloat(adminPriceInput.value);
       if (!newPrice || newPrice <= 0) {
@@ -363,9 +287,7 @@
       }
       try {
         await setDoc(priceDocRef, { 
-          price: newPrice, 
-          updatedBy: currentUser.email,
-          updatedAt: new Date().toISOString() 
+          price: newPrice, updatedBy: currentUser.email, updatedAt: new Date().toISOString() 
         }, { merge: true });
         showToast("¡Precio guardado exitosamente en Firebase!", "success");
         logEvent("ADMIN: NUEVO PRECIO GUARDADO EN FIREBASE", { newPrice }, "success");
@@ -375,11 +297,9 @@
       }
     });
 
-    // 5. AUTH STATE LISTENER
     onAuthStateChanged(auth, (user) => {
       currentUser = user;
       if (user) {
-        // Logged In Navbar State
         navUserArea.innerHTML = `
           <div class="flex items-center gap-2">
             <span class="text-xs text-slate-300 font-medium hidden sm:inline">${user.email}</span>
@@ -389,10 +309,7 @@
           </div>
         `;
         document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
-        
         subscribeHint.classList.add('hidden');
-
-        // Check if Admin
         if (user.email === ADMIN_EMAIL) {
           adminPanel.classList.remove('hidden');
           adminPriceInput.value = currentSubscriptionPrice;
@@ -400,17 +317,14 @@
         } else {
           adminPanel.classList.add('hidden');
         }
-
         logEvent("FIREBASE_AUTH: USUARIO LOGUEADO", { email: user.email, uid: user.uid }, "info");
       } else {
-        // Logged Out Navbar State
         navUserArea.innerHTML = `
           <button id="btn-open-login" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition-all shadow-md shadow-sky-600/20">
             Iniciar Sesión
           </button>
         `;
         document.getElementById('btn-open-login').addEventListener('click', () => openAuthModal());
-        
         subscribeHint.classList.remove('hidden');
         adminPanel.classList.add('hidden');
         logEvent("FIREBASE_AUTH: SIN SESIÓN ACTIVA", null, "info");
@@ -418,7 +332,6 @@
       lucide.createIcons();
     });
 
-    // Modal Control Functions
     function openAuthModal() { authModal.classList.remove('hidden'); }
     function closeAuthModal() { authModal.classList.add('hidden'); }
     btnCloseModal.addEventListener('click', closeAuthModal);
@@ -444,7 +357,6 @@
       const email = modalEmail.value.trim();
       const password = modalPassword.value.trim();
       if (!email || !password) return;
-
       try {
         if (authMode === "signup") {
           await createUserWithEmailAndPassword(auth, email, password);
@@ -460,7 +372,7 @@
       }
     });
 
-    // 6. MERCADO PAGO SUBSCRIPTION PROCESSOR VIA CLOUDFLARE WORKER
+    // ====== ACÁ ESTÁ EL FIX. Este bloque reemplaza al anterior ======
     btnSubscribe.addEventListener('click', async () => {
       if (!currentUser) {
         showToast("Debes iniciar sesión primero para suscribirte", "error");
@@ -468,7 +380,6 @@
         return;
       }
 
-      // Deshabilitar botón mientras procesa
       btnSubscribe.disabled = true;
       btnSubscribe.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Procesando...';
       lucide.createIcons();
@@ -479,61 +390,50 @@
         target: WORKER_URL
       }, "info");
 
-      // Payload para enviar al Worker
-      // Nota: Enviamos el token al worker porque el worker necesita autenticarse con MP.
-      // En producción ideal, moverías el token a env vars del worker y quitarías esto del cliente.
-      const payloadToSendToWorker = {
-        token: MERCADO_PAGO_ACCESS_TOKEN, 
-        payload: {
-          reason: "Suscripción VIP Agorlab Mail Club",
-          auto_recurring: {
-            frequency: 1,
-            frequency_type: "months",
-            transaction_amount: currentSubscriptionPrice,
-            currency_id: "ARS"
-          },
-          back_url: window.location.href,
-          payer_email: currentUser.email,
-          status: "authorized"
+      // PAYLOAD CORREGIDO:
+      // 1. El email va DENTRO de "payer", no como "payer_email" suelto.
+      // 2. Se eliminó "status" (eso lo pone MP solo, mandarlo en el POST da error 400).
+      // 3. Se agregó "external_reference" con el uid de Firebase para poder identificar al suscriptor después.
+      const subscriptionPayload = {
+        reason: "Suscripción VIP Agorlab Mail Club",
+        external_reference: currentUser.uid,
+        payer: {
+          email: currentUser.email
+        },
+        back_url: window.location.origin + "/mailclub/?mp=approved",
+        auto_recurring: {
+          frequency: 1,
+          frequency_type: "months",
+          transaction_amount: Number(currentSubscriptionPrice),
+          currency_id: "ARS"
         }
       };
 
+      const payloadToSendToWorker = {
+        token: MERCADO_PAGO_ACCESS_TOKEN,
+        payload: subscriptionPayload
+      };
+
       try {
-        // Llamar al Cloudflare Worker
         const response = await fetch(WORKER_URL, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payloadToSendToWorker)
         });
 
         const data = await response.json();
 
         if (response.ok && data.init_point) {
-          logEvent("WORKER RESPUESTA EXITOSA: REDIRIGIENDO A MP", data, "success");
+          logEvent("WORKER OK: REDIRIGIENDO A MP", { init_point: data.init_point, id: data.id }, "success");
           showToast("Redirigiendo al checkout de Mercado Pago...", "success");
-          
-          // Redirigir inmediatamente
-          setTimeout(() => {
-            window.location.href = data.init_point;
-          }, 1000);
-
+          setTimeout(() => { window.location.href = data.init_point; }, 1000);
         } else {
-          // Error devuelto por el Worker o por Mercado Pago
-          logEvent("ERROR EN LA INTEGRACIÓN (WORKER/MP)", data, "error");
-          showToast("Error al crear suscripción: " + (data.error || data.message || "Desconocido"), "error");
-          
-          // Reactivar botón
+          logEvent("ERROR MP/WORKER", data, "error");
+          showToast("Error MP: " + (data.error || data.message || JSON.stringify(data)), "error");
           resetButton();
         }
-
       } catch (err) {
-        logEvent("ERROR DE CONEXIÓN AL WORKER", {
-          message: err.message,
-          note: "Verifica que la URL del worker sea correcta y esté desplegada."
-        }, "error");
-
+        logEvent("ERROR CONEXIÓN WORKER", { message: err.message }, "error");
         showToast("Fallo al conectar con el servidor de pagos.", "error");
         resetButton();
       }
@@ -544,7 +444,6 @@
       btnSubscribe.innerHTML = '<i data-lucide="credit-card" class="w-5 h-5"></i> <span>Suscribirme Ahora</span>';
       lucide.createIcons();
     }
-
   </script>
 </body>
 </html>

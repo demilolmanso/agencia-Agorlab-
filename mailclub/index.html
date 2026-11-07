@@ -373,6 +373,7 @@
     });
 
     // ====== ACÁ ESTÁ EL FIX. Este bloque reemplaza al anterior ======
+        // ====== FIX DEFINITIVO ======
     btnSubscribe.addEventListener('click', async () => {
       if (!currentUser) {
         showToast("Debes iniciar sesión primero para suscribirte", "error");
@@ -390,16 +391,13 @@
         target: WORKER_URL
       }, "info");
 
-      // PAYLOAD CORREGIDO:
-      // 1. El email va DENTRO de "payer", no como "payer_email" suelto.
-      // 2. Se eliminó "status" (eso lo pone MP solo, mandarlo en el POST da error 400).
-      // 3. Se agregó "external_reference" con el uid de Firebase para poder identificar al suscriptor después.
+      // PAYLOAD CORRECTO PARA /preapproval:
+      // - payer_email VA SUELTO como string (así lo pide MP en suscripciones)
+      // - status NO VA en la creación (MP lo genera solo)
       const subscriptionPayload = {
         reason: "Suscripción VIP Agorlab Mail Club",
         external_reference: currentUser.uid,
-        payer: {
-          email: currentUser.email
-        },
+        payer_email: currentUser.email,
         back_url: window.location.origin + "/mailclub/?mp=approved",
         auto_recurring: {
           frequency: 1,
@@ -438,7 +436,6 @@
         resetButton();
       }
     });
-
     function resetButton() {
       btnSubscribe.disabled = false;
       btnSubscribe.innerHTML = '<i data-lucide="credit-card" class="w-5 h-5"></i> <span>Suscribirme Ahora</span>';

@@ -30,6 +30,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        .no-scrollbar { scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
 </head>
 <body class="h-full bg-slate-50 text-slate-800 flex flex-col font-sans">
 
@@ -149,6 +153,12 @@
                 </div>
             </div>
 
+            <!-- Categories -->
+            <div id="home-categories-section" class="space-y-6 hidden">
+                <h2 class="text-2xl font-black text-slate-900">Comprá por categoría</h2>
+                <div id="home-categories" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
+            </div>
+
             <!-- Featured Products -->
             <div class="space-y-6">
                 <div class="flex items-center justify-between">
@@ -173,6 +183,8 @@
                     <input type="text" id="search-input" placeholder="Buscar producto..." oninput="filterCatalog()" class="bg-white border border-slate-300 px-4 py-2 rounded-xl text-sm focus:outline-none focus:border-pristino-500 w-full sm:w-64 shadow-sm">
                 </div>
             </div>
+            <div id="category-chips" class="flex gap-2 overflow-x-auto no-scrollbar sm:flex-wrap pb-1 -mx-4 px-4 sm:mx-0 sm:px-0"></div>
+            <p id="catalog-count" class="text-sm text-slate-500"></p>
             <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
         </section>
 
@@ -325,6 +337,11 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre</label>
                     <input type="text" id="prod-name" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Categoría</label>
+                    <input type="text" id="prod-category" list="category-options" placeholder="Elegí una existente o escribí una nueva" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
+                    <datalist id="category-options"></datalist>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Precio Costo ($)</label>
@@ -592,69 +609,158 @@
             }, 500);
         }
 
+        // ===== Productos =====
+        // Esta función es global a propósito: subir_catalogo.js la llama al terminar para refrescar la vista.
         async function loadProductsFromFirestore() {
             try {
                 const snapshot = await db.collection('products').get();
                 products = [];
-                if (!snapshot.empty) {
-                    snapshot.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
-                }
+                snapshot.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
                 renderCatalog();
-            } catch(e) {}
+            } catch (e) { console.error('No se pudieron cargar los productos:', e); }
         }
 
-        function renderCatalog() {
-            const grid = document.getElementById('catalog-grid');
-            const featuredGrid = document.getElementById('featured-products-grid');
-            if(!grid) return;
+        // ===== Categorías =====
+        // Los productos guardan el texto de la categoría en el campo `category` (así lo sube subir_catalogo.js).
+        // Se agrupan comparando sin tildes ni mayúsculas, así "Semillas" y "semillas" cuentan como una sola.
+        const NO_CATEGORY = 'Sin categoría';
+        const catLabel = p => String(p.category || '').trim() || NO_CATEGORY;
+        const catKey = p => normTxt(catLabel(p));
+        const CAT_ICONS = {
+            'alimentos naturales': 'fa-leaf',
+            'almacen y harinas': 'fa-wheat-awn',
+            'aceites y untables': 'fa-bottle-droplet',
+            'chocolates y golosinas': 'fa-cookie-bite',
+            'frutas deshidratadas': 'fa-apple-whole',
+            'frutos secos': 'fa-tree',
+            'granolas y cereales': 'fa-bowl-food',
+            'infusiones y hierbas': 'fa-mug-hot',
+            'semillas': 'fa-seedling',
+            'suplementos y fitoterapia': 'fa-capsules'
+        };
+        let selectedCategory = 'all';
 
-            if (products.length === 0) {
-                grid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-8">Aún no hay productos cargados en la tienda.</p>';
-                if (featuredGrid) featuredGrid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-8">Aún no hay productos disponibles.</p>';
-                return;
-            }
-
-            let html = '';
+        function getCategories() {
+            const map = new Map(), none = normTxt(NO_CATEGORY);
             products.forEach(p => {
-                html += `
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between">
-                        <div>
-                            <div class="h-48 bg-slate-100 relative">
-                                <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover">
-                                <span class="absolute top-3 right-3 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Envío Incluido</span>
-                            </div>
-                            <div class="p-5 space-y-2">
-                                <h3 class="font-bold text-slate-900">${p.name}</h3>
-                                <div class="text-2xl font-black text-pristino-700">$${p.price.toLocaleString()}</div>
-                            </div>
-                        </div>
-                        <div class="p-5 pt-0">
-                            <button onclick="addToCart('${p.id}')" class="w-full bg-pristino-50 hover:bg-pristino-500 text-pristino-700 hover:text-white font-bold py-2.5 rounded-xl transition text-sm">Agregar al Carrito</button>
-                        </div>
-                    </div>
-                `;
+                const k = catKey(p), e = map.get(k);
+                if (e) e.count++; else map.set(k, { key: k, label: catLabel(p), count: 1 });
             });
-            grid.innerHTML = html;
-            if(featuredGrid) featuredGrid.innerHTML = html.split('<div class="bg-white').slice(0, 4).map(s => '<div class="bg-white' + s).join('');
+            // Orden alfabético, con "Sin categoría" siempre al final
+            return [...map.values()].sort((a, b) => (a.key === none) - (b.key === none) || a.label.localeCompare(b.label, 'es'));
         }
 
-        function filterCatalog() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
-            document.getElementById('catalog-grid').innerHTML = filtered.map(p => `
+        const plural = n => n + (n === 1 ? ' producto' : ' productos');
+
+        function productCard(p) {
+            const price = Number(p.price) || 0;
+            return `
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between">
                     <div>
-                        <div class="h-48 bg-slate-100 relative"><img src="${p.image}" class="w-full h-full object-cover"></div>
+                        <div class="h-48 bg-slate-100 relative">
+                            <img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy" class="w-full h-full object-cover">
+                            <span class="absolute top-3 right-3 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Envío Incluido</span>
+                        </div>
                         <div class="p-5 space-y-2">
-                            <h3 class="font-bold text-slate-900">${p.name}</h3>
-                            <div class="text-2xl font-black text-pristino-700">$${p.price.toLocaleString()}</div>
+                            <button type="button" data-cat="${esc(catKey(p))}" onclick="goToCategory(this.dataset.cat)" class="text-xs font-semibold text-pristino-600 hover:text-pristino-800 hover:underline text-left">${esc(catLabel(p))}</button>
+                            <h3 class="font-bold text-slate-900">${esc(p.name)}</h3>
+                            <div class="text-2xl font-black text-pristino-700">$${price.toLocaleString()}</div>
                         </div>
                     </div>
                     <div class="p-5 pt-0">
                         <button onclick="addToCart('${p.id}')" class="w-full bg-pristino-50 hover:bg-pristino-500 text-pristino-700 hover:text-white font-bold py-2.5 rounded-xl transition text-sm">Agregar al Carrito</button>
                     </div>
                 </div>
+            `;
+        }
+
+        function renderHomeCategories(cats) {
+            const section = document.getElementById('home-categories-section');
+            const el = document.getElementById('home-categories');
+            if (!section || !el) return;
+            section.classList.toggle('hidden', cats.length === 0);
+            el.innerHTML = cats.map(c => `
+                <button type="button" data-cat="${esc(c.key)}" onclick="goToCategory(this.dataset.cat)" class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:border-pristino-500 hover:shadow transition flex items-center gap-3 text-left">
+                    <span class="w-10 h-10 shrink-0 bg-pristino-50 text-pristino-600 rounded-xl flex items-center justify-center"><i class="fa-solid ${CAT_ICONS[c.key] || 'fa-tag'}"></i></span>
+                    <span class="min-w-0">
+                        <span class="block font-bold text-sm text-slate-900 leading-tight">${esc(c.label)}</span>
+                        <span class="block text-xs text-slate-500">${plural(c.count)}</span>
+                    </span>
+                </button>
             `).join('');
+        }
+
+        function renderCategoryChips(cats) {
+            const el = document.getElementById('category-chips');
+            if (!el) return;
+            const chip = (key, label, count) => {
+                const active = selectedCategory === key;
+                return `<button type="button" data-cat="${esc(key)}" aria-pressed="${active}" onclick="setCategory(this.dataset.cat)" class="shrink-0 px-4 py-2 rounded-full text-sm font-semibold border transition ${active ? 'bg-pristino-600 border-pristino-600 text-white shadow-sm' : 'bg-white border-slate-300 text-slate-600 hover:border-pristino-500 hover:text-pristino-700'}">${esc(label)} <span class="${active ? 'text-emerald-100' : 'text-slate-400'} font-medium">${count}</span></button>`;
+            };
+            el.innerHTML = chip('all', 'Todas', products.length) + cats.map(c => chip(c.key, c.label, c.count)).join('');
+        }
+
+        function setCategory(key) { selectedCategory = key || 'all'; filterCatalog(); }
+
+        function resetFilters() {
+            selectedCategory = 'all';
+            const s = document.getElementById('search-input'); if (s) s.value = '';
+            filterCatalog();
+        }
+
+        // Desde el inicio o desde la tarjeta de un producto: abre el catálogo ya filtrado
+        function goToCategory(key) {
+            selectedCategory = key || 'all';
+            const s = document.getElementById('search-input'); if (s) s.value = '';
+            switchTab('catalog');
+            filterCatalog();
+            const active = document.querySelector('#category-chips [aria-pressed="true"]');
+            if (active) active.scrollIntoView({ inline: 'center', block: 'nearest' });
+            window.scrollTo(0, 0);
+        }
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalog-grid');
+            const featuredGrid = document.getElementById('featured-products-grid');
+            if (!grid) return;
+
+            if (products.length === 0) {
+                grid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-8">Aún no hay productos cargados en la tienda.</p>';
+                if (featuredGrid) featuredGrid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-8">Aún no hay productos disponibles.</p>';
+                const chips = document.getElementById('category-chips'); if (chips) chips.innerHTML = '';
+                const count = document.getElementById('catalog-count'); if (count) count.textContent = '';
+                renderHomeCategories([]);
+                return;
+            }
+
+            if (featuredGrid) featuredGrid.innerHTML = products.slice(0, 4).map(productCard).join('');
+            renderHomeCategories(getCategories());
+            filterCatalog();
+        }
+
+        // Combina categoría + búsqueda (la búsqueda ignora tildes y también mira el nombre de la categoría)
+        function filterCatalog() {
+            const grid = document.getElementById('catalog-grid');
+            if (!grid) return;
+            const cats = getCategories();
+            if (selectedCategory !== 'all' && !cats.some(c => c.key === selectedCategory)) selectedCategory = 'all';
+            renderCategoryChips(cats);
+
+            const q = normTxt(document.getElementById('search-input').value);
+            const list = products.filter(p =>
+                (selectedCategory === 'all' || catKey(p) === selectedCategory) &&
+                (!q || normTxt(p.name + ' ' + catLabel(p)).includes(q))
+            );
+
+            const current = cats.find(c => c.key === selectedCategory);
+            const count = document.getElementById('catalog-count');
+            if (count) count.textContent = plural(list.length) + (current ? ' en ' + current.label : '');
+
+            grid.innerHTML = list.length ? list.map(productCard).join('') : `
+                <div class="col-span-full text-center py-10 space-y-3">
+                    <p class="text-slate-500">No encontramos productos con esa búsqueda o categoría.</p>
+                    <button type="button" onclick="resetFilters()" class="text-sm font-bold text-pristino-700 bg-pristino-50 hover:bg-pristino-100 px-4 py-2 rounded-xl transition">Ver todo el catálogo</button>
+                </div>`;
         }
 
         function addToCart(id) {
@@ -873,7 +979,11 @@ function toggleCartModal(show) {
             loadAdminOrders();
         }
 
-        function openProductModal() { document.getElementById('product-modal').classList.remove('hidden'); }
+        function openProductModal() {
+            ['prod-name', 'prod-category', 'prod-cost', 'prod-price', 'prod-stock', 'prod-image-url'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('category-options').innerHTML = getCategories().filter(c => c.label !== NO_CATEGORY).map(c => `<option value="${esc(c.label)}">`).join('');
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
         function closeProductModal() { document.getElementById('product-modal').classList.add('hidden'); }
         function calculateSuggestedPrice() {
             const cost = parseFloat(document.getElementById('prod-cost').value) || 0;
@@ -886,8 +996,11 @@ function toggleCartModal(show) {
             const price = parseFloat(document.getElementById('prod-price').value) || 0;
             const image = document.getElementById('prod-image-url').value.trim() || 'https://images.unsplash.com/photo-1599599810694-b5b37242c4fe?w=500';
             const stock = document.getElementById('prod-stock').value;
+            const typedCat = document.getElementById('prod-category').value.trim();
+            const knownCat = getCategories().find(c => c.key === normTxt(typedCat));
+            const category = knownCat ? knownCat.label : (typedCat || NO_CATEGORY);
             if(!name || !price) { alert("Completa nombre y precio."); return; }
-            await db.collection('products').add({ name, cost, price, image, ...(stock !== '' ? { stock: Number(stock) } : {}) });
+            await db.collection('products').add({ name, cost, price, image, category, ...(stock !== '' ? { stock: Number(stock) } : {}) });
             alert("Producto guardado."); closeProductModal(); loadProductsFromFirestore();
         }
     </script>

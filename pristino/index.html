@@ -249,6 +249,10 @@
             <!-- Checkout Form -->
             <div id="checkout-form-container" class="space-y-4 pt-4 border-t border-slate-100">
                 <h4 class="font-bold text-slate-800 text-sm">Datos de Envío y Contacto</h4>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-xs font-semibold text-slate-600 mb-1">Nombre completo</label><input type="text" id="checkout-name" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-pristino-500"></div>
+                    <div><label class="block text-xs font-semibold text-slate-600 mb-1">DNI</label><input type="text" inputmode="numeric" id="checkout-dni" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-pristino-500"></div>
+                </div>
                 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">WhatsApp de Contacto (Obligatorio)</label>
@@ -286,18 +290,30 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Dirección Exacta y Mapa</label>
                     <input type="text" id="checkout-address" placeholder="Calle y número" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-pristino-500 mb-2">
-                    <div id="map-picker" class="w-full h-48 rounded-xl border border-slate-300 z-10"></div>
+                    <button type="button" id="geo-btn" onclick="locateMe()" class="w-full mb-2 bg-pristino-50 hover:bg-pristino-100 text-pristino-700 font-bold py-2 rounded-xl text-sm transition"><i class="fa-solid fa-location-crosshairs mr-1"></i> Usar mi ubicación actual</button>
+                    <div id="map-picker" class="w-full h-56 rounded-xl border border-slate-300 z-10"></div>
+                    <p id="geo-msg" class="text-xs text-slate-500 mt-1">Tocá el mapa o arrastrá el pin hasta tu puerta.</p>
+                    <input type="text" id="checkout-notes" placeholder="Piso/depto, timbre, referencias (opcional)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-pristino-500 mt-2">
                 </div>
 
-                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-xs space-y-1">
-                    <p class="font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Aviso Importante antes de Pagar:</p>
-                    <p>Por favor, al realizar el pago, <strong>guarda y toma captura de pantalla del comprobante</strong>. Lo vas a necesitar subir en el siguiente paso para confirmar tu pedido y obtener tu número de orden y seguimiento.</p>
+                <div class="space-y-2">
+                    <h4 class="font-bold text-slate-800 text-sm">Forma de pago</h4>
+                    <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer has-[:checked]:border-pristino-500 has-[:checked]:bg-pristino-50"><input type="radio" name="pay-method" value="mp" checked onchange="updatePayBtn()" class="mt-1 accent-emerald-600"><span class="text-sm"><b>Mercado Pago</b><br><span class="text-xs text-slate-500">Tarjeta, débito o dinero en cuenta. Se aprueba automáticamente al verificar el pago.</span></span></label>
+                    <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer has-[:checked]:border-pristino-500 has-[:checked]:bg-pristino-50"><input type="radio" name="pay-method" value="transfer" onchange="updatePayBtn()" class="mt-1 accent-emerald-600"><span class="text-sm"><b>Transferencia + comprobante</b><br><span class="text-xs text-slate-500">Subís la captura y el local aprueba tu pedido manualmente.</span></span></label>
                 </div>
-
-                <button onclick="processCheckout()" class="w-full bg-pristino-600 hover:bg-pristino-700 text-white font-bold py-3 rounded-xl shadow transition">
-                    Pagar con Mercado Pago / Confirmar Pedido
-                </button>
+                <button id="checkout-btn" onclick="processCheckout()" class="w-full bg-pristino-600 hover:bg-pristino-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl shadow transition"><i class="fa-solid fa-credit-card mr-1"></i> Pagar con Mercado Pago</button>
             </div>
+        </div>
+    </div>
+
+    <!-- INFO MODAL -->
+    <div id="info-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 text-center">
+            <div id="info-icon" class="text-4xl"></div>
+            <h3 id="info-title" class="text-xl font-black text-slate-900"></h3>
+            <p id="info-text" class="text-sm text-slate-600"></p>
+            <div id="info-actions" class="flex flex-col gap-2"></div>
+            <button onclick="closeInfo()" class="w-full bg-slate-200 text-slate-700 font-bold py-2 rounded-xl text-sm">Cerrar</button>
         </div>
     </div>
 
@@ -317,6 +333,10 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Precio Venta con Envío Incluido ($) [Sugerido +71%]</label>
                     <input type="number" id="prod-price" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Stock (opcional, se descuenta al aprobar)</label>
+                    <input type="number" id="prod-stock" min="0" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Imagen (URL ImgBB)</label>
@@ -361,6 +381,138 @@
         const ADMIN_EMAIL = "cepedademian2005@gmail.com";
         const ADMIN_WHATSAPP = "5491121722028";
 
+        // ===== Mercado Pago / helpers (fusión Agor) =====
+        // ⚠ El token en el frontend es visible para cualquiera. Ideal: apuntar MP_API_BASE a tu propia Cloud Function.
+        const MP_API_BASE = "https://api.mercadopago.com";
+        const MP_USE_CORS_PROXY = false; // true = reenvía por corsproxy.io (el token pasa por un tercero)
+        const STORE_NAME = "PRISTINO";
+        const APPROVED = 'Aprobado - En camino (72hs)';
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const isPaid = s => /^(Aprobado|Entregado)/.test(s || '');
+        const isAdmin = () => currentUser && currentUser.email === ADMIN_EMAIL;
+        const fmtNum = (n, id) => n ? '#' + String(n).padStart(4, '0') : '#' + String(id || '').slice(0, 6).toUpperCase();
+        const statusClass = s => isPaid(s) ? 'bg-emerald-100 text-emerald-800' : s === 'Rechazado' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800';
+        const INIT_LAT = -38.0055, INIT_LNG = -57.5426; // centro por defecto del mapa
+        const hasPin = () => selectedLat !== INIT_LAT || selectedLng !== INIT_LNG;
+        let MP_RETURN = (() => {
+            const q = new URLSearchParams(location.search), ext = q.get('external_reference');
+            if (!ext) return null;
+            const r = { orderId: ext, status: q.get('collection_status') || q.get('status'), paymentId: q.get('payment_id') || q.get('collection_id') };
+            history.replaceState({}, '', location.pathname);
+            return r;
+        })();
+
+        async function mpApi(method, path, body) {
+            const url = MP_API_BASE + path;
+            const go = u => fetch(u, { method, headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + MERCADO_PAGO_TOKEN }, body: body ? JSON.stringify(body) : undefined });
+            let r;
+            try { r = await go(url); }
+            catch (e) {
+                if (!MP_USE_CORS_PROXY) throw new Error('El navegador bloqueó la conexión con Mercado Pago (CORS). Configurá MP_API_BASE con tu backend.');
+                r = await go('https://corsproxy.io/?url=' + encodeURIComponent(url));
+            }
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(d.message || ('Mercado Pago respondió ' + r.status));
+            return d;
+        }
+
+        async function nextNumber() {
+            try {
+                let n = 0;
+                await db.runTransaction(async t => {
+                    const ref = db.collection('counters').doc('orders'), s = await t.get(ref);
+                    n = (s.exists ? (s.data().seq || 0) : 0) + 1;
+                    t.set(ref, { seq: n }, { merge: true });
+                });
+                return n;
+            } catch (e) { return Math.floor(Date.now() / 1000) % 1000000; }
+        }
+
+        async function descontarStock(items) {
+            for (const it of (items || [])) {
+                try {
+                    await db.runTransaction(async t => {
+                        const ref = db.collection('products').doc(it.id), s = await t.get(ref);
+                        if (s.exists && typeof s.data().stock === 'number') t.update(ref, { stock: Math.max(0, s.data().stock - it.qty) });
+                    });
+                } catch (e) {}
+            }
+        }
+
+        async function confirmPayment(id, o, extra = {}) {
+            const ref = db.collection('orders').doc(id);
+            await ref.update({ status: APPROVED, paidAt: firebase.firestore.FieldValue.serverTimestamp(), ...extra });
+            if (!o.stockDescontado) { await descontarStock(o.items); await ref.update({ stockDescontado: true }); }
+        }
+
+        function waOrderText(o, id) {
+            const items = (o.items || []).map(i => `${i.name} x${i.qty}`).join(', ');
+            const c = o.coordinates ? `\nUbicación: https://www.google.com/maps?q=${o.coordinates.lat},${o.coordinates.lng}` : '';
+            return `Hola ${STORE_NAME}! Pedido ${fmtNum(o.number, id)} por $${Number(o.total).toLocaleString()} (${o.paymentMethod === 'mp' ? 'Mercado Pago' : 'Transferencia'}).\n${items}\nEnvío: ${o.location} - ${o.address}${o.notes ? ' (' + o.notes + ')' : ''}${c}`;
+        }
+        const waAdmin = (o, id) => `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(waOrderText(o, id))}`;
+        function waClient(num, text) {
+            let d = String(num || '').replace(/\D/g, '').replace(/^0/, '');
+            if (!d.startsWith('54')) d = '549' + d.replace(/^15/, '');
+            return `https://wa.me/${d}?text=${encodeURIComponent(text)}`;
+        }
+
+        function showInfo({ icon, title, text, actions = '' }) {
+            document.getElementById('info-icon').innerHTML = icon || '';
+            document.getElementById('info-title').innerText = title;
+            document.getElementById('info-text').innerText = text || '';
+            document.getElementById('info-actions').innerHTML = actions;
+            document.getElementById('info-modal').classList.remove('hidden');
+        }
+        function closeInfo() { document.getElementById('info-modal').classList.add('hidden'); }
+        const actBtn = (cls, label, attrs) => `<a ${attrs} class="text-sm font-bold text-white ${cls} px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer">${label}</a>`;
+        const WA_BTN = '<i class="fa-brands fa-whatsapp"></i> Avisar al local por WhatsApp';
+
+        // ===== Ubicación del cliente =====
+        function setPin(lat, lng) {
+            selectedLat = lat; selectedLng = lng;
+            if (map && marker) { marker.setLatLng([lat, lng]); map.setView([lat, lng], 16); }
+        }
+        const normTxt = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        function applyGeocode(a) {
+            const road = a.road || a.pedestrian || a.footway || '';
+            if (road) document.getElementById('checkout-address').value = `${road} ${a.house_number || ''}`.trim();
+            const cands = [a.city, a.town, a.village, a.suburb, a.neighbourhood, a.city_district, a.municipality, a.county].map(normTxt).filter(Boolean);
+            const sel = document.getElementById('checkout-location'), msg = document.getElementById('geo-msg');
+            const opt = [...sel.options].find(o => o.value && cands.some(c => c === normTxt(o.value) || c.includes(normTxt(o.value))));
+            if (opt) { sel.value = opt.value; msg.className = 'text-xs text-emerald-600 mt-1'; msg.innerText = '✔ Ubicación detectada: ' + opt.value + '. Ajustá el pin si hace falta.'; }
+            else { msg.className = 'text-xs text-amber-600 mt-1'; msg.innerText = 'Detectamos tu ubicación, pero no coincide con nuestras zonas de envío. Elegí tu localidad manualmente.'; }
+        }
+        function locateMe() {
+            const btn = document.getElementById('geo-btn'), label = btn.innerHTML;
+            if (!navigator.geolocation) return alert('Tu navegador no permite geolocalización. Marcá el punto en el mapa.');
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Buscando ubicación...';
+            navigator.geolocation.getCurrentPosition(async pos => {
+                setPin(pos.coords.latitude, pos.coords.longitude);
+                try {
+                    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=es&lat=${selectedLat}&lon=${selectedLng}`);
+                    applyGeocode((await r.json()).address || {});
+                } catch (e) {}
+                btn.disabled = false; btn.innerHTML = label;
+            }, () => { alert('No pudimos obtener tu ubicación. Revisá los permisos o marcala en el mapa.'); btn.disabled = false; btn.innerHTML = label; },
+            { enableHighAccuracy: true, timeout: 15000 });
+        }
+
+        function updatePayBtn() {
+            const m = document.querySelector('input[name="pay-method"]:checked').value;
+            document.getElementById('checkout-btn').innerHTML = m === 'mp' ? '<i class="fa-solid fa-credit-card mr-1"></i> Pagar con Mercado Pago' : '<i class="fa-solid fa-receipt mr-1"></i> Confirmar y subir comprobante';
+        }
+        function prefillCheckout() {
+            let p = {}; try { p = JSON.parse(localStorage.getItem('pristino_checkout') || '{}'); } catch (e) {}
+            const set = (id, v) => { const el = document.getElementById(id); if (el && !el.value && v) el.value = v; };
+            set('checkout-name', p.name || (currentUser && currentUser.displayName)); set('checkout-dni', p.dni);
+            set('checkout-whatsapp', p.whatsapp); set('checkout-location', p.locality); set('checkout-address', p.address); set('checkout-notes', p.notes);
+            updatePayBtn();
+        }
+        const _toggleCart = toggleCartModal;
+        toggleCartModal = function (show) { _toggleCart(show); if (show) prefillCheckout(); };
+
+
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -376,6 +528,7 @@
                 currentUser = user;
                 updateAuthUI();
                 loadProductsFromFirestore();
+                if (user && MP_RETURN) { const r = MP_RETURN; MP_RETURN = null; handleMpReturn(r).catch(e => alert('No se pudo verificar el pago: ' + e.message)); }
             });
             renderCatalog();
             initMap();
@@ -507,6 +660,7 @@
         function addToCart(id) {
             const prod = products.find(p => p.id === id);
             const existing = cart.find(item => item.id === id);
+            if (prod && typeof prod.stock === 'number' && (existing ? existing.qty : 0) + 1 > prod.stock) { alert(prod.stock > 0 ? 'Solo quedan ' + prod.stock + ' unidades.' : 'Producto sin stock.'); return; }
             if(existing) existing.qty++;
             else cart.push({ ...prod, qty: 1 });
             updateCartBadge();
@@ -563,28 +717,91 @@ function toggleCartModal(show) {
         function removeFromCart(index) { cart.splice(index, 1); renderCartItems(); updateCartBadge(); }
 
         async function processCheckout() {
-            if(!currentUser) { alert("Inicia sesión con Google."); loginWithGoogle(); return; }
-            if(cart.length === 0) { alert("Carrito vacío."); return; }
-            const whatsapp = document.getElementById('checkout-whatsapp').value.trim();
-            const location = document.getElementById('checkout-location').value;
-            const address = document.getElementById('checkout-address').value.trim();
-
-            if(!whatsapp || !location || !address) { alert("Completa tu WhatsApp, localidad y dirección."); return; }
-
-            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-            const orderData = {
-                userId: currentUser.uid, userEmail: currentUser.email, userName: currentUser.displayName,
-                whatsapp, location, address, coordinates: { lat: selectedLat, lng: selectedLng },
-                items: cart, total, status: 'Pendiente de Comprobante', receiptUrl: '',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
+            if (!currentUser) { alert("Iniciá sesión con Google."); loginWithGoogle(); return; }
+            if (cart.length === 0) { alert("Carrito vacío."); return; }
+            const v = id => document.getElementById(id).value.trim();
+            const name = v('checkout-name'), dni = v('checkout-dni').replace(/\D/g, ''), whatsapp = v('checkout-whatsapp');
+            const locality = v('checkout-location'), address = v('checkout-address'), notes = v('checkout-notes');
+            const method = document.querySelector('input[name="pay-method"]:checked').value;
+            if (!name || dni.length < 7 || !whatsapp || !locality || !address) { alert("Completá nombre, DNI válido, WhatsApp, localidad y dirección."); return; }
+            if (!hasPin()) { alert("Marcá tu ubicación en el mapa o tocá 'Usar mi ubicación actual'."); return; }
+            try { localStorage.setItem('pristino_checkout', JSON.stringify({ name, dni, whatsapp, locality, address, notes })); } catch (e) {}
+            const btn = document.getElementById('checkout-btn'); btn.disabled = true;
+            const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+            let id = null, order = null;
             try {
-                const docRef = await db.collection('orders').add(orderData);
-                alert("¡Pedido registrado! ID: " + docRef.id + "\n\nSube ahora tu comprobante de pago.");
+                const number = await nextNumber();
+                order = {
+                    number, userId: currentUser.uid, userEmail: currentUser.email, userName: name, dni, whatsapp,
+                    location: locality, address, notes, coordinates: { lat: selectedLat, lng: selectedLng },
+                    items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })), total,
+                    paymentMethod: method, status: method === 'mp' ? 'Pendiente de Pago' : 'Pendiente de Comprobante', receiptUrl: '',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                id = (await db.collection('orders').add(order)).id;
                 cart = []; updateCartBadge(); toggleCartModal(false);
-                openReceiptModal(docRef.id);
-            } catch(e) { alert("Error: " + e.message); }
+                if (method === 'mp') { await payWithMP(id, order); return; }
+                showInfo({ icon: '🧾', title: 'Pedido ' + fmtNum(number, id) + ' registrado', text: 'Ahora subí el comprobante de pago para que lo aprobemos.',
+                    actions: actBtn('bg-amber-600', 'Subir comprobante', `onclick="closeInfo();openReceiptModal('${id}')"`) + actBtn('bg-emerald-600', WA_BTN, `href="${waAdmin(order, id)}" target="_blank"`) });
+            } catch (e) {
+                alert("Error: " + e.message);
+                if (id) { switchTab('orders'); }
+            } finally { btn.disabled = false; }
+        }
+
+        async function payWithMP(id, o) {
+            const base = window.location.origin + window.location.pathname;
+            const payload = {
+                items: o.items.map(i => ({ title: i.name, quantity: i.qty, unit_price: Number(i.price), currency_id: 'ARS' })),
+                payer: { name: o.userName, email: o.userEmail, identification: { type: 'DNI', number: o.dni } },
+                external_reference: id, statement_descriptor: STORE_NAME.slice(0, 14),
+                back_urls: { success: base, pending: base, failure: base }, auto_return: 'approved'
+            };
+            let pref;
+            try { pref = await mpApi('POST', '/checkout/preferences', payload); }
+            catch (e) { delete payload.auto_return; pref = await mpApi('POST', '/checkout/preferences', payload); } // http local no admite auto_return
+            const url = pref.init_point || pref.sandbox_init_point;
+            if (!url) throw new Error('Mercado Pago no devolvió un link de pago. Podés reintentar desde Mis Pedidos.');
+            window.location.href = url;
+        }
+
+        async function retryMP(id) {
+            try {
+                const o = (await db.collection('orders').doc(id).get()).data();
+                if (!o || o.userId !== currentUser.uid || isPaid(o.status)) return;
+                await payWithMP(id, o);
+            } catch (e) { alert(e.message); }
+        }
+
+        // Aprobación: NUNCA se confía en los parámetros de la URL; se consulta el pago real a Mercado Pago.
+        async function handleMpReturn(r) {
+            const ref = db.collection('orders').doc(r.orderId), snap = await ref.get();
+            if (!snap.exists) return;
+            const o = snap.data(); switchTab('orders');
+            if (o.userId !== currentUser.uid || isPaid(o.status)) return;
+            const st = r.status;
+            if (st === 'approved' && r.paymentId) {
+                let ok = false;
+                try {
+                    const p = await mpApi('GET', '/v1/payments/' + encodeURIComponent(r.paymentId));
+                    ok = p.status === 'approved' && p.external_reference === r.orderId && Number(p.transaction_amount) >= Number(o.total);
+                } catch (e) {}
+                if (ok) {
+                    await confirmPayment(r.orderId, o, { paymentMethod: 'mp', mpPaymentId: String(r.paymentId), mpVerified: true });
+                    showInfo({ icon: '✅', title: '¡Pago confirmado!', text: 'Tu pedido ' + fmtNum(o.number, r.orderId) + ' está en camino (72hs).',
+                        actions: actBtn('bg-emerald-600', WA_BTN, `href="${waAdmin(o, r.orderId)}" target="_blank"`) });
+                } else {
+                    await ref.update({ status: 'Pendiente de Aprobación Manual', mpPaymentId: String(r.paymentId), mpVerified: false });
+                    showInfo({ icon: '🔎', title: 'Estamos verificando tu pago', text: 'No pudimos validarlo automáticamente. El local lo revisará y aprobará el pedido ' + fmtNum(o.number, r.orderId) + '.',
+                        actions: actBtn('bg-emerald-600', WA_BTN, `href="${waAdmin(o, r.orderId)}" target="_blank"`) });
+                }
+            } else if (['pending', 'in_process', 'authorized'].includes(st)) {
+                if (r.paymentId) await ref.update({ mpPaymentId: String(r.paymentId) });
+                showInfo({ icon: '⏳', title: 'Pago pendiente', text: 'Tu pedido ' + fmtNum(o.number, r.orderId) + ' queda a la espera de la acreditación.' });
+            } else {
+                if (o.status === 'Pendiente de Pago') await ref.update({ status: 'Rechazado' });
+                showInfo({ icon: '❌', title: 'El pago no se completó', text: 'Podés reintentarlo desde Mis Pedidos.' });
+            }
         }
 
         function openReceiptModal(orderId) {
@@ -610,67 +827,50 @@ function toggleCartModal(show) {
             } catch(e) { alert("Error: " + e.message); }
         }
 
-        async function loadUserOrders() {
-            if(!currentUser) return;
-            const container = document.getElementById('user-orders-list');
-            container.innerHTML = '<p class="text-center text-slate-500 py-4">Cargando...</p>';
-            try {
-                const snapshot = await db.collection('orders').where('userId', '==', currentUser.uid).get();
-                if(snapshot.empty) { container.innerHTML = '<p class="text-center text-slate-500 py-4">Sin pedidos.</p>'; return; }
-                let html = '';
-                snapshot.forEach(doc => {
-                    const o = doc.data(), orderId = doc.id;
-                    const waText = encodeURIComponent(`Hola! Quiero consultar sobre mi pedido #${orderId} (${o.location} - ${o.address}).`);
-                    html += `
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-                            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                                <div><span class="text-xs font-bold text-pristino-600 bg-pristino-50 px-2.5 py-1 rounded-lg">Orden #${orderId.substring(0,8)}</span><h4 class="font-bold text-slate-900 mt-1">Total: $${o.total.toLocaleString()}</h4></div>
-                                <span class="px-3 py-1 rounded-full text-xs font-bold ${o.status.includes('Aprobado') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${o.status}</span>
-                            </div>
-                            <p class="text-sm text-slate-600"><strong>Destino:</strong> ${o.location} - ${o.address} | <strong>WhatsApp:</strong> ${o.whatsapp}</p>
-                            <div class="flex gap-3">
-                                ${o.receiptUrl ? `<a href="${o.receiptUrl}" target="_blank" class="text-xs font-bold text-pristino-700 bg-pristino-50 px-3 py-2 rounded-xl">Ver Comprobante</a>` : `<button onclick="openReceiptModal('${orderId}')" class="text-xs font-bold text-white bg-amber-600 px-3 py-2 rounded-xl">Subir Comprobante</button>`}
-                                <a href="https://wa.me/${ADMIN_WHATSAPP}?text=${waText}" target="_blank" class="text-xs font-bold text-white bg-emerald-600 px-3 py-2 rounded-xl flex items-center space-x-1.5"><i class="fa-brands fa-whatsapp text-sm"></i><span>WhatsApp</span></a>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            } catch(e) {}
+        function orderCard(id, o, admin) {
+            const items = (o.items || []).map(i => `${esc(i.name)} x${i.qty}`).join(', ');
+            const paid = isPaid(o.status), done = o.status === 'Entregado';
+            const maps = o.coordinates ? `<a href="https://www.google.com/maps?q=${o.coordinates.lat},${o.coordinates.lng}" target="_blank" class="text-pristino-700 font-bold underline">Ver en mapa</a>` : '';
+            const btn = (cls, txt, fn) => `<button onclick="${fn}" class="text-xs font-bold text-white ${cls} px-3 py-2 rounded-xl">${txt}</button>`;
+            let acts = o.receiptUrl ? `<a href="${esc(o.receiptUrl)}" target="_blank" class="text-xs font-bold text-pristino-700 bg-pristino-50 px-3 py-2 rounded-xl">Ver Comprobante</a>` : '';
+            if (admin) {
+                if (!paid) acts += btn('bg-emerald-600', 'Aprobar y Enviar', `adminSetStatus('${id}','approve')`) + btn('bg-red-600', 'Rechazar', `adminSetStatus('${id}','reject')`);
+                if (paid && !done) acts += btn('bg-blue-600', 'Entregado', `adminSetStatus('${id}','deliver')`);
+                acts += `<a href="${waClient(o.whatsapp, 'Hola ' + o.userName + '! Te escribimos por tu pedido ' + fmtNum(o.number, id) + ' de ' + STORE_NAME + '.')}" target="_blank" class="text-xs font-bold text-white bg-emerald-600 px-3 py-2 rounded-xl"><i class="fa-brands fa-whatsapp"></i> Cliente</a>`;
+            } else {
+                if (o.paymentMethod === 'mp' && !paid) acts += btn('bg-sky-600', 'Pagar con Mercado Pago', `retryMP('${id}')`);
+                if (o.paymentMethod !== 'mp' && !paid && !o.receiptUrl) acts += btn('bg-amber-600', 'Subir Comprobante', `openReceiptModal('${id}')`);
+                acts += `<a href="${waAdmin(o, id)}" target="_blank" class="text-xs font-bold text-white bg-emerald-600 px-3 py-2 rounded-xl flex items-center space-x-1.5"><i class="fa-brands fa-whatsapp text-sm"></i><span>WhatsApp</span></a>`;
+            }
+            return `<div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                    <div><span class="text-xs font-bold text-pristino-600 bg-pristino-50 px-2.5 py-1 rounded-lg">Orden ${fmtNum(o.number, id)}</span>${admin ? `<span class="text-xs text-slate-500 ml-2">${esc(o.userName)} · DNI ${esc(o.dni || '-')}</span>` : ''}<h4 class="font-bold text-slate-900 mt-1">Total: $${Number(o.total).toLocaleString()}</h4></div>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold ${statusClass(o.status)}">${esc(o.status)}</span>
+                </div>
+                <p class="text-sm text-slate-600">${items}</p>
+                <p class="text-sm text-slate-600"><strong>Destino:</strong> ${esc(o.location)} - ${esc(o.address)}${o.notes ? ' (' + esc(o.notes) + ')' : ''} ${maps} | <strong>WhatsApp:</strong> ${esc(o.whatsapp)} | <strong>Pago:</strong> ${o.paymentMethod === 'mp' ? 'Mercado Pago' + (o.mpVerified ? ' ✔' : '') : 'Transferencia'}</p>
+                <div class="flex flex-wrap gap-2 items-center">${acts}</div></div>`;
         }
 
-        async function loadAdminOrders() {
-            if(!currentUser || currentUser.email !== ADMIN_EMAIL) return;
-            const container = document.getElementById('admin-orders-list');
-            container.innerHTML = '<p class="text-center text-slate-500 py-4">Cargando...</p>';
+        async function renderOrders(containerId, query, admin) {
+            const c = document.getElementById(containerId);
+            c.innerHTML = '<p class="text-center text-slate-500 py-4">Cargando...</p>';
             try {
-                const snapshot = await db.collection('orders').orderBy('createdAt', 'desc').get();
-                if(snapshot.empty) { container.innerHTML = '<p class="text-center text-slate-500 py-4">Sin pedidos.</p>'; return; }
-                let html = '';
-                snapshot.forEach(doc => {
-                    const o = doc.data(), orderId = doc.id;
-                    html += `
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-                            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                                <div><span class="text-xs text-slate-500">Cliente: ${o.userName}</span><h4 class="font-bold">Orden #${orderId} - $${o.total.toLocaleString()}</h4></div>
-                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100">${o.status}</span>
-                            </div>
-                            <p class="text-sm text-slate-600"><strong>Destino:</strong> ${o.location} - ${o.address} | <strong>WApp:</strong> ${o.whatsapp}</p>
-                            <div class="flex gap-3 items-center">
-                                ${o.receiptUrl ? `<a href="${o.receiptUrl}" target="_blank" class="text-xs font-bold text-pristino-700 bg-pristino-50 px-3 py-2 rounded-xl">Ver Comprobante</a>` : '<span class="text-xs text-red-500">Sin comprobante</span>'}
-                                <button onclick="updateOrderStatus('${orderId}', 'Aprobado - En camino (72hs)')" class="text-xs font-bold text-white bg-emerald-600 px-3 py-2 rounded-xl">Aprobar y Enviar</button>
-                                <button onclick="updateOrderStatus('${orderId}', 'Entregado')" class="text-xs font-bold text-white bg-blue-600 px-3 py-2 rounded-xl">Entregado</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            } catch(e) {}
+                const snap = await query.get();
+                if (snap.empty) { c.innerHTML = '<p class="text-center text-slate-500 py-4">Sin pedidos.</p>'; return; }
+                const docs = snap.docs.sort((a, b) => ((b.data().createdAt || {}).seconds || 9e9) - ((a.data().createdAt || {}).seconds || 9e9));
+                c.innerHTML = docs.map(d => orderCard(d.id, d.data(), admin)).join('');
+            } catch (e) { c.innerHTML = '<p class="text-center text-red-500 py-4">No se pudieron cargar los pedidos.</p>'; }
         }
+        function loadUserOrders() { if (currentUser) renderOrders('user-orders-list', db.collection('orders').where('userId', '==', currentUser.uid), false); }
+        function loadAdminOrders() { if (isAdmin()) renderOrders('admin-orders-list', db.collection('orders'), true); }
 
-        async function updateOrderStatus(orderId, status) {
-            await db.collection('orders').doc(orderId).update({ status });
-            alert("Actualizado."); loadAdminOrders();
+        async function adminSetStatus(id, action) {
+            if (!isAdmin()) return;
+            const ref = db.collection('orders').doc(id), o = (await ref.get()).data();
+            if (action === 'approve') await confirmPayment(id, o, { approvedManual: true, approvedBy: currentUser.email });
+            else await ref.update({ status: action === 'deliver' ? 'Entregado' : 'Rechazado' });
+            loadAdminOrders();
         }
 
         function openProductModal() { document.getElementById('product-modal').classList.remove('hidden'); }
@@ -685,8 +885,9 @@ function toggleCartModal(show) {
             const cost = parseFloat(document.getElementById('prod-cost').value) || 0;
             const price = parseFloat(document.getElementById('prod-price').value) || 0;
             const image = document.getElementById('prod-image-url').value.trim() || 'https://images.unsplash.com/photo-1599599810694-b5b37242c4fe?w=500';
+            const stock = document.getElementById('prod-stock').value;
             if(!name || !price) { alert("Completa nombre y precio."); return; }
-            await db.collection('products').add({ name, cost, price, image });
+            await db.collection('products').add({ name, cost, price, image, ...(stock !== '' ? { stock: Number(stock) } : {}) });
             alert("Producto guardado."); closeProductModal(); loadProductsFromFirestore();
         }
     </script>

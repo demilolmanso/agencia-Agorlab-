@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sorteo Dulce — Nana's Pastelería Casera</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Fraunces', 'serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            cream: '#FDF8F2',
+            latte: '#F5EBE0',
+            choco: '#3E2723',
+            caramel: '#C87D4B',
+            cookie: '#E3B27D',
+            mint: '#2E7D32'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #FDF8F2;
+      color: #3E2723;
+      background-image: radial-gradient(#E3B27D33 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .cookie-card {
+      box-shadow: 0 12px 32px -8px rgba(62, 39, 35, 0.12);
+    }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- Banner Superior -->
+  <div class="bg-choco text-cream text-center text-xs sm:text-sm py-2 px-4 font-medium tracking-wide">
+    🍪 Edición limitada • ¡Solo 30 números disponibles!
+  </div>
+
+  <!-- Contenido Principal -->
+  <main class="max-w-xl mx-auto w-full px-4 py-8 sm:py-12">
+    
+    <!-- Encabezado / Marca -->
+    <header class="text-center mb-8">
+      <span class="inline-block bg-latte border border-cookie/50 text-choco text-xs font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full mb-3">
+        Nana's Pastelería Casera
+      </span>
+      <h1 class="font-display text-4xl sm:text-5xl font-extrabold text-choco leading-tight mb-3">
+        ¡Mini Sorteo de Cookies!
+      </h1>
+      <p class="text-choco/80 text-base sm:text-lg max-w-md mx-auto">
+        Participá por <strong class="text-choco font-bold">media docena de cookies grandes caseras</strong> con chispas de chocolate, recién horneadas y bien cargadas.
+      </p>
+    </header>
+
+    <!-- Tarjeta del Premio y Datos Clave -->
+    <section class="bg-white rounded-3xl p-6 sm:p-7 cookie-card border border-cookie/30 mb-8">
+      <div class="flex items-center gap-4 mb-5 pb-5 border-b border-latte">
+        <button id="cookie-secret-trigger" type="button" aria-label="Icono de cookie"
+          class="w-16 h-16 rounded-2xl bg-latte flex items-center justify-center text-4xl shrink-0 select-none active:scale-95 transition-transform cursor-pointer focus:outline-none">
+          🍪
+        </button>
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-caramel">El Premio</span>
+          <h2 class="font-display text-xl sm:text-2xl font-bold text-choco">6 Cookies XL con Chispas</h2>
+          <p class="text-sm text-choco/70">100% artesanales por Nana's Pastelería Casera</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div class="bg-cream rounded-2xl p-3 border border-latte">
+          <span class="block text-xs text-choco/60 font-medium">Valor número</span>
+          <span class="font-display text-lg sm:text-xl font-bold text-choco">$2.000</span>
+        </div>
+        <div class="bg-cream rounded-2xl p-3 border border-latte">
+          <span class="block text-xs text-choco/60 font-medium">Números</span>
+          <span class="font-display text-lg sm:text-xl font-bold text-choco">01 al 30</span>
+        </div>
+        <div class="bg-cream rounded-2xl p-3 border border-latte">
+          <span class="block text-xs text-choco/60 font-medium">Disponibles</span>
+          <span id="available-count" class="font-display text-lg sm:text-xl font-bold text-mint">30</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Selector de Números -->
+    <section class="bg-white rounded-3xl p-6 sm:p-7 cookie-card border border-cookie/30 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div>
+          <h3 class="font-display text-xl font-bold text-choco">Elegí tus números</h3>
+          <p class="text-xs sm:text-sm text-choco/70">Tocá los disponibles y mandá el comprobante por WhatsApp</p>
+        </div>
+        <div class="flex items-center gap-3 text-xs font-medium">
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-cream border border-choco/30 inline-block"></span> Libre</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-caramel inline-block"></span> Tuyo</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-gray-200 inline-block"></span> Ocupado</span>
+        </div>
+      </div>
+
+      <p id="sync-status" class="text-[11px] text-choco/60 mb-2">Sincronizando estado de números...</p>
+
+      <!-- Grilla 01 al 30 -->
+      <div id="numbers-grid" class="grid grid-cols-5 sm:grid-cols-6 gap-2.5 my-4">
+        <!-- Se genera con JS -->
+      </div>
+
+      <!-- Datos de Transferencia -->
+      <div class="bg-cream rounded-2xl p-4 border border-cookie/40 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <span class="block text-[11px] font-bold uppercase tracking-wider text-caramel">Alias para transferir</span>
+          <p class="font-bold text-base text-choco select-all">nadine.aguirre.mp</p>
+          <p class="text-xs text-choco/75">A nombre de <strong>Nadine Aguirre</strong></p>
+        </div>
+        <button id="copy-alias-btn" type="button"
+          class="px-4 py-2 rounded-xl bg-latte hover:bg-cookie/40 text-choco text-xs font-bold transition-colors cursor-pointer shrink-0">
+          Copiar alias
+        </button>
+      </div>
+
+      <!-- Barra de acción -->
+      <div id="selection-bar" class="bg-latte/70 rounded-2xl p-4 space-y-3 transition-all">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+          <p id="selected-text" class="text-sm font-semibold text-choco">Ningún número seleccionado</p>
+          <p id="total-price" class="text-xs font-bold text-choco/80">Seleccioná uno o más números arriba</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <button id="wa-demi-btn" type="button" disabled
+            class="w-full px-4 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-choco/15 text-choco/40 cursor-not-allowed">
+            <span>Enviar a Demi (1121722028)</span>
+          </button>
+          <button id="wa-nani-btn" type="button" disabled
+            class="w-full px-4 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-choco/15 text-choco/40 cursor-not-allowed">
+            <span>Enviar a Nani (2234498719)</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Condiciones claras -->
+    <section class="bg-latte/60 rounded-2xl p-5 text-xs sm:text-sm text-choco/80 space-y-2 border border-cookie/20">
+      <h4 class="font-bold text-choco uppercase tracking-wider text-xs">📌 ¿Cómo funciona y cómo reservar?</h4>
+      <ul class="list-disc pl-5 space-y-1.5">
+        <li>Elegí tus números ($2.000 c/u) y transferí al alias <strong class="text-choco">nadine.aguirre.mp</strong> (a nombre de <strong>Nadine Aguirre</strong>).</li>
+        <li><strong>Mandá el comprobante por WhatsApp</strong> a <strong class="text-choco">1121722028 (Demi)</strong> o <strong class="text-choco">2234498719 (Nani)</strong> para que se te reserve y confirme el número.</li>
+        <li><strong>Comprobante enviado = número asegurado.</strong></li>
+        <li>Se sortea ni bien se completen los 30 números y las cookies se hornean frescas para el ganador o ganadora.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center py-6 px-4 text-xs text-choco/60 border-t border-latte">
+    <p class="font-semibold text-choco/80">Nana's Pastelería Casera 🤎</p>
+    <p class="mt-1">Hecho con amor</p>
+  </footer>
+
+  <!-- Modal Secreto: Login + Panel Admin -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-cookie/40">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="modal-title" class="font-display text-lg font-bold text-choco">Acceso Administrador</h3>
+        <button id="close-admin" type="button" class="text-choco/60 hover:text-choco text-2xl leading-none font-bold">&times;</button>
+      </div>
+
+      <!-- Vista Login -->
+      <form id="login-view" class="space-y-4">
+        <p id="login-hint" class="text-xs text-choco/75 bg-latte/70 p-3 rounded-xl">
+          Ingresá con el correo autorizado y definí tu contraseña la primera vez.
+        </p>
+
+        <div>
+          <label for="admin-email" class="block text-xs font-bold text-choco mb-1">Correo electrónico</label>
+          <input id="admin-email" type="email" required autocomplete="username"
+            placeholder="cepedademian2005@gmail.com"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-cookie/50 bg-cream text-sm text-choco focus:outline-none focus:ring-2 focus:ring-caramel" />
+        </div>
+
+        <div>
+          <label id="password-label" for="admin-password" class="block text-xs font-bold text-choco mb-1">Contraseña</label>
+          <input id="admin-password" type="password" required autocomplete="current-password"
+            placeholder="Escribí tu contraseña"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-cookie/50 bg-cream text-sm text-choco focus:outline-none focus:ring-2 focus:ring-caramel" />
+        </div>
+
+        <p id="login-error" class="text-xs text-red-600 font-semibold hidden"></p>
+
+        <button id="login-submit" type="submit"
+          class="w-full py-3 bg-choco text-cream rounded-xl text-sm font-bold hover:bg-choco/90 transition-colors cursor-pointer">
+          Entrar al panel
+        </button>
+      </form>
+
+      <!-- Vista Panel de Números -->
+      <div id="panel-view" class="hidden space-y-4">
+        <div class="flex items-center justify-between text-xs bg-latte/70 px-3.5 py-2.5 rounded-xl">
+          <span class="text-choco/80 truncate">Sesión: <strong class="text-choco">cepedademian2005@gmail.com</strong></span>
+          <button id="logout-btn" type="button" class="text-caramel font-bold hover:underline ml-2 shrink-0 cursor-pointer">
+            Cerrar sesión
+          </button>
+        </div>
+
+        <p class="text-xs text-choco/70">
+          Tocá cualquier número para marcarlo como <strong>vendido</strong> (rojo) o liberarlo. Los cambios se guardan y actualizan para todos.
+        </p>
+
+        <div id="admin-grid" class="grid grid-cols-6 gap-2"></div>
+
+        <div class="flex gap-2 pt-1">
+          <button id="clear-all-btn" type="button"
+            class="flex-1 py-2.5 px-3 rounded-xl border border-red-200 text-red-700 text-xs font-bold hover:bg-red-50 transition-colors cursor-pointer">
+            Liberar todos
+          </button>
+          <button id="save-done-btn" type="button"
+            class="flex-1 py-2.5 px-3 rounded-xl bg-mint text-white text-xs font-bold hover:bg-mint/90 transition-colors cursor-pointer">
+            Listo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    // ==========================================
+    // CONFIGURACIÓN RÁPIDA
+    // ==========================================
+    const WHATSAPP_DEMI = "5491121722028"; // 1121722028 (Demi)
+    const WHATSAPP_NANI = "5492234498719"; // 2234498719 (Nani)
+    const ALIAS_TRANSFERENCIA = "nadine.aguirre.mp";
+    const TITULAR_TRANSFERENCIA = "Nadine Aguirre";
+    const PRECIO_NUMERO = 2000;
+    const TOTAL_NUMEROS = 30;
+    const ADMIN_EMAIL = "cepedademian2005@gmail.com";
+    const SECRET_TAPS_REQUIRED = 13;
+    const TAP_TIMEOUT_MS = 2500;
+
+    // Completá acá los datos de tu proyecto de Firebase Realtime Database
+    const FIREBASE_CONFIG = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_PROYECTO.firebaseapp.com",
+      databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
+      projectId: "TU_PROYECTO",
+      storageBucket: "TU_PROYECTO.appspot.com",
+      messagingSenderId: "TU_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
+
+    const STORAGE_SOLD_KEY = "nanas_sorteo_vendidos_v1";
+    const STORAGE_AUTH_HASH_KEY = "nanas_sorteo_admin_hash_v1";
+    const STORAGE_SESSION_KEY = "nanas_sorteo_admin_auth_v1";
+
+    const firebaseConfigured = Boolean(
+      FIREBASE_CONFIG.apiKey &&
+      !FIREBASE_CONFIG.apiKey.startsWith("TU_") &&
+      FIREBASE_CONFIG.databaseURL &&
+      !FIREBASE_CONFIG.databaseURL.startsWith("https://TU_")
+    );
+
+    let db = null;
+    let soldRef = null;
+    let authRef = null;
+
+    if (firebaseConfigured) {
+      const app = initializeApp(FIREBASE_CONFIG);
+      db = getDatabase(app);
+      soldRef = ref(db, "sorteoCookies/vendidos");
+      authRef = ref(db, "sorteoCookies/adminAuth");
+    }
+
+    // ==========================================
+    // ESTADO GLOBAL
+    // ==========================================
+    let vendidos = JSON.parse(localStorage.getItem(STORAGE_SOLD_KEY) || "[]");
+    let seleccionados = [];
+    let storedPasswordHash = localStorage.getItem(STORAGE_AUTH_HASH_KEY) || null;
+    let isAuthenticated = sessionStorage.getItem(STORAGE_SESSION_KEY) === "1";
+
+    const gridEl = document.getElementById("numbers-grid");
+    const availableCountEl = document.getElementById("available-count");
+    const selectedTextEl = document.getElementById("selected-text");
+    const totalPriceEl = document.getElementById("total-price");
+    const waDemiBtn = document.getElementById("wa-demi-btn");
+    const waNaniBtn = document.getElementById("wa-nani-btn");
+    const copyAliasBtn = document.getElementById("copy-alias-btn");
+    const syncStatusEl = document.getElementById("sync-status");
+
+    function formatNum(n) {
+      return n < 10 ? `0${n}` : `${n}`;
+    }
+
+    function normalizeSoldList(raw) {
+      if (!Array.isArray(raw)) return [];
+      return Array.from(
+        new Set(
+          raw
+            .map((n) => Number(n))
+            .filter((n) => Number.isInteger(n) && n >= 1 && n <= TOTAL_NUMEROS)
+        )
+      ).sort((a, b) => a - b);
+    }
+
+    function applySoldNumbers(list) {
+      vendidos = normalizeSoldList(list);
+      localStorage.setItem(STORAGE_SOLD_KEY, JSON.stringify(vendidos));
+      seleccionados = seleccionados.filter((n) => !vendidos.includes(n));
+      renderGrid();
+      if (!panelView.classList.contains("hidden")) {
+        renderAdminGrid();
+      }
+    }
+
+    async function persistSoldNumbers(list) {
+      const clean = normalizeSoldList(list);
+      applySoldNumbers(clean);
+      if (soldRef) {
+        try {
+          await set(soldRef, clean);
+        } catch (err) {
+          syncStatusEl.textContent = "Error al guardar en la nube. Revisá las reglas de Firebase.";
+        }
+      }
+    }
+
+    if (firebaseConfigured && soldRef) {
+      syncStatusEl.textContent = "En vivo: los números ocupados se actualizan para todos.";
+      onValue(soldRef, (snapshot) => {
+        const val = snapshot.val();
+        applySoldNumbers(Array.isArray(val) ? val : []);
+      }, () => {
+        syncStatusEl.textContent = "No se pudo conectar en vivo; mostrando caché local.";
+      });
+
+      onValue(authRef, (snapshot) => {
+        const remoteHash = snapshot.val()?.passwordHash || null;
+        if (remoteHash) {
+          storedPasswordHash = remoteHash;
+          localStorage.setItem(STORAGE_AUTH_HASH_KEY, remoteHash);
+        }
+        refreshLoginHints();
+      });
+    } else {
+      syncStatusEl.textContent = "Modo local activo: configurá FIREBASE_CONFIG para sincronizar con todos.";
+    }
+
+    // ==========================================
+    // GRILLA PÚBLICA Y WHATSAPP
+    // ==========================================
+    function renderGrid() {
+      gridEl.innerHTML = "";
+      let disponibles = 0;
+
+      for (let i = 1; i <= TOTAL_NUMEROS; i++) {
+        const isSold = vendidos.includes(i);
+        const isSelected = seleccionados.includes(i);
+        if (!isSold) disponibles++;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = formatNum(i);
+        btn.disabled = isSold;
+
+        if (isSold) {
+          btn.className = "h-12 rounded-xl font-bold text-sm bg-gray-100 text-gray-400 line-through cursor-not-allowed border border-gray-200";
+          btn.title = "Número ocupado";
+        } else if (isSelected) {
+          btn.className = "h-12 rounded-xl font-bold text-sm bg-caramel text-white shadow-md scale-105 transition-all border border-caramel cursor-pointer";
+        } else {
+          btn.className = "h-12 rounded-xl font-bold text-sm bg-cream text-choco hover:bg-latte border border-cookie/50 transition-all cursor-pointer";
+        }
+
+        btn.addEventListener("click", () => toggleNumber(i));
+        gridEl.appendChild(btn);
+      }
+
+      availableCountEl.textContent = disponibles;
+      updateBar();
+    }
+
+    function toggleNumber(num) {
+      if (vendidos.includes(num)) return;
+      if (seleccionados.includes(num)) {
+        seleccionados = seleccionados.filter((n) => n !== num);
+      } else {
+        seleccionados.push(num);
+        seleccionados.sort((a, b) => a - b);
+      }
+      renderGrid();
+    }
+
+    function setWaBtnState(btn, enabled) {
+      btn.disabled = !enabled;
+      if (enabled) {
+        btn.className = "w-full px-4 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-mint hover:bg-mint/90 text-white shadow-md cursor-pointer";
+      } else {
+        btn.className = "w-full px-4 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 bg-choco/15 text-choco/40 cursor-not-allowed";
+      }
+    }
+
+    function updateBar() {
+      const hasSelection = seleccionados.length > 0;
+      setWaBtnState(waDemiBtn, hasSelection);
+      setWaBtnState(waNaniBtn, hasSelection);
+
+      if (!hasSelection) {
+        selectedTextEl.textContent = "Ningún número seleccionado";
+        totalPriceEl.textContent = "Tocá uno o más números arriba para elegir";
+      } else {
+        const lista = seleccionados.map(formatNum).join(", ");
+        const total = (seleccionados.length * PRECIO_NUMERO).toLocaleString("es-AR");
+        selectedTextEl.textContent = `Elegiste: ${lista}`;
+        totalPriceEl.textContent = `Total: $${total} (${seleccionados.length} ${seleccionados.length === 1 ? "número" : "números"})`;
+      }
+    }
+
+    function openWhatsappFor(phoneNumber, contactName) {
+      if (seleccionados.length === 0) return;
+      const lista = seleccionados.map(formatNum).join(", ");
+      const total = (seleccionados.length * PRECIO_NUMERO).toLocaleString("es-AR");
+      const mensaje =
+        `¡Hola ${contactName}! 🍪 Quiero participar del sorteo de *Nana's Pastelería Casera*.\n\n` +
+        `🎟️ Números elegidos: *${lista}*\n` +
+        `💸 Total: *$${total}*\n` +
+        `🏦 Alias: *${ALIAS_TRANSFERENCIA}* (${TITULAR_TRANSFERENCIA})\n\n` +
+        `Te adjunto el comprobante para que me reserves los números.`;
+      const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    waDemiBtn.addEventListener("click", () => openWhatsappFor(WHATSAPP_DEMI, "Demi"));
+    waNaniBtn.addEventListener("click", () => openWhatsappFor(WHATSAPP_NANI, "Nani"));
+
+    copyAliasBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(ALIAS_TRANSFERENCIA);
+        copyAliasBtn.textContent = "¡Copiado!";
+      } catch (_) {
+        copyAliasBtn.textContent = ALIAS_TRANSFERENCIA;
+      }
+      setTimeout(() => {
+        copyAliasBtn.textContent = "Copiar alias";
+      }, 1600);
+    });
+
+    // ==========================================
+    // ACTIVADOR SECRETO: 13 TOQUES EN LA COOKIE
+    // ==========================================
+    let tapCount = 0;
+    let tapTimer = null;
+    const cookieTrigger = document.getElementById("cookie-secret-trigger");
+    const adminModal = document.getElementById("admin-modal");
+    const loginView = document.getElementById("login-view");
+    const panelView = document.getElementById("panel-view");
+    const modalTitle = document.getElementById("modal-title");
+    const loginHint = document.getElementById("login-hint");
+    const passwordLabel = document.getElementById("password-label");
+    const emailInput = document.getElementById("admin-email");
+    const passwordInput = document.getElementById("admin-password");
+    const loginError = document.getElementById("login-error");
+
+    cookieTrigger.addEventListener("click", () => {
+      tapCount++;
+      clearTimeout(tapTimer);
+
+      if (tapCount >= SECRET_TAPS_REQUIRED) {
+        tapCount = 0;
+        openSecretModal();
+        return;
+      }
+
+      tapTimer = setTimeout(() => {
+        tapCount = 0;
+      }, TAP_TIMEOUT_MS);
+    });
+
+    function refreshLoginHints() {
+      const isFirstSetup = !storedPasswordHash;
+      if (isFirstSetup) {
+        loginHint.textContent = `Primera vez: ingresá ${ADMIN_EMAIL} y elegí la contraseña que vas a usar.`;
+        passwordLabel.textContent = "Creá tu contraseña";
+        passwordInput.setAttribute("autocomplete", "new-password");
+      } else {
+        loginHint.textContent = `Ingresá con ${ADMIN_EMAIL} y tu contraseña.`;
+        passwordLabel.textContent = "Contraseña";
+        passwordInput.setAttribute("autocomplete", "current-password");
+      }
+    }
+
+    function openSecretModal() {
+      loginError.classList.add("hidden");
+      loginError.textContent = "";
+      passwordInput.value = "";
+      adminModal.classList.remove("hidden");
+      adminModal.classList.add("flex");
+
+      if (isAuthenticated) {
+        showPanelView();
+      } else {
+        showLoginView();
+      }
+    }
+
+    function showLoginView() {
+      modalTitle.textContent = "Acceso Administrador";
+      loginView.classList.remove("hidden");
+      panelView.classList.add("hidden");
+      refreshLoginHints();
+      setTimeout(() => emailInput.focus(), 50);
+    }
+
+    function showPanelView() {
+      modalTitle.textContent = "Panel de Números Vendidos";
+      loginView.classList.add("hidden");
+      panelView.classList.remove("hidden");
+      renderAdminGrid();
+    }
+
+    function closeSecretModal() {
+      adminModal.classList.add("hidden");
+      adminModal.classList.remove("flex");
+      passwordInput.value = "";
+    }
+
+    document.getElementById("close-admin").addEventListener("click", closeSecretModal);
+    document.getElementById("save-done-btn").addEventListener("click", closeSecretModal);
+
+    async function sha256Hex(text) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(hashBuffer))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+    }
+
+    loginView.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      loginError.classList.add("hidden");
+
+      const typedEmail = emailInput.value.trim().toLowerCase();
+      const typedPass = passwordInput.value;
+
+      if (typedEmail !== ADMIN_EMAIL.toLowerCase()) {
+        loginError.textContent = "Correo no autorizado. Debe ser cepedademian2005@gmail.com.";
+        loginError.classList.remove("hidden");
+        return;
+      }
+
+      if (!storedPasswordHash && typedPass.length < 4) {
+        loginError.textContent = "Elegí una contraseña de al menos 4 caracteres.";
+        loginError.classList.remove("hidden");
+        return;
+      }
+
+      const candidateHash = await sha256Hex(`${ADMIN_EMAIL.toLowerCase()}:${typedPass}`);
+
+      if (!storedPasswordHash) {
+        storedPasswordHash = candidateHash;
+        localStorage.setItem(STORAGE_AUTH_HASH_KEY, candidateHash);
+        if (authRef) {
+          try {
+            await set(authRef, {
+              email: ADMIN_EMAIL,
+              passwordHash: candidateHash,
+              createdAt: new Date().toISOString()
+            });
+          } catch (_) {
+            // Si las reglas de Firebase aún no permiten escribir en adminAuth, queda guardado local
+          }
+        }
+        isAuthenticated = true;
+        sessionStorage.setItem(STORAGE_SESSION_KEY, "1");
+        showPanelView();
+        return;
+      }
+
+      if (candidateHash !== storedPasswordHash) {
+        loginError.textContent = "Contraseña incorrecta.";
+        loginError.classList.remove("hidden");
+        return;
+      }
+
+      isAuthenticated = true;
+      sessionStorage.setItem(STORAGE_SESSION_KEY, "1");
+      showPanelView();
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      isAuthenticated = false;
+      sessionStorage.removeItem(STORAGE_SESSION_KEY);
+      showLoginView();
+    });
+
+    // ==========================================
+    // GRILLA DEL PANEL ADMIN
+    // ==========================================
+    const adminGrid = document.getElementById("admin-grid");
+
+    function renderAdminGrid() {
+      adminGrid.innerHTML = "";
+      for (let i = 1; i <= TOTAL_NUMEROS; i++) {
+        const isSold = vendidos.includes(i);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = formatNum(i);
+        btn.className = isSold
+          ? "h-10 rounded-lg font-bold text-xs bg-red-600 text-white cursor-pointer"
+          : "h-10 rounded-lg font-bold text-xs bg-cream text-choco border border-cookie/50 hover:bg-latte cursor-pointer";
+
+        btn.addEventListener("click", async () => {
+          const next = isSold
+            ? vendidos.filter((n) => n !== i)
+            : [...vendidos, i];
+          await persistSoldNumbers(next);
+        });
+
+        adminGrid.appendChild(btn);
+      }
+    }
+
+    document.getElementById("clear-all-btn").addEventListener("click", async () => {
+      await persistSoldNumbers([]);
+    });
+
+    renderGrid();
+  </script>
+</body>
+</html>

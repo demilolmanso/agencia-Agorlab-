@@ -337,7 +337,7 @@ const Window = ({ title, children, onClose, width = 720, height = 480, top = 80,
 };
 
 // ============ CONTENIDO DE VENTANAS ============
-const HomeContent = () => (
+const HomeContent = ({ onOpen }) => (
   <div className="p-8">
     <div className="mb-6">
       <div className="text-xs uppercase tracking-widest text-blue-400 mb-2">Propuesta exclusiva</div>
@@ -382,7 +382,7 @@ const HomeContent = () => (
 
     <div className="mt-6 flex gap-3">
       <button className="bg-blue-500 hover:bg-blue-600 px-5 py-2.5 rounded-lg font-medium transition">Agendar demo personalizada</button>
-      <button className="bg-white/10 hover:bg-white/15 px-5 py-2.5 rounded-lg font-medium transition">Ver tiendas de ejemplo</button>
+      <button onClick={() => onOpen && onOpen("Ejemplos")} className="bg-white/10 hover:bg-white/15 px-5 py-2.5 rounded-lg font-medium transition">Ver tiendas de ejemplo</button>
     </div>
   </div>
 );
@@ -506,6 +506,34 @@ const TrashContent = () => (
   </div>
 );
 
+const EXAMPLES = [
+  { n: 1, title: "Ejemplo 1 · Tienda online", desc: "Demo de tienda con catálogo, carrito y checkout, sin comisiones por venta.", url: "https://agorlab.com/shopping", label: "agorlab.com/shopping", gradient: "from-blue-500 to-indigo-600", icon: "ShoppingBag" },
+  { n: 2, title: "Ejemplo 2 · Tienda de indumentaria", desc: "Demo Pro pensada para marcas de ropa: colecciones, talles y colores.", url: "https://agorlab.com/demos/indumentaria/demospro/1/", label: "agorlab.com/demos/indumentaria/demospro/1", gradient: "from-pink-500 to-rose-600", icon: "Shirt" },
+];
+
+const ExamplesContent = () => (
+  <div className="p-6">
+    <h2 className="text-xl font-bold mb-1">🛍️ Tiendas de ejemplo</h2>
+    <p className="text-white/60 text-sm mb-5">Mirá cómo puede quedar tu tienda. Cada ejemplo se abre en una pestaña nueva.</p>
+    <div className="space-y-4">
+      {EXAMPLES.map((e) => (
+        <a key={e.n} href={e.url} target="_blank" rel="noopener noreferrer"
+           className="product-card flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl p-4 no-underline text-white">
+          <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${e.gradient} flex items-center justify-center shrink-0`}>
+            <Icon name={e.icon} size={30} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold">{e.title}</div>
+            <div className="text-sm text-white/60">{e.desc}</div>
+            <div className="text-xs text-blue-300 mt-1 truncate">{e.label}</div>
+          </div>
+          <span className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap">Abrir ejemplo</span>
+        </a>
+      ))}
+    </div>
+  </div>
+);
+
 // ============ APP PRINCIPAL ============
 const App = () => {
   const [openWindows, setOpenWindows] = useState({ Home: true });
@@ -557,6 +585,11 @@ const App = () => {
       gradient: "linear-gradient(135deg, #ec4899, #9d174d)",
     },
     {
+      label: "Ejemplos",
+      icon: <Icon name="Store" size={24} strokeWidth={1.8} />,
+      gradient: "linear-gradient(135deg, #06b6d4, #0e7490)",
+    },
+    {
       label: "Música",
       icon: <Icon name="Music" size={24} strokeWidth={1.8} />,
       gradient: "linear-gradient(135deg, #a855f7, #6b21a8)",
@@ -580,8 +613,14 @@ const App = () => {
     bringToFront(item.label);
   };
 
+  const openExamples = (id) => {
+    setOpenWindows((o) => ({ ...o, [id]: true }));
+    bringToFront(id);
+  };
+
   const windowConfig = {
-    Home: { title: "🏠 Inicio · Tu tienda sin comisiones", content: <HomeContent />, w: 780, h: 540, x: 80, y: 60 },
+    Ejemplos: { title: "🛍️ Tiendas de ejemplo", content: <ExamplesContent />, w: 640, h: 440, x: 220, y: 100 },
+    Home: { title: "🏠 Inicio · Tu tienda sin comisiones", content: <HomeContent onOpen={openExamples} />, w: 780, h: 540, x: 80, y: 60 },
     Pedidos: { title: "🛍️ Pedidos · MailContent", content: <MailContent />, w: 620, h: 480, x: 160, y: 100 },
     Mensajes: { title: "💬 Mensajes de clientes", content: <MailContent />, w: 620, h: 480, x: 200, y: 120 },
     Productos: {

@@ -500,7 +500,7 @@
         }
       });
     } else if (backendMode === "firestore") {
-      syncStatusEl.textContent = "En vivo (Firestore): los números ocupados se actualizan para todos.";
+      syncStatusEl.textContent = "En vivo";
       fsOnSnapshot(fsSoldDoc, (snap) => {
         if (snap.exists()) {
           applySoldNumbers(snap.data()?.numbers || []);

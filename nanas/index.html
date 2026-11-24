@@ -193,32 +193,18 @@
       </div>
 
       <!-- Vista Login -->
-      <form id="login-view" class="space-y-4">
+      <div id="login-view" class="space-y-4">
         <p id="login-hint" class="text-xs text-choco/75 bg-latte/70 p-3 rounded-xl">
-          Ingresá con el correo autorizado y definí tu contraseña la primera vez.
+          Solo la cuenta de Google autorizada puede entrar al panel.
         </p>
-
-        <div>
-          <label for="admin-email" class="block text-xs font-bold text-choco mb-1">Correo electrónico</label>
-          <input id="admin-email" type="email" required autocomplete="username"
-            placeholder="cepedademian2005@gmail.com"
-            class="w-full px-3.5 py-2.5 rounded-xl border border-cookie/50 bg-cream text-sm text-choco focus:outline-none focus:ring-2 focus:ring-caramel" />
-        </div>
-
-        <div>
-          <label id="password-label" for="admin-password" class="block text-xs font-bold text-choco mb-1">Contraseña</label>
-          <input id="admin-password" type="password" required autocomplete="current-password"
-            placeholder="Escribí tu contraseña"
-            class="w-full px-3.5 py-2.5 rounded-xl border border-cookie/50 bg-cream text-sm text-choco focus:outline-none focus:ring-2 focus:ring-caramel" />
-        </div>
 
         <p id="login-error" class="text-xs text-red-600 font-semibold hidden"></p>
 
-        <button id="login-submit" type="submit"
+        <button id="google-login-btn" type="button"
           class="w-full py-3 bg-choco text-cream rounded-xl text-sm font-bold hover:bg-choco/90 transition-colors cursor-pointer">
-          Entrar al panel
+          Entrar con Google
         </button>
-      </form>
+      </div>
 
       <!-- Vista Panel de Números y Fotos -->
       <div id="panel-view" class="hidden space-y-5">
@@ -282,6 +268,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { getDatabase, ref as rtdbRef, onValue as rtdbOnValue, set as rtdbSet } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
     import { getFirestore, doc as fsDoc, onSnapshot as fsOnSnapshot, setDoc as fsSetDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
     // ==========================================
     // CONFIGURACIÓN RÁPIDA
@@ -310,8 +297,11 @@
 
     const STORAGE_SOLD_KEY = "nanas_sorteo_vendidos_v1";
     const STORAGE_PHOTOS_KEY = "nanas_sorteo_fotos_v1";
-    const STORAGE_AUTH_HASH_KEY = "nanas_sorteo_admin_hash_v1";
-    const STORAGE_SESSION_KEY = "nanas_sorteo_admin_auth_v1";
+    // Limpieza del sistema de contraseña anterior (inseguro, ya no se usa)
+    try {
+      localStorage.removeItem("nanas_sorteo_admin_hash_v1");
+      sessionStorage.removeItem("nanas_sorteo_admin_auth_v1");
+    } catch (_) {}
 
     // Lectura segura de la config: si FIREBASE_CONFIG faltara o estuviera incompleta,
     // la página sigue funcionando en modo local en vez de romperse.
@@ -332,26 +322,24 @@
     let backendMode = "local"; // "rtdb" | "firestore" | "local"
     let rtdbSoldRef = null;
     let rtdbPhotosRef = null;
-    let rtdbAuthRef = null;
     let fsSoldDoc = null;
     let fsPhotosDoc = null;
-    let fsAuthDoc = null;
+    let auth = null;
 
     if (hasBaseFirebase) {
       try {
         const app = initializeApp(firebaseCfg);
+        auth = getAuth(app);
         if (hasRtdbUrl) {
           backendMode = "rtdb";
           const db = getDatabase(app);
           rtdbSoldRef = rtdbRef(db, "sorteoCookies/vendidos");
           rtdbPhotosRef = rtdbRef(db, "sorteoCookies/fotos");
-          rtdbAuthRef = rtdbRef(db, "sorteoCookies/adminAuth");
         } else {
           backendMode = "firestore";
           const firestore = getFirestore(app);
           fsSoldDoc = fsDoc(firestore, "sorteoCookies", "vendidos");
           fsPhotosDoc = fsDoc(firestore, "sorteoCookies", "fotos");
-          fsAuthDoc = fsDoc(firestore, "sorteoCookies", "adminAuth");
         }
       } catch (err) {
         console.error("No se pudo iniciar Firebase, se usa modo local:", err);
@@ -365,8 +353,8 @@
     let vendidos = JSON.parse(localStorage.getItem(STORAGE_SOLD_KEY) || "[]");
     let fotos = JSON.parse(localStorage.getItem(STORAGE_PHOTOS_KEY) || "[]");
     let seleccionados = [];
-    let storedPasswordHash = localStorage.getItem(STORAGE_AUTH_HASH_KEY) || null;
-    let isAuthenticated = sessionStorage.getItem(STORAGE_SESSION_KEY) === "1";
+    // El acceso de admin lo decide Firebase Authentication (Google) y se refuerza en las reglas de Firestore.
+    let isAuthenticated = false;
 
     const gridEl = document.getElementById("numbers-grid");
     const availableCountEl = document.getElementById("available-count");
@@ -463,26 +451,6 @@
       }
     }
 
-    async function persistAuthHash(hash) {
-      try {
-        if (backendMode === "rtdb" && rtdbAuthRef) {
-          await rtdbSet(rtdbAuthRef, {
-            email: ADMIN_EMAIL,
-            passwordHash: hash,
-            createdAt: new Date().toISOString()
-          });
-        } else if (backendMode === "firestore" && fsAuthDoc) {
-          await fsSetDoc(fsAuthDoc, {
-            email: ADMIN_EMAIL,
-            passwordHash: hash,
-            createdAt: new Date().toISOString()
-          });
-        }
-      } catch (_) {
-        // Si no se puede escribir remotamente, queda guardado en este navegador
-      }
-    }
-
     if (backendMode === "rtdb") {
       syncStatusEl.textContent = "En vivo (Realtime Database): los números ocupados se actualizan para todos.";
       rtdbOnValue(rtdbSoldRef, (snap) => {
@@ -491,16 +459,8 @@
       rtdbOnValue(rtdbPhotosRef, (snap) => {
         applyPhotosList(Array.isArray(snap.val()) ? snap.val() : []);
       });
-      rtdbOnValue(rtdbAuthRef, (snap) => {
-        const remoteHash = snap.val()?.passwordHash || null;
-        if (remoteHash) {
-          storedPasswordHash = remoteHash;
-          localStorage.setItem(STORAGE_AUTH_HASH_KEY, remoteHash);
-          refreshLoginHints();
-        }
-      });
     } else if (backendMode === "firestore") {
-      syncStatusEl.textContent = "En vivo";
+      syncStatusEl.textContent = "En vivo (Firestore): los números ocupados se actualizan para todos.";
       fsOnSnapshot(fsSoldDoc, (snap) => {
         if (snap.exists()) {
           applySoldNumbers(snap.data()?.numbers || []);
@@ -509,14 +469,6 @@
       fsOnSnapshot(fsPhotosDoc, (snap) => {
         if (snap.exists()) {
           applyPhotosList(snap.data()?.items || []);
-        }
-      });
-      fsOnSnapshot(fsAuthDoc, (snap) => {
-        const remoteHash = snap.exists() ? snap.data()?.passwordHash || null : null;
-        if (remoteHash) {
-          storedPasswordHash = remoteHash;
-          localStorage.setItem(STORAGE_AUTH_HASH_KEY, remoteHash);
-          refreshLoginHints();
         }
       });
     } else {
@@ -684,9 +636,7 @@
     const panelView = document.getElementById("panel-view");
     const modalTitle = document.getElementById("modal-title");
     const loginHint = document.getElementById("login-hint");
-    const passwordLabel = document.getElementById("password-label");
-    const emailInput = document.getElementById("admin-email");
-    const passwordInput = document.getElementById("admin-password");
+    const googleLoginBtn = document.getElementById("google-login-btn");
     const loginError = document.getElementById("login-error");
 
     cookieTrigger.addEventListener("click", () => {
@@ -704,23 +654,9 @@
       }, TAP_TIMEOUT_MS);
     });
 
-    function refreshLoginHints() {
-      const isFirstSetup = !storedPasswordHash;
-      if (isFirstSetup) {
-        loginHint.textContent = `Primera vez: ingresá ${ADMIN_EMAIL} y elegí la contraseña que vas a usar.`;
-        passwordLabel.textContent = "Creá tu contraseña";
-        passwordInput.setAttribute("autocomplete", "new-password");
-      } else {
-        loginHint.textContent = `Ingresá con ${ADMIN_EMAIL} y tu contraseña.`;
-        passwordLabel.textContent = "Contraseña";
-        passwordInput.setAttribute("autocomplete", "current-password");
-      }
-    }
-
     function openSecretModal() {
       loginError.classList.add("hidden");
       loginError.textContent = "";
-      passwordInput.value = "";
       adminModal.classList.remove("hidden");
       adminModal.classList.add("flex");
 
@@ -735,8 +671,6 @@
       modalTitle.textContent = "Acceso Administrador";
       loginView.classList.remove("hidden");
       panelView.classList.add("hidden");
-      refreshLoginHints();
-      setTimeout(() => emailInput.focus(), 50);
     }
 
     function showPanelView() {
@@ -750,66 +684,82 @@
     function closeSecretModal() {
       adminModal.classList.add("hidden");
       adminModal.classList.remove("flex");
-      passwordInput.value = "";
     }
 
     document.getElementById("close-admin").addEventListener("click", closeSecretModal);
     document.getElementById("save-done-btn").addEventListener("click", closeSecretModal);
 
-    async function sha256Hex(text) {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(text);
-      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-      return Array.from(new Uint8Array(hashBuffer))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
+    function showLoginError(msg) {
+      loginError.textContent = msg;
+      loginError.classList.remove("hidden");
     }
 
-    loginView.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    function isAdminUser(user) {
+      return Boolean(
+        user &&
+        user.emailVerified &&
+        (user.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()
+      );
+    }
+
+    googleLoginBtn.addEventListener("click", async () => {
       loginError.classList.add("hidden");
 
-      const typedEmail = emailInput.value.trim().toLowerCase();
-      const typedPass = passwordInput.value;
-
-      if (typedEmail !== ADMIN_EMAIL.toLowerCase()) {
-        loginError.textContent = "Correo no autorizado. Debe ser cepedademian2005@gmail.com.";
-        loginError.classList.remove("hidden");
+      if (!auth) {
+        showLoginError("El panel necesita Firebase configurado para poder iniciar sesión.");
         return;
       }
 
-      if (!storedPasswordHash && typedPass.length < 4) {
-        loginError.textContent = "Elegí una contraseña de al menos 4 caracteres.";
-        loginError.classList.remove("hidden");
-        return;
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ login_hint: ADMIN_EMAIL, prompt: "select_account" });
+
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (err) {
+        if (err && (err.code === "auth/popup-blocked" || err.code === "auth/operation-not-supported-in-this-environment")) {
+          try {
+            await signInWithRedirect(auth, provider);
+            return;
+          } catch (_) {}
+        }
+        if (err && (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request")) return;
+        if (err && err.code === "auth/unauthorized-domain") {
+          showLoginError("Este dominio no está autorizado en Firebase (Authentication > Configuración > Dominios autorizados).");
+          return;
+        }
+        if (err && err.code === "auth/operation-not-allowed") {
+          showLoginError("El acceso con Google no está habilitado en Firebase Authentication.");
+          return;
+        }
+        showLoginError("No se pudo iniciar sesión. Probá de nuevo.");
       }
-
-      const candidateHash = await sha256Hex(`${ADMIN_EMAIL.toLowerCase()}:${typedPass}`);
-
-      if (!storedPasswordHash) {
-        storedPasswordHash = candidateHash;
-        localStorage.setItem(STORAGE_AUTH_HASH_KEY, candidateHash);
-        await persistAuthHash(candidateHash);
-        isAuthenticated = true;
-        sessionStorage.setItem(STORAGE_SESSION_KEY, "1");
-        showPanelView();
-        return;
-      }
-
-      if (candidateHash !== storedPasswordHash) {
-        loginError.textContent = "Contraseña incorrecta.";
-        loginError.classList.remove("hidden");
-        return;
-      }
-
-      isAuthenticated = true;
-      sessionStorage.setItem(STORAGE_SESSION_KEY, "1");
-      showPanelView();
     });
 
-    document.getElementById("logout-btn").addEventListener("click", () => {
+    if (auth) {
+      onAuthStateChanged(auth, async (user) => {
+        if (user && !isAdminUser(user)) {
+          // Cualquier otra cuenta se desloguea y no obtiene acceso
+          isAuthenticated = false;
+          try { await fbSignOut(auth); } catch (_) {}
+          showLoginError("Esa cuenta no está autorizada.");
+          return;
+        }
+
+        isAuthenticated = isAdminUser(user);
+        if (adminModal.classList.contains("hidden")) return;
+        if (isAuthenticated) {
+          showPanelView();
+        } else {
+          showLoginView();
+        }
+      });
+    }
+
+    document.getElementById("logout-btn").addEventListener("click", async () => {
       isAuthenticated = false;
-      sessionStorage.removeItem(STORAGE_SESSION_KEY);
+      if (auth) {
+        try { await fbSignOut(auth); } catch (_) {}
+      }
       showLoginView();
     });
 
